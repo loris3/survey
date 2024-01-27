@@ -1,0 +1,7 @@
+{
+    "events": {
+        "restart": "npm run build"
+      },
+      "ext": "js,html,css",
+      "ignore": ["./public/bundle.js"]
+  }

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="./index.css">
+        
+        <script src="/reload/reload.js"></script>
+        <script src="./bundle.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    </head>
+<body>
+<md-linear-progress class="form-progress" value="0.5"></md-linear-progress>
+
+<md-fab size="small" id="enter-fullscreen" touch-target="none" aria-label="Edit">
+    <md-icon slot="icon">fullscreen</md-icon>
+  </md-fab>
+  <md-fab size="small" id="exit-fullscreen" touch-target="none" aria-label="Edit">
+    <md-icon slot="icon">close_fullscreen</md-icon>
+  </md-fab>
+<div class="form-container">
+    <div class="card">
+        <md-elevation></md-elevation>
+        <p>This is where the prompt will live</p>
+    </div>
+    <div class="card">
+        <md-elevation></md-elevation>
+        <div id="prediction"></div>
+        <md-divider></md-divider>
+        <div class="explanation-container">
+            <div id="explanation"  class="explanation">
+                
+        </div>
+        </div>
+    </div>
+    <div class="card"><md-elevation></md-elevation></div>
+
+  
+</div>
+
+</body>
+
+</html>
