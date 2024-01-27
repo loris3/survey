@@ -6,9 +6,26 @@ import '@material/web/divider/divider.js';
 import '@material/web/progress/linear-progress.js'
 import '@material/web/fab/fab.js'
 import '@material/web/icon/icon.js'
+
+import '@material/web/dialog/dialog.js';
+
+import {MdDialog} from '@material/web/dialog/dialog.js';
+
+
+
+
+
+
+
+
+
+
+
+
+
 // https://stackoverflow.com/questions/2592092/executing-script-elements-inserted-with-innerhtml
 function setInnerHTML(elm, html) {
-    console.log("html", html)
+
     elm.innerHTML = html;
     
     Array.from(elm.querySelectorAll("script"))
@@ -25,6 +42,15 @@ function setInnerHTML(elm, html) {
         oldScriptEl.parentNode.replaceChild(newScriptEl, oldScriptEl);
     });
   }
+function checkMinViewportWidht(){
+    if(screen.availWidth <= 600 && screen.availHeight > screen.availWidth){
+        document.getElementById("dialog-viewport-width-to-low").setAttribute('open','')
+    }else{
+        document.getElementById("dialog-viewport-width-to-low").removeAttribute("open")
+    }
+    
+
+}
 function toggleFullscreen(){
    
     if(document.fullscreenElement !== null){
@@ -58,14 +84,85 @@ document.getElementById('prediction').innerHTML = `<p><b>This is a human written
 <p>The detector correctly predicted that this document was... </p>
 <p>&emsp; ... machine generated with 0 % confidence.</p>
 <p>&emsp; ... human written with 99 % confidence.</p> ` 
+let token = null;
+cookies = document.cookie.split("token=")
+
+if(cookies.length == 2){
+    token = cookies[1]
+    console.log("reusing auth")
+}else{
+        console.log("auth")
+        let response = await fetch("./FQJJYT")
+        token = await response.json();
+        document.cookie = `token=${token}`
+    }
 
 
 
-const response = await fetch("./0d0911b39b0d882b399d09f73a5014af915ac9232e1594659683db49d153b839_Anchor_Explainer_DetectorGuo.html")
-const explanation_html = await response.text();
 
 
-setInnerHTML(document.getElementById('explanation'), explanation_html);
+
+
+
+
+
+
+
+ response = await fetch("./document/2",  {method: 'GET',
+headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+},})
+if(response.status === 404){
+    console.log("Next phase pls")
+}else{
+    if(response.status == 200){
+        console.log("document", await response.json() )
+    }
+    
+}
+
+
+
+// response = await fetch("./completeCurrentPhase",  {method: 'GET',
+// headers: {
+//     'Content-Type': 'application/json',
+//     'Authorization': `Bearer ${token}`
+// },})
+// if(response.status === 200){
+//     console.log("Clear to go to next phase")
+// }
+
+
+
+const url = "./explanation/1c3c9f892ad6b9339c6c9e647691a8fd193d5e7c5379091c5897de7b95383dc4_SHAP_Explainer_DetectorGuo";
+
+response = await fetch(
+    url,
+    {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        // body: JSON.stringify({
+        //     sendSomething,
+        //     sendSomething2,
+        //     sendSomething3
+    }
+        )
+        if(response.status == 200){
+            const explanation_html = await response.text(url);
+            setInnerHTML(document.getElementById('explanation'), explanation_html);
+        }
+        
+
+
+
+
+window.addEventListener("resize", checkMinViewportWidht);
+checkMinViewportWidht();
 
   });
+  
   

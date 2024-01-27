@@ -16,8 +16,22 @@
   <md-fab size="small" id="exit-fullscreen" touch-target="none" aria-label="Edit">
     <md-icon slot="icon">close_fullscreen</md-icon>
   </md-fab>
+  
+  <md-dialog id="dialog-viewport-width-to-low" type="alert">
+    <div slot="headline">Info</div>
+    <form id="form" slot="content" method="dialog">
+      <b>Please rotate your device before continuing.</b> <br/> Your screen size is too small in portrait mode but it's sufficent if you switch to landscape mode.
+      This ensures all participants have a similar experience. 
+    </form>
+    
+  </md-dialog>
+
+
+
+
+
 <div class="form-container">
-    <div class="card">
+    <div class="card" id="prompt">
         <md-elevation></md-elevation>
         <p>This is where the prompt will live</p>
     </div>

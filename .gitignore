@@ -2,3 +2,8 @@
 !index.html
 node_modules
 .vscode
+import
+.env
+db.db
+public/bundle.js
+package-lock.json

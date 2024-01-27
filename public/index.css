@@ -72,8 +72,9 @@
 :root {
     --md-sys-color-primary: olive;
     --md-sys-color-secondary: tomato;
-    --md-ref-typeface-brand: 'Open Sans';
+    --md-ref-typeface-brand: 'Roboto';
     --md-ref-typeface-plain: system-ui;
+    --md-dialog-headline-font: "Roboto";
   }
 
 body {
@@ -134,6 +135,51 @@ body {
 #exit-fullscreen {
     visibility: collapse;
 }
+
+
+
+
+
+
+
+
+
+
+
 .example_div > .lime.raw_text {
     overflow: hidden !important;
+}
+
+
+
+
+/*anchors*/
+/* antd.css was changed to only apply inside .explanation elements */
+.ant-card.ant-card-bordered {
+    padding: 1em;
+}
+
+.lime.explanation_frame > div:nth-child(2) {
+    margin-top: 1em !important;
+}
+.lime.explanation_frame * {
+    font-size: medium !important; /* default browser setting*/
+}
+.ant-btn-group > .ant-btn {
+    margin-right: 0.2em !important;
+    border-radius: 0.3em !important;
+    margin-top: 1em;
+    padding: 0.1em;
+}
+.model_prediction {
+    padding-top: 1em !important;
+}
+.lime.anchor,
+:not(.lime.example_roll) .lime.raw_text {
+    padding-top: 1em !important;
+}
+/*LIME*/
+.lime.top_div *{
+    font-family: 'Roboto' !important;
+    text-align: justify;
 }
