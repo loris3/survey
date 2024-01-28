@@ -82,7 +82,7 @@ body {
     font-family: 'Roboto';
 }
 
-.form-container {
+#card-container {
     
     margin: auto;
     padding: 1em;
@@ -94,21 +94,30 @@ body {
   }
 .explanation{
     width: 100%;
-    
     padding-top: 1em;
+}
+.card,
+#loading-animation,
+.btn-continue-to-phase{
+  position: relative;
 }
 .card {
     background-color: white;
-    padding: 1em;
+    padding: 1.5em;
     background-color: white;
     --md-elevation-level: 3;
 
     border-radius: 16px;
     min-width: 600px;
-    position: relative;
+    
 
 
 
+  }
+
+  #loading-animation{
+    margin-top: 10vh;
+    justify-self: center;
   }
   .form-progress{
     position: fixed;
@@ -136,23 +145,124 @@ body {
     visibility: collapse;
 }
 
+#auth-card{
+  text-align: center;
+}
+#text-field-access-token{
+  margin-top: 0.5em;
+}
+#token-example-token-arrow-group{
+  display: inline-block;
+}
+#token-example-container{
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  font-family: monospace;
+  font-size: larger;
+}
+
+.container-continue-to-phase{
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
 
 
+.container-continue-to-phase{
+  padding-top: 2em;
+}
+#auth-form{
+  justify-content: center;
+  align-items: center;
+}
+#token-arrow{
+  display: block;
+}
 
+#token-example-token{
+  color: var(--md-sys-color-primary);
+  border: 2px solid var(--md-sys-color-primary);
+  border-radius: 5px;
+}
 
+/* Phase 0 */
+/* Phase 1*/
+.ground_truth,
+.wrongly-correctly{
+  font-weight: bold;
+}
+.wrongly-correctly[correctly]{
+  color: green;
+}
+.wrongly-correctly[wrongly]{
+  color: red;
+}
+.detector-p-container{
+  width: fit-content;
+  padding-left: 1em;
+}
+.detector-p-label{
+  float: left;
+  padding-right: 1em;
+}
+.detector-p-machine,
+.detector-p-human{
+  float: right;
+}
 
-
-
-
+.detector-p-machine,
+.detector-p-human,
+.detector-p-label{
+  padding-top: 0.5em;
+}
+.detector-p-human{
+  padding-bottom: 1em;
+}
+.section-detector-output{
+  margin-top: 1em;
+}
+.section-detector-output > span,
+.section-input-document > span {
+  font-weight: bold;
+}
+.section-input-document{
+  padding-top: 1em;
+}
 
 
 .example_div > .lime.raw_text {
     overflow: hidden !important;
 }
 
+.document-only-card-document{
+  text-align: justify;
+}
 
+/* Phase 2 */
+.labeling > div {
+  padding-bottom: 1em;
+}
+.labeling form {
+  justify-content: center;
+  align-content: center;
+  display: flex;
+  padding-top: 1em;
+}
+.labeling form > div{
+  
+  justify-content: center;
+  align-content: center;
+  padding: 1em;
+}
+.labeling form > div *{
+  display: block;
+  margin: auto;
+}
 
-
+.labeling form > div label{
+  font-size: larger;
+}
 /*anchors*/
 /* antd.css was changed to only apply inside .explanation elements */
 .ant-card.ant-card-bordered {
@@ -182,4 +292,10 @@ body {
 .lime.top_div *{
     font-family: 'Roboto' !important;
     text-align: justify;
+}
+.explanation *{
+  font-family: 'Roboto' !important;
+}
+.lime.text_div h3{
+  display: none;
 }

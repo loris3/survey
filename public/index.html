@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <link rel="icon" type="image/x-icon" href="./list-box-outline.svg">
         <link rel="stylesheet" href="./index.css">
         
         <script src="/reload/reload.js"></script>
@@ -8,7 +9,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
     </head>
 <body>
-<md-linear-progress class="form-progress" value="0.5"></md-linear-progress>
+<md-linear-progress class="form-progress" max=100 value=0  buffer="max" id="progress-bar-total"></md-linear-progress>
 
 <md-fab size="small" id="enter-fullscreen" touch-target="none" aria-label="Edit">
     <md-icon slot="icon">fullscreen</md-icon>
@@ -30,26 +31,202 @@
 
 
 
-<div class="form-container">
-    <div class="card" id="prompt">
-        <md-elevation></md-elevation>
-        <p>This is where the prompt will live</p>
-    </div>
-    <div class="card">
-        <md-elevation></md-elevation>
-        <div id="prediction"></div>
-        <md-divider></md-divider>
-        <div class="explanation-container">
-            <div id="explanation"  class="explanation">
-                
-        </div>
-        </div>
-    </div>
-    <div class="card"><md-elevation></md-elevation></div>
-
-  
+<div id="card-container">
+<!--everything in here will be cleared when switching to the next phase-->
 </div>
 
 </body>
+
+<template id="template-auth-card">
+  <div class="card" id="auth-card">
+    <md-elevation></md-elevation>
+    <p>Please enter your access token</p>
+    <div id="token-example-container">
+      <span>survey.loris.fyi/</span>
+      <div id="token-example-token-arrow-group"><span id="token-example-token">TOKEN</span><span id="token-arrow">&darr;</span></div>
+    </div>
+    <form id="auth-form">
+      <md-outlined-text-field label="Token" 
+      required
+      maxlength="6" 
+      minlength="6" 
+      pattern="[A-Z]+" 
+      prefix-text="survey.loris.fyi/"
+      spellcheck="false"
+      autocorrect="off"
+
+      id="text-field-access-token"
+      
+      >
+      
+      </md-outlined-text-field>
+      <div>
+      <p><b>A single cookie will be stored in your browser.</b></p>
+      <p>You can resume this experiment at any time and on any device.</p>
+      <md-filled-tonal-button id="auth-form-submit" disabled="true">
+        Login
+        <md-icon slot="icon">login</md-icon>
+      </md-filled-tonal-button>
+    </div>
+  </form>
+  
+  </div>
+</template>
+
+<template id="template-phase0-instructions-card">
+  <div class="card" id="phase0-instructions-card">
+    <md-elevation></md-elevation>
+    <p>Insert initial instructions for phase 0 here TODO</p>
+    <div id="container-continue-to-phase1">
+      <md-filled-tonal-button id="btn-continue-to-phase1">
+        Start
+        <md-icon slot="icon">arrow_right_alt</md-icon>
+      </md-filled-tonal-button>
+    </div>
+
+  </div>
+</template>
+<template id="template-phase1-complete">
+  <div class="container-continue-to-phase" id="container-continue-to-phase2">
+    <md-filled-tonal-button class="btn-continue-to-phase" id="btn-continue-to-phase2">
+      Continue to Phase 2
+      <md-icon slot="icon">arrow_right_alt</md-icon>
+    </md-filled-tonal-button>
+  </div>
+</template>
+<template id="template-phase2-complete">
+  <div class="container-continue-to-phase" id="container-continue-to-phase3">
+    <md-filled-tonal-button class="btn-continue-to-phase" id="btn-continue-to-phase3">
+      Continue to Phase 3
+      <md-icon slot="icon">arrow_right_alt</md-icon>
+    </md-filled-tonal-button>
+  </div>
+</template>
+<template id="template-phase3-complete">
+  <div class="container-continue-to-phase" id="container-continue-to-phase4">
+    <md-filled-tonal-button class="btn-continue-to-phase" id="btn-continue-to-phase4">
+      Continue to Phase 4
+      <md-icon slot="icon">arrow_right_alt</md-icon>
+    </md-filled-tonal-button>
+  </div>
+</template>
+<template id="template-phase4-complete">
+  <div class="container-continue-to-phase" id="container-continue-to-phase5">
+    <md-filled-tonal-button class="btn-continue-to-phase" id="btn-continue-to-phase5">
+      Complete Experiment
+      <md-icon slot="icon">arrow_right_alt</md-icon>
+    </md-filled-tonal-button>
+  </div>
+</template>
+<template id="template-document-only-card">
+  <div class="card document-only-card">
+    <md-elevation></md-elevation>
+    <span>The following document is <span class="ground_truth">machine generated</span>.</span><br/>
+    <span>The detector <span class="wrongly-correctly">correctly</span> predicted that this document is <span class="ground_truth">machine generated</span>.</span>
+    <div class="section-detector-output">
+      <span>Detector output:</span><br/>
+      <div class="detector-p-container">
+        <span class="detector-p-label">p(machine)</span> <span class="detector-p-machine">=<span class="detector-p-machine-val">10</span>&percnt;</span><br/>
+        <span class="detector-p-label">p(human) </span> <span class="detector-p-human">=<span class="detector-p-human-val">90</span>&percnt;</span>
+      </div>
+    </div>
+    <md-divider></md-divider>
+      <div class="section-input-document">
+        <span>Input document:</span><br/>
+        <p class="document-only-card-document"></p>
+    </div>
+  </div>
+</template>
+
+<template id="template-document-only-card-labeling">
+  <div class="card document-only-card labeling">
+    <md-elevation></md-elevation>
+    <div>
+      <span>Please predict <b>the detectors</b> prediction</span>.</span><br/>
+    </div>
+    
+    <md-divider></md-divider>
+    <div class="section-input-document">
+        <span>Input document:</span><br/>
+        <p class="document-only-card-document"></p>
+    </div>
+    <md-divider></md-divider>
+    <form>
+      <!--Ids replaced in index.js-->
+      <div>
+        <md-icon>robot_2</md-icon>
+        <label for="user-label-document-machine" id="user-label-document-label-machine">Machine</label>
+        <md-radio class="user-label-document-radio" name="user-label-document" id="user-label-document-machine"value="machine" required></md-radio>
+      </div>
+      <div>
+        <md-icon>person</md-icon>
+        <label for="user-label-document-human" id="user-label-document-label-human">Human</label>
+        <md-radio class="user-label-document-radio" name="user-label-document" id="user-label-document-human" value="human" required></md-radio>
+      </div>
+
+    </form>
+  </div>
+</template>
+
+<template id="template-explanation-card">
+  <div class="card explanation-card">
+    <md-elevation></md-elevation>
+    <span>The following document is <span class="ground_truth">machine generated</span>.</span><br/>
+    <span>The detector <span class="wrongly-correctly">correctly</span> predicted that this document is <span class="ground_truth">machine generated</span>.</span>
+    <div class="section-detector-output">
+      <span>Detector output:</span><br/>
+      <div class="detector-p-container">
+        <span class="detector-p-label">p(machine)</span> <span class="detector-p-machine">=<span class="detector-p-machine-val">10</span>&percnt;</span><br/>
+        <span class="detector-p-label">p(human) </span> <span class="detector-p-human">=<span class="detector-p-human-val">90</span>&percnt;</span>
+      </div>
+    </div>
+    <md-divider></md-divider>
+      <div class="section-input-document">
+        <div class="explanation-container">
+          <div class="explanation"></div>
+      </div>
+    </div>
+  </div>
+</template>
+<template id="template-prompt-card">
+  <div class="card" id="prompt-card">
+    <md-elevation></md-elevation>
+    <p>This is where the prompt will live</p>
+
+  </div>
+</template>
+
+<template id="template-alert-token-invalid">
+  <md-dialog id="alert-token-invalid" type="alert">
+    <md-icon slot="icon">warning</md-icon>
+    <div slot="headline">Invalid Token</div>
+    <form id="alert-token-invalid-form" slot="content" method="dialog">
+      <b>Please check your input and retry</b><br/> If your token is not accepted and you haven't completed the experiment yet, please request a new token.
+    </form>
+    <div slot="actions">
+      <md-text-button form="alert-token-invalid-form" id="alert-token-invalid-ok">OK</md-text-button>
+    </div>
+    
+  </md-dialog>
+</template>
+<template id="template-confirm-complete-phase">
+  <md-dialog type="alert" id="confirm-complete-phase">
+    <md-icon slot="icon">info</md-icon>
+    <div slot="headline">Complete this phase?</div>
+    <form slot="content" id="form-id" method="dialog">
+      Are you done with these documents? You won't be able to return.
+    </form>
+    <div slot="actions">
+      <md-filled-button id="confirm-complete-phase-continue">Continue</md-filled-button>
+      <md-filled-tonal-button id="confirm-complete-phase-cancel">Cancel</md-filled-tonal-button>
+    </div>
+  </md-dialog>
+</template>
+
+
+
+<template id="template-loading-animation">
+  <md-circular-progress indeterminate id="loading-animation"</md-circular-progress>
+</template>
 
 </html>

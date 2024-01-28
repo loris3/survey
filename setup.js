@@ -88,15 +88,6 @@ fs.readdirSync(importPath).forEach(file => {
     access_token TEXT NOT NULL UNIQUE,
     current_phase INTEGER NOT NULL DEFAULT 0
   );
-  DROP TABLE IF EXISTS responses;
-  CREATE TABLE responses
-  (
-    ID INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id      INTEGER NOT NULL,
-    FOREIGN KEY (user_id)
-       REFERENCES users (ID)
-  );
-
 `);
 let pastTokens = [];
 function createToken(){
@@ -114,3 +105,37 @@ for(let i = 1; i <=30; i++){
     [createToken()]);
 
 }
+
+db.exec(`
+DROP TABLE IF EXISTS responses_phase_2;
+CREATE TABLE responses_phase_2
+(
+  ID INTEGER PRIMARY KEY AUTOINCREMENT,
+  timestamp TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  label INTEGER NOT NULL,
+  user_id       INTEGER NOT NULL,
+  document_id   INTEGER NOT NULL,
+
+  FOREIGN KEY (user_id)
+     REFERENCES users (ID),
+  
+  FOREIGN KEY (document_id)
+     REFERENCES documents_a (ID)
+);
+
+DROP TABLE IF EXISTS responses_phase_4;
+CREATE TABLE responses_phase_4
+(
+  ID INTEGER PRIMARY KEY AUTOINCREMENT,
+  timestamp TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  label INTEGER NOT NULL,
+  user_id       INTEGER NOT NULL,
+  document_id   INTEGER NOT NULL,
+
+  FOREIGN KEY (user_id)
+     REFERENCES users (ID),
+  
+  FOREIGN KEY (document_id)
+     REFERENCES documents_a (ID)
+);
+`);
