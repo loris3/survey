@@ -162,14 +162,16 @@ body {
   font-size: larger;
 }
 
-.container-continue-to-phase{
+.container-continue-to-phase,
+#container-exit{
   justify-content: center;
   align-items: center;
   display: flex;
 }
 
 
-.container-continue-to-phase{
+.container-continue-to-phase,
+#container-exit{
   padding-top: 2em;
 }
 #auth-form{
@@ -298,4 +300,13 @@ body {
 }
 .lime.text_div h3{
   display: none;
+}
+.go-fullscreen-hint{
+  display: none;
+}
+@media only screen and (max-device-height: 500px) {
+
+    .go-fullscreen-hint{
+      display: block;
+    }
 }

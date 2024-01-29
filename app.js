@@ -47,10 +47,12 @@ app.listen(port, () => {
 function authMiddlewarePhase(req, res, next, phase) { // https://www.digitalocean.com/community/tutorials/nodejs-jwt-expressjs
     const authHeader = req.headers['authorization']
     const token = authHeader && authHeader.split(' ')[1]
-    if (token == null){
+    if (token == null || token == "null"){
         console.log("no token provided")
-        return res.sendStatus(401)
+         res.sendStatus(403)
+         return
     }
+    console.log("token",token)
     jwt.verify(token, process.env.TOKEN_SECRET, (err, data) => {
       if (err){
         console.log("auth err", err)
@@ -72,9 +74,11 @@ function authMiddlewarePhase(req, res, next, phase) { // https://www.digitalocea
 function authMiddleware(req, res, next) { // https://www.digitalocean.com/community/tutorials/nodejs-jwt-expressjs
   const authHeader = req.headers['authorization']
   const token = authHeader && authHeader.split(' ')[1]
-  if (token == null){
+  console.log("token", token)
+  if (token == null || token == "null"){
       console.log("no token provided")
-      return res.sendStatus(401)
+      res.sendStatus(403)
+      return 
   }
   jwt.verify(token, process.env.TOKEN_SECRET, (err, data) => {
     if (err){
@@ -103,7 +107,7 @@ app.get("/completeCurrentPhase", authMiddleware, (req,res)=>{
 
 // phase 1
 app.get("/documentPhase1/:documentNr", (req,res, next) => {authMiddlewarePhase(req,res, next, 1)} ,(req,res)=>{
-    db.get("SELECT * FROM documents_a WHERE ID=?", [req.params.documentNr],(err, row) =>{
+    db.get("SELECT * FROM documents_a WHERE document_nr=? and detector = (SELECT detector FROM users WHERE access_token=?) and explainer = (SELECT explainer FROM users WHERE access_token=?)", [req.params.documentNr, req.access_token, req.access_token],(err, row) =>{
         if (err) return res.sendStatus(500);    
         console.log(row)
         if(row == undefined){
@@ -115,7 +119,7 @@ app.get("/documentPhase1/:documentNr", (req,res, next) => {authMiddlewarePhase(r
 })
 // phase 2
 app.get("/documentPhase2/:documentNr", (req,res, next) => {authMiddlewarePhase(req,res, next, 2)} ,(req,res)=>{
-  db.get("SELECT * FROM documents_b WHERE ID=?", [req.params.documentNr],(err, row) =>{
+  db.get("SELECT * FROM documents_b WHERE document_nr=? and detector = (SELECT detector FROM users WHERE access_token=?) and explainer = (SELECT explainer FROM users WHERE access_token=?)", [req.params.documentNr, req.access_token, req.access_token],(err, row) =>{
       if (err) return res.sendStatus(500);    
       console.log(row)
       if(row == undefined){
@@ -129,7 +133,7 @@ app.post("/submitPhase2", (req,res, next) => {authMiddlewarePhase(req,res, next,
   console.log(req.body)
 
   db.run(
-    `INSERT INTO responses_phase_2 (user_id, document_id, label) VALUES((SELECT ID FROM users WHERE access_token = ?),?,?);`,
+    `INSERT INTO responses_phase_2 (user_id, document_nr, label) VALUES((SELECT ID FROM users WHERE access_token = ?),?,?);`,
     [req.access_token, req.body.ID, req.body.label],
     (error) => {
       if (error) {
@@ -145,7 +149,7 @@ app.post("/submitPhase2", (req,res, next) => {authMiddlewarePhase(req,res, next,
 })
 // phase 3: now with explanations: this is not redundant with phase1
 app.get("/documentPhase3/:documentNr", (req,res, next) => {authMiddlewarePhase(req,res, next, 3)} ,(req,res)=>{
-  db.get("SELECT * FROM documents_a WHERE ID=?", [req.params.documentNr],(err, row) =>{
+  db.get("SELECT * FROM documents_a WHERE document_nr=? and detector = (SELECT detector FROM users WHERE access_token=?) and explainer = (SELECT explainer FROM users WHERE access_token=?)", [req.params.documentNr, req.access_token, req.access_token],(err, row) =>{
       if (err) return res.sendStatus(500);    
       console.log(row)
       if(row == undefined){
@@ -162,7 +166,7 @@ app.get("/explanation/:explanation_filename", (req,res, next) => {authMiddleware
 
 // phase 4: just as phase 2, just writes to another table
 app.get("/documentPhase4/:documentNr", (req,res, next) => {authMiddlewarePhase(req,res, next, 4)} ,(req,res)=>{
-  db.get("SELECT * FROM documents_b WHERE ID=?", [req.params.documentNr],(err, row) =>{
+  db.get("SELECT * FROM documents_b WHERE document_nr=? and detector = (SELECT detector FROM users WHERE access_token=?) and explainer = (SELECT explainer FROM users WHERE access_token=?)", [req.params.documentNr, req.access_token, req.access_token],(err, row) =>{
       if (err) return res.sendStatus(500);    
       console.log(row)
       if(row == undefined){
@@ -176,7 +180,7 @@ app.post("/submitPhase4", (req,res, next) => {authMiddlewarePhase(req,res, next,
   console.log(req.body)
 
   db.run(
-    `INSERT INTO responses_phase_4 (user_id, document_id, label) VALUES((SELECT ID FROM users WHERE access_token = ?),?,?);`,
+    `INSERT INTO responses_phase_4 (user_id, document_nr, label) VALUES((SELECT ID FROM users WHERE access_token = ?),?,?);`,
     [req.access_token, req.body.ID, req.body.label],
     (error) => {
       if (error) {
@@ -209,7 +213,7 @@ app.get("/getPhase4", (req,res, next) => {authMiddlewarePhase(req,res, next, 4)}
   console.log(req.body)
 
   db.all(
-    `SELECT label, document_id, max(timestamp) FROM responses_phase_4 INNER JOIN users WHERE access_token = ? group by document_id;`,
+    `SELECT label, document_nr, max(timestamp) FROM responses_phase_4 WHERE user_id = (SELECT ID FROM users WHERE access_token = ?) group by document_nr`,
     [req.access_token],
     (error, rows) => {
       if (error) {
@@ -227,7 +231,7 @@ app.get("/getPhase2", (req,res, next) => {authMiddlewarePhase(req,res, next, 2)}
   console.log(req.body)
 
   db.all(
-    `SELECT label, document_id, max(timestamp) FROM responses_phase_2 INNER JOIN users WHERE access_token = ? group by document_id;`,
+    `SELECT label, document_nr, max(timestamp) FROM responses_phase_2 WHERE user_id = (SELECT ID FROM users WHERE access_token = ?) group by document_nr;`,
     [req.access_token],
     (error, rows) => {
       if (error) {
@@ -242,17 +246,17 @@ app.get("/getPhase2", (req,res, next) => {authMiddlewarePhase(req,res, next, 2)}
 
 })
 
-app.get("/numDocuments", authMiddleware,(req,res)=>{
-  db.get("SELECT COUNT(documents_a.ID) FROM documents_a",(err, row) =>{
-      if (err) return res.sendStatus(500);    
-      console.log(row)
-      if(row == undefined){
-          res.sendStatus(404);
-          return
-      }  
-      res.json(row['COUNT(documents_a.ID)'])
-  })
-})
+// app.get("/numDocuments", authMiddleware,(req,res)=>{
+//   db.get("SELECT COUNT(documents_a.ID) FROM documents_a",(err, row) =>{
+//       if (err) return res.sendStatus(500);    
+//       console.log(row)
+//       if(row == undefined){
+//           res.sendStatus(404);
+//           return
+//       }  
+//       res.json(row['COUNT(documents_a.ID)'])
+//   })
+// })
 
 app.get("/:access_token", (req,res)=>{
   db.get("SELECT EXISTS (SELECT 1 FROM users WHERE access_token=? AND current_phase <= 4)", [req.params.access_token],(err, row) =>{

@@ -99,12 +99,11 @@ async function nextPhase(expectedPhase){
 }
 
 async function performAuth(access_token){
-    console.log("auth")
+
     let response = await fetch("./"+access_token);
     if(response.status == 200){
         token = await response.json();
-        console.log(token)
-        document.cookie = `token=${token}`
+        document.cookie = `token=${token}; Max-Age=31536000`
         document.querySelector("#auth-card").remove()
         loadPhase();
     }else{
@@ -122,7 +121,7 @@ async function loadAuthCard(){
     const template = document.querySelector("#template-auth-card");
     const node = template.content.cloneNode(true);
     document.querySelector("#card-container").appendChild(node);
-
+    updateProgressBar();
     const form = document.querySelector("#auth-form");
     const submitBtn = document.querySelector("#auth-form-submit");
     submitBtn.addEventListener("click", (event) => {
@@ -142,30 +141,25 @@ async function loadAuthCard(){
     });
 
     tokenTextField.addEventListener("input", (event)=>{
-        console.log(event)
         event.target.value = event.target.value.toUpperCase()
         if(event.target.value.length > 0 && !/^[A-Z]+$/.test(event.target.value)){
             event.target.setCustomValidity("There are only letters from A-Z in your token");           
             submitBtn.setAttribute("disabled", "true");
             
         }else{
-            console.log("elese")
             event.target.setCustomValidity('');
             if(formIsValid(event)){
-                console.log("enable")
+          
                 submitBtn.removeAttribute("disabled");
-            }else{
-                console.log("!fgd")
             }
         }
         event.target.reportValidity();
-        console.log(event.target.validity.valid)
         
         
         
         
     })
-    clearLoadingAnimation()
+
 }
 let token = null;
 async function init(e) {
@@ -176,16 +170,8 @@ async function init(e) {
    // document.getElementById('explanation').innerHTML = "<p>loris</p>";
    
 
-    
-    cookies = document.cookie.split("token=")
-
-    if(cookies.length == 2){
-        token = cookies[1]
-        loadPhase();
-    }else{
-            loadAuthCard();
-        }
-
+    loadPhase();
+ 
 
 
 window.addEventListener("resize", checkMinViewportWidht);
@@ -196,39 +182,44 @@ window.addEventListener("scroll", updateProgressBar);
   }
 
 function updateProgressBar(){
-    let total_progress = 0;
-    if(current_phase >= 0){
-        total_progress = (current_phase - 1) * 25;
-    }
-    let progress_current_phase = 25 * Math.ceil(document.documentElement.scrollTop)/(document.documentElement.scrollHeight - document.documentElement.clientHeight);
-    total_progress += progress_current_phase
-    document.querySelector("#progress-bar-total").setAttribute("value", Math.min(100,total_progress))
 
+        document.querySelector("#progress-bar").removeAttribute("indeterminate")
+        let total_progress = 0;
+        if(current_phase >= 0){
+            total_progress = (current_phase - 1) * 25;
+        }
+        let progress_current_phase = 25 * Math.ceil(document.documentElement.scrollTop)/(document.documentElement.scrollHeight - document.documentElement.clientHeight);
+        total_progress += progress_current_phase
+        document.querySelector("#progress-bar").setAttribute("value", Math.min(100,total_progress))
+    
 }
   async function clearCardContainerAndDisplayLoadingAnimation(){
+    document.querySelector("#progress-bar").setAttribute("indeterminate", "")
     const cardContainer = document.querySelector("#card-container");
     cardContainer.replaceChildren();
 
-    const template = document.querySelector("#template-loading-animation");
-    const node = template.content.cloneNode(true);
-    cardContainer.appendChild(node);
+    
 
-}
-async function clearLoadingAnimation(){
-    const loadingAnimation = document.querySelector("#loading-animation");
-    if(loadingAnimation){
-        loadingAnimation.remove();
-    }
 }
 
 
 let current_phase = 0;
 async function loadPhase(){
-    
+    document.querySelector("#progress-bar").setAttribute("indeterminate", "")
+
+
+    cookies = document.cookie.split("token=")
+
+    if(cookies.length == 2 && cookies[1].length > 0){
+        token = cookies[1];
+    }
     response = await fetch("./currentPhase",  {method: 'GET',  headers: getHeaders()})
     if(response.status != 200){
         if(response.status == 403){ // not authorized, delete cookie, then "reload"
-            document.cookie = ""
+            if(document.cookie.length > 0){
+                console.log("Clearing cookie")
+                document.cookie = "token=; Max-Age=0'"
+            }
             clearCardContainerAndDisplayLoadingAnimation();
             loadAuthCard();
             return
@@ -237,7 +228,6 @@ async function loadPhase(){
     }
     current_phase = await response.json();
     
-    console.log("current_phase",current_phase)
     switch(current_phase){
         case 0:
             await loadPhase0();
@@ -255,10 +245,10 @@ async function loadPhase(){
             await loadPhase4();
             break;
         case 5:
-            console.log("phase 5");
+            await loadPhase5();
             break;
     }
-    clearLoadingAnimation();
+ 
     updateProgressBar();
 
 }
@@ -271,10 +261,24 @@ async function loadPhase0(){
         nextPhase(1);
     })
 }
+async function loadPhase5(){
+    const template = document.querySelector("#template-phase5-card");
+    const node = template.content.cloneNode(true);
+    document.querySelector("#card-container").appendChild(node);
 
+    document.querySelector("#btn-exit").addEventListener("click", (event) => {
+        console.log("Clearing cookie")
+        document.cookie = "token=; Max-Age=0'"
+        clearCardContainerAndDisplayLoadingAnimation();
+        loadAuthCard();
+    })
+}
 async function loadPhase1(){
+    const template_instructions = document.querySelector("#template-phase1-instructions-card");
+    const node_instructions = template_instructions.content.cloneNode(true);
+    document.querySelector("#card-container").appendChild(node_instructions);
 
-    let documentNr = 1; // incremental counter only used to fetch(); use doc.ID once fetched!
+    let documentNr = 0; // incremental counter only used to fetch(); use doc.document_nr once fetched!
     while(true){ // load all documents until 404
         let response = await fetch("./documentPhase1/"+documentNr,  {method: 'GET',  headers: getHeaders()})
         
@@ -308,17 +312,7 @@ async function loadPhase1(){
     const template = document.querySelector("#template-phase1-complete");
     const node = template.content.cloneNode(true);
     node.querySelector("#btn-continue-to-phase2").addEventListener("click", (event)=>{
-        const template = document.querySelector("#template-confirm-complete-phase");
-        const node = template.content.cloneNode(true);
-        document.querySelector("body").appendChild(node);
-
-        document.querySelector("#confirm-complete-phase-continue").addEventListener("click", ()=>{
-            nextPhase(2);
-            document.querySelector("#confirm-complete-phase").removeAttribute('open')
-
-        });
-        document.querySelector("#confirm-complete-phase-cancel").addEventListener("click", ()=>{document.querySelector("#confirm-complete-phase").removeAttribute('open')});
-        document.querySelector("#confirm-complete-phase").setAttribute('open','')
+        showConfirmDialog(2)
         
     });
     document.querySelector("#card-container").appendChild(node);
@@ -342,12 +336,11 @@ async function restorePhase(phase){
 
     const oldState = await response.json()
     oldState.forEach((row)=>{
-        console.log("#user-label-document-machine-" + row.document_id)
-        console.log(row)
+
         if(row.label == 0){
-            document.querySelector("#user-label-document-machine-" + row.document_id).checked = true; 
+            document.querySelector("#user-label-document-machine-" + row.document_nr).checked = true; 
         }else{
-            document.querySelector("#user-label-document-human-" + row.document_id).checked = true;
+            document.querySelector("#user-label-document-human-" + row.document_nr).checked = true;
         }
         
         
@@ -355,8 +348,10 @@ async function restorePhase(phase){
 
 }
 async function loadPhase2(){
-
-    let documentNr = 1; // incremental counter only used to fetch(); use doc.ID once fetched!
+    const template_instructions = document.querySelector("#template-phase2-instructions-card");
+    const node_instructions = template_instructions.content.cloneNode(true);
+    document.querySelector("#card-container").appendChild(node_instructions);
+    let documentNr = 0; // incremental counter only used to fetch(); use doc.document_nr once fetched!
     while(true){ // load all documents until 404
         let response = await fetch("./documentPhase2/"+documentNr,  {method: 'GET',  headers: getHeaders()})
         if(response.status == 200){
@@ -365,22 +360,22 @@ async function loadPhase2(){
             const node = template.content.cloneNode(true);
             node.querySelector(".document-only-card-document").innerHTML = doc.document
     
-            node.querySelector("form").addEventListener("change", submitResponse_(doc.ID, 2))
-            node.querySelector("form").id="user-label-document-form-" + doc.ID
+            node.querySelector("form").addEventListener("change", submitResponse_(doc.document_nr, 2))
+            node.querySelector("form").id="user-label-document-form-" + doc.document_nr
             
             
             // replace ids for the individual forms
-            node.querySelector("#user-label-document-machine").setAttribute("name", "user-label-document-"+doc.ID)
-            node.querySelector("#user-label-document-human").setAttribute("name", "user-label-document-"+doc.ID)
+            node.querySelector("#user-label-document-machine").setAttribute("name", "user-label-document-"+doc.document_nr)
+            node.querySelector("#user-label-document-human").setAttribute("name", "user-label-document-"+doc.document_nr)
 
-            node.querySelector("#user-label-document-machine").id = "user-label-document-machine-"+doc.ID;
-            node.querySelector("#user-label-document-human").id = "user-label-document-human-"+doc.ID;
+            node.querySelector("#user-label-document-machine").id = "user-label-document-machine-"+doc.document_nr;
+            node.querySelector("#user-label-document-human").id = "user-label-document-human-"+doc.document_nr;
 
-            node.querySelector("#user-label-document-label-machine").setAttribute("for", "user-label-document-machine-"+doc.ID)
-            node.querySelector("#user-label-document-label-human").setAttribute("for", "user-label-document-human-"+doc.ID)
+            node.querySelector("#user-label-document-label-machine").setAttribute("for", "user-label-document-machine-"+doc.document_nr)
+            node.querySelector("#user-label-document-label-human").setAttribute("for", "user-label-document-human-"+doc.document_nr)
            
-            node.querySelector("#user-label-document-label-machine").id = "#user-label-document-label-machine-" +doc.ID
-            node.querySelector("#user-label-document-label-human").id = "#user-label-document-label-human-" +doc.ID
+            node.querySelector("#user-label-document-label-machine").id = "#user-label-document-label-machine-" +doc.document_nr
+            node.querySelector("#user-label-document-label-human").id = "#user-label-document-label-human-" +doc.document_nr
             document.querySelector("#card-container").appendChild(node);
            
             
@@ -403,18 +398,7 @@ async function loadPhase2(){
             return elem.reportValidity() && acc;
         }, true)
         if(all_valid){
-            const template = document.querySelector("#template-confirm-complete-phase");
-            const node = template.content.cloneNode(true);
-            
-    
-            node.querySelector("#confirm-complete-phase-continue").addEventListener("click", ()=>{
-                nextPhase(3);
-                document.querySelector("#confirm-complete-phase").removeAttribute('open') // TODO check again
-    
-            });
-            document.querySelector("#confirm-complete-phase-cancel").addEventListener("click", ()=>{document.querySelector("#confirm-complete-phase").removeAttribute('open')});
-            node.querySelector("#confirm-complete-phase").setAttribute('open','')
-            document.querySelector("body").appendChild(node);
+            showConfirmDialog(3)
         }
         
         
@@ -425,8 +409,19 @@ async function loadPhase2(){
 }
 // just like loadPhase1 but now with explanations
 async function loadPhase3(){
+    const template_instructions = document.querySelector("#template-phase3-instructions-card");
+    const node_instructions = template_instructions.content.cloneNode(true);
+    document.querySelector("#card-container").appendChild(node_instructions);
 
-    let documentNr = 1; // incremental counter only used to fetch(); use doc.ID once fetched!
+    // load explanation method specific prompt
+    let template_instructions_explanation_method = null;
+    template_instructions_explanation_method  = document.querySelector("#template-phase3-instructions-shap");
+
+
+    const node_instructions_explanation_method = template_instructions_explanation_method.content.cloneNode(true);
+    document.querySelector("#phase3-instructions-card > #explanation-method-specific-instructions-container").appendChild(node_instructions_explanation_method);
+
+    let documentNr = 0; // incremental counter only used to fetch(); use doc.document_nr once fetched!
     while(true){ // load all documents until 404
         let response = await fetch("./documentPhase3/"+documentNr,  {method: 'GET',  headers: getHeaders()})
         
@@ -469,27 +464,33 @@ async function loadPhase3(){
     const template = document.querySelector("#template-phase3-complete");
     const node = template.content.cloneNode(true);
     node.querySelector("#btn-continue-to-phase4").addEventListener("click", (event)=>{
-        const template = document.querySelector("#template-confirm-complete-phase");
-        const node = template.content.cloneNode(true);
-        document.querySelector("body").appendChild(node);
-
-        document.querySelector("#confirm-complete-phase-continue").addEventListener("click", ()=>{
-            nextPhase(4);
-            document.querySelector("#confirm-complete-phase").removeAttribute('open')
-
-        });
-        document.querySelector("#confirm-complete-phase-cancel").addEventListener("click", ()=>{document.querySelector("#confirm-complete-phase").removeAttribute('open')});
-        document.querySelector("#confirm-complete-phase").setAttribute('open','')
+        showConfirmDialog(4)
         
     });
     document.querySelector("#card-container").appendChild(node);
     
 
 }
+async function showConfirmDialog(next){
+    if(document.querySelector("confirm-complete-phase") != null){
+        document.querySelector("confirm-complete-phase").remove();
+    }
+    const template = document.querySelector("#template-confirm-complete-phase");
+    const node = template.content.cloneNode(true);
+    document.querySelector("body").appendChild(node);
 
+    document.querySelector("#confirm-complete-phase-continue").removeev
+    document.querySelector("#confirm-complete-phase-continue").addEventListener("click", ()=>{
+        nextPhase(next);
+        document.querySelector("#confirm-complete-phase").removeAttribute('open')
+
+    });
+    document.querySelector("#confirm-complete-phase-cancel").addEventListener("click", ()=>{document.querySelector("#confirm-complete-phase").removeAttribute('open')});
+    document.querySelector("#confirm-complete-phase").setAttribute('open','')
+}
 async function loadPhase4(){ // identical to phase 2 save for the prompt
 
-    let documentNr = 1; // incremental counter only used to fetch(); use doc.ID once fetched!
+    let documentNr = 0; // incremental counter only used to fetch(); use doc.document_nr once fetched!
     while(true){ // load all documents until 404
         let response = await fetch("./documentPhase4/"+documentNr,  {method: 'GET',  headers: getHeaders()})
         if(response.status == 200){
@@ -498,22 +499,22 @@ async function loadPhase4(){ // identical to phase 2 save for the prompt
             const node = template.content.cloneNode(true);
             node.querySelector(".document-only-card-document").innerHTML = doc.document
     
-            node.querySelector("form").addEventListener("change", submitResponse_(doc.ID, 4))
-            node.querySelector("form").id="user-label-document-form-" + doc.ID
+            node.querySelector("form").addEventListener("change", submitResponse_(doc.document_nr, 4))
+            node.querySelector("form").id="user-label-document-form-" + doc.document_nr
             
             
             // replace ids for the individual forms
-            node.querySelector("#user-label-document-machine").setAttribute("name", "user-label-document-"+doc.ID)
-            node.querySelector("#user-label-document-human").setAttribute("name", "user-label-document-"+doc.ID)
+            node.querySelector("#user-label-document-machine").setAttribute("name", "user-label-document-"+doc.document_nr)
+            node.querySelector("#user-label-document-human").setAttribute("name", "user-label-document-"+doc.document_nr)
 
-            node.querySelector("#user-label-document-machine").id = "user-label-document-machine-"+doc.ID;
-            node.querySelector("#user-label-document-human").id = "user-label-document-human-"+doc.ID;
+            node.querySelector("#user-label-document-machine").id = "user-label-document-machine-"+doc.document_nr;
+            node.querySelector("#user-label-document-human").id = "user-label-document-human-"+doc.document_nr;
 
-            node.querySelector("#user-label-document-label-machine").setAttribute("for", "user-label-document-machine-"+doc.ID)
-            node.querySelector("#user-label-document-label-human").setAttribute("for", "user-label-document-human-"+doc.ID)
+            node.querySelector("#user-label-document-label-machine").setAttribute("for", "user-label-document-machine-"+doc.document_nr)
+            node.querySelector("#user-label-document-label-human").setAttribute("for", "user-label-document-human-"+doc.document_nr)
            
-            node.querySelector("#user-label-document-label-machine").id = "#user-label-document-label-machine-" +doc.ID
-            node.querySelector("#user-label-document-label-human").id = "#user-label-document-label-human-" +doc.ID
+            node.querySelector("#user-label-document-label-machine").id = "#user-label-document-label-machine-" +doc.document_nr
+            node.querySelector("#user-label-document-label-human").id = "#user-label-document-label-human-" +doc.document_nr
             document.querySelector("#card-container").appendChild(node);
            
             
@@ -536,18 +537,7 @@ async function loadPhase4(){ // identical to phase 2 save for the prompt
             return elem.reportValidity() && acc;
         }, true)
         if(all_valid){
-            const template = document.querySelector("#template-confirm-complete-phase");
-            const node = template.content.cloneNode(true);
-            
-    
-            node.querySelector("#confirm-complete-phase-continue").addEventListener("click", ()=>{
-                nextPhase(5);
-                document.querySelector("#confirm-complete-phase").removeAttribute('open') // TODO check again
-    
-            });
-            node.querySelector("#confirm-complete-phase-cancel").addEventListener("click", ()=>{document.querySelector("#confirm-complete-phase").removeAttribute('open')});
-            node.querySelector("#confirm-complete-phase").setAttribute('open','')
-            document.querySelector("body").appendChild(node);
+            showConfirmDialog(5)
         }
         
         

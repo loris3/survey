@@ -24,6 +24,7 @@ const db = new sqlite3.Database(db_path, (error) => {
   CREATE TABLE documents_a
   (
     ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    document_nr         INTEGER NOT NULL,
     detector            VARCHAR(50) NOT NULL,
     explainer           VARCHAR(50) NOT NULL,
     ground_truth        INTEGER NOT NULL,
@@ -37,6 +38,7 @@ const db = new sqlite3.Database(db_path, (error) => {
   CREATE TABLE documents_b
   (
     ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    document_nr         INTEGER NOT NULL,
     detector            VARCHAR(50) NOT NULL,
     explainer           VARCHAR(50) NOT NULL,
     document            TEXT NOT NULL
@@ -53,8 +55,9 @@ fs.readdirSync(importPath).forEach(file => {
         if(explanationData?.explanation_filename){
             // set a
             db.run(
-                `INSERT INTO documents_a (detector, explainer, ground_truth, detector_label, detector_p_machine, detector_p_human, document, explanation_filename) VALUES (?, ?, ?,?,?,?,?,?)`,
+                `INSERT INTO documents_a (document_nr, detector, explainer, ground_truth, detector_label, detector_p_machine, detector_p_human, document, explanation_filename) VALUES (?,?, ?, ?,?,?,?,?,?)`,
                 [
+                    explanationData.document_nr,
                     explanationData.detector,
                     explanationData.explainer,
                     explanationData?.ground_truth,
@@ -67,8 +70,9 @@ fs.readdirSync(importPath).forEach(file => {
                 ]);
         }else{
             db.run(
-                `INSERT INTO documents_b (detector, explainer, document) VALUES (?, ?, ?)`,
+                `INSERT INTO documents_b (document_nr, detector, explainer, document) VALUES (?, ?, ?, ?)`,
                 [
+                    explanationData.document_nr,
                     explanationData.detector,
                     explanationData.explainer,
                     explanationData.document,
@@ -86,7 +90,9 @@ fs.readdirSync(importPath).forEach(file => {
   (
     ID INTEGER PRIMARY KEY AUTOINCREMENT,
     access_token TEXT NOT NULL UNIQUE,
-    current_phase INTEGER NOT NULL DEFAULT 0
+    current_phase INTEGER NOT NULL DEFAULT 0,
+    detector TEXT NOT NULL,
+    explainer TEXT NOT NULL
   );
 `);
 let pastTokens = [];
@@ -99,12 +105,18 @@ function createToken(){
   return token 
 }
 // create users
-for(let i = 1; i <=30; i++){
-  db.run(
-    `INSERT INTO users (access_token) VALUES (?)`,
-    [createToken()]);
+explainers = ["SHAP_Explainer", "LIME_Explainer", "Anchor_Explainer"]
+detectors = ["DetectorGuo", "DetectorRadford", "DetectorDetectGPT"]
 
-}
+explainers.forEach(explainer => {
+  detectors.forEach(detector =>{
+    for(let i = 1; i <= 3; i++){
+      db.run(`INSERT INTO users (access_token, detector, explainer) VALUES (?,?,?)`,[createToken(), detector, explainer]);
+    }
+    
+  });
+});
+db.run(`INSERT INTO users (access_token, detector, explainer) VALUES (?,?,?)`,["DEBUG","DetectorRadford", "SHAP_Explainer", ]);
 
 db.exec(`
 DROP TABLE IF EXISTS responses_phase_2;
@@ -114,13 +126,13 @@ CREATE TABLE responses_phase_2
   timestamp TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   label INTEGER NOT NULL,
   user_id       INTEGER NOT NULL,
-  document_id   INTEGER NOT NULL,
+  document_nr   INTEGER NOT NULL,
 
   FOREIGN KEY (user_id)
      REFERENCES users (ID),
   
-  FOREIGN KEY (document_id)
-     REFERENCES documents_a (ID)
+  FOREIGN KEY (document_nr)
+     REFERENCES documents_a (document_nr)
 );
 
 DROP TABLE IF EXISTS responses_phase_4;
@@ -130,12 +142,12 @@ CREATE TABLE responses_phase_4
   timestamp TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   label INTEGER NOT NULL,
   user_id       INTEGER NOT NULL,
-  document_id   INTEGER NOT NULL,
+  document_nr   INTEGER NOT NULL,
 
   FOREIGN KEY (user_id)
      REFERENCES users (ID),
   
-  FOREIGN KEY (document_id)
-     REFERENCES documents_a (ID)
+  FOREIGN KEY (document_nr)
+     REFERENCES documents_a (document_nr)
 );
 `);
