@@ -1,5 +1,6 @@
 import '@material/web/button/filled-button.js';
 import '@material/web/button/outlined-button.js';
+import '@material/web/iconbutton/icon-button.js';
 import '@material/web/checkbox/checkbox.js';
 import '@material/web/textfield/outlined-text-field.js';
 import '@material/web/divider/divider.js';
@@ -87,11 +88,18 @@ async function nextPhase(expectedPhase){
     if(current_phase == expectedPhase -1 ){ // handle spamming button / multiple dialogs open
         current_phase +=1;
         clearCardContainerAndDisplayLoadingAnimation();
-        response = await fetch("./completeCurrentPhase",  {method: 'GET',  headers: getHeaders()})
-            if(response.status == 200){
-                clearCardContainerAndDisplayLoadingAnimation()
-                loadPhase();
-            }
+
+        try {
+            response = await fetch("./completeCurrentPhase",  {method: 'GET',  headers: getHeaders()})
+                if(response.status == 200){
+                    clearCardContainerAndDisplayLoadingAnimation()
+                    loadPhase();
+                }else{
+                    showLoadingError();
+                }
+        } catch (error) {
+            showLoadingError();
+        }
     }
 
         
@@ -163,10 +171,13 @@ async function loadAuthCard(){
 }
 let token = null;
 async function init(e) {
+    const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+ 
+
 
     document.getElementById("enter-fullscreen").addEventListener("click", toggleFullscreen);
     document.getElementById("exit-fullscreen").addEventListener("click", toggleFullscreen);
-
+    document.querySelector("#open-instructions").addEventListener("click", showPhase0Instructions);
    // document.getElementById('explanation').innerHTML = "<p>loris</p>";
    
 
@@ -176,14 +187,20 @@ async function init(e) {
 
 window.addEventListener("resize", checkMinViewportWidht);
 checkMinViewportWidht();
-
-window.addEventListener("scroll", updateProgressBar);
+let lastScrollTime = Date.now();
+window.addEventListener("scroll", () => {
+    if(Date.now() -lastScrollTime > 500){
+        lastScrollTime = Date.now()
+        updateProgressBar()
+    }
+    
+});
 
   }
 
 function updateProgressBar(){
 
-        document.querySelector("#progress-bar").removeAttribute("indeterminate")
+        
         let total_progress = 0;
         if(current_phase >= 0){
             total_progress = (current_phase - 1) * 25;
@@ -191,7 +208,7 @@ function updateProgressBar(){
         let progress_current_phase = 25 * Math.ceil(document.documentElement.scrollTop)/(document.documentElement.scrollHeight - document.documentElement.clientHeight);
         total_progress += progress_current_phase
         document.querySelector("#progress-bar").setAttribute("value", Math.min(100,total_progress))
-    
+        document.querySelector("#progress-bar").removeAttribute("indeterminate")
 }
   async function clearCardContainerAndDisplayLoadingAnimation(){
     document.querySelector("#progress-bar").setAttribute("indeterminate", "")
@@ -213,7 +230,11 @@ async function loadPhase(){
     if(cookies.length == 2 && cookies[1].length > 0){
         token = cookies[1];
     }
-    response = await fetch("./currentPhase",  {method: 'GET',  headers: getHeaders()})
+    try {
+        response = await fetch("./currentPhase",  {method: 'GET',  headers: getHeaders()})
+    } catch (error) {
+        showLoadingError();
+    }
     if(response.status != 200){
         if(response.status == 403){ // not authorized, delete cookie, then "reload"
             if(document.cookie.length > 0){
@@ -227,7 +248,9 @@ async function loadPhase(){
         throw new Error("Couldn't get current phase")
     }
     current_phase = await response.json();
-    
+    if(current_phase != 0){
+        document.querySelector("#open-instructions").style.display = "initial"; 
+    }
     switch(current_phase){
         case 0:
             await loadPhase0();
@@ -257,9 +280,28 @@ async function loadPhase0(){
     const node = template.content.cloneNode(true);
     document.querySelector("#card-container").appendChild(node);
 
+    const template_text = document.querySelector("#template-phase0-text");
+    const node_text = template_text.content.cloneNode(true);
+    document.querySelector(".phase-0-text").appendChild(node_text)
+
     document.querySelector("#btn-continue-to-phase1").addEventListener("click", (event) => {
         nextPhase(1);
     })
+}
+function showPhase0Instructions(){
+    if(document.querySelector("#instructions-dialog") == null){
+        const template = document.querySelector("#template-instructions-dialog");
+        const node = template.content.cloneNode(true);
+        document.querySelector("body").appendChild(node);
+        
+        const template_text = document.querySelector("#template-phase0-text");
+        const node_text = template_text.content.cloneNode(true);
+        document.querySelector(".phase-0-text").appendChild(node_text)
+    }
+   
+
+    document.querySelector("#instructions-dialog").setAttribute('open','')
+
 }
 async function loadPhase5(){
     const template = document.querySelector("#template-phase5-card");
@@ -280,7 +322,13 @@ async function loadPhase1(){
 
     let documentNr = 0; // incremental counter only used to fetch(); use doc.document_nr once fetched!
     while(true){ // load all documents until 404
-        let response = await fetch("./documentPhase1/"+documentNr,  {method: 'GET',  headers: getHeaders()})
+        let response = null;
+        try {
+            response = await fetch("./documentPhase1/"+documentNr,  {method: 'GET',  headers: getHeaders()})
+        } catch (error) {
+            showLoadingError()
+            return
+        }
         
         if(response.status == 200){
             const doc = await response.json();
@@ -332,6 +380,20 @@ function showCommunicationError(){
     
 
 }
+function showLoadingError(){
+    document.querySelector("#progress-bar").setAttribute("indeterminate", "")
+    console.log("Loading error")
+
+    if(document.querySelector("#loading-issues-warning") == null){
+        const template = document.querySelector("#template-loading-issues-warning");
+        const node = template.content.cloneNode(true);
+        document.querySelector("body").appendChild(node);
+    }
+    document.querySelector("#loading-issues-warning").setAttribute('open','')
+ 
+    
+
+}
 let retryIntervals = [];
 function submitResponse_(documentNr, phase, retrying=false){
     return async () =>{
@@ -344,13 +406,17 @@ function submitResponse_(documentNr, phase, retrying=false){
                 
                 console.log("response", response.status)
             }else{
-                document.querySelector("#connection-issues-warning").removeAttribute('open')
+                if(document.querySelector("#connection-issues-warning")){
+                    document.querySelector("#connection-issues-warning").removeAttribute('open')
+                }
+                
                 updateProgressBar();
             }
         }catch(error){
+            console.log(error)
             showCommunicationError()
             if(!retrying){
-                const timeout = 10000;
+                const timeout = 5000;
                 
                 const updateDialog = (remaining) => {
 
@@ -369,9 +435,14 @@ function submitResponse_(documentNr, phase, retrying=false){
     }
 }
 async function restorePhase(phase){
-    const response = await fetch("./getPhase"+phase,  {method: 'GET',  headers: getHeaders()});
+    let response = null;
+    try {
+         response = await fetch("./getPhase"+phase,  {method: 'GET',  headers: getHeaders()});
+    } catch (error) {
+        showLoadingError()
+    }
     if(response.status != 200){
-        throw Error("Can't restore phase")
+        showLoadingError()
     }
 
     const oldState = await response.json()
@@ -393,7 +464,13 @@ async function loadPhase2(){
     document.querySelector("#card-container").appendChild(node_instructions);
     let documentNr = 0; // incremental counter only used to fetch(); use doc.document_nr once fetched!
     while(true){ // load all documents until 404
-        let response = await fetch("./documentPhase2/"+documentNr,  {method: 'GET',  headers: getHeaders()})
+        let response = null;
+        try {
+            response = await fetch("./documentPhase2/"+documentNr,  {method: 'GET',  headers: getHeaders()})
+        } catch (error) {
+            showLoadingError()
+            return
+        }
         if(response.status == 200){
             const doc = await response.json();
             const template = document.querySelector("#template-document-only-card-labeling");
@@ -463,8 +540,14 @@ async function loadPhase3(){
 
     let documentNr = 0; // incremental counter only used to fetch(); use doc.document_nr once fetched!
     while(true){ // load all documents until 404
-        let response = await fetch("./documentPhase3/"+documentNr,  {method: 'GET',  headers: getHeaders()})
-        
+        let response = null;
+        try {
+            response = await fetch("./documentPhase3/"+documentNr,  {method: 'GET',  headers: getHeaders()})
+        } catch (error) {
+            showLoadingError()
+            console.log("catch")
+            return
+        }
         if(response.status == 200){
             const doc = await response.json();
             const template = document.querySelector("#template-explanation-card");
@@ -483,9 +566,16 @@ async function loadPhase3(){
             node.querySelector(".detector-p-human-val").innerHTML = parseFloat(doc.detector_p_human*100).toFixed(2).padStart(12).replaceAll(" ", "&nbsp; ");
             
             // fetch explanation
-            response = await fetch("./explanation/"+doc.explanation_filename,{method: 'GET', headers:  getHeaders()})
-            if(response.status == 200){
-                const explanation_html = await response.text();
+            let response_explanation = null;
+            try {
+                response_explanation = await fetch("./explanation/"+doc.explanation_filename,{method: 'GET', headers:  getHeaders()})
+            } catch (error) {
+                showLoadingError()
+                return
+            }
+            
+            if(response_explanation.status == 200){
+                const explanation_html = await response_explanation.text();
                 setInnerHTML(node.querySelector('.explanation'), explanation_html);
             }else{
                 throw Error("Error fetching explanation")
@@ -532,7 +622,13 @@ async function loadPhase4(){ // identical to phase 2 save for the prompt
 
     let documentNr = 0; // incremental counter only used to fetch(); use doc.document_nr once fetched!
     while(true){ // load all documents until 404
-        let response = await fetch("./documentPhase4/"+documentNr,  {method: 'GET',  headers: getHeaders()})
+        let response = null;
+        try {
+            response = await fetch("./documentPhase4/"+documentNr,  {method: 'GET',  headers: getHeaders()})
+        } catch (error) {
+            showLoadingError()
+            return
+        }
         if(response.status == 200){
             const doc = await response.json();
             const template = document.querySelector("#template-document-only-card-labeling");

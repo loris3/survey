@@ -1,67 +1,12 @@
-/* cyrillic-ext */
+
 @font-face {
     font-family: 'Roboto';
     font-style: normal;
     font-weight: 400;
     font-display: swap;
-    src: url(./fonts/roboto/KFOmCnqEu92Fr1Mu72xKOzY.woff2) format('woff2');
-    unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    src: url('./fonts/Roboto/Roboto-Regular.ttf')
   }
-  /* cyrillic */
-  @font-face {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url(./fonts/roboto/KFOmCnqEu92Fr1Mu5mxKOzY.woff2) format('woff2');
-    unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
-  }
-  /* greek-ext */
-  @font-face {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url(./fonts/roboto/KFOmCnqEu92Fr1Mu7mxKOzY.woff2) format('woff2');
-    unicode-range: U+1F00-1FFF;
-  }
-  /* greek */
-  @font-face {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url(./fonts/roboto/KFOmCnqEu92Fr1Mu4WxKOzY.woff2) format('woff2');
-    unicode-range: U+0370-03FF;
-  }
-  /* vietnamese */
-  @font-face {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url(./fonts/roboto/KFOmCnqEu92Fr1Mu7WxKOzY.woff2) format('woff2');
-    unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
-  }
-  /* latin-ext */
-  @font-face {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url(./fonts/roboto/KFOmCnqEu92Fr1Mu7GxKOzY.woff2) format('woff2');
-    unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
-  }
-  /* latin */
-  @font-face {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url(./fonts/roboto/KFOmCnqEu92Fr1Mu4mxK.woff2) format('woff2');
-    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-  }
-
+  
 
 @font-face {
     font-family: 'Material Symbols Outlined';
@@ -70,16 +15,124 @@
     src: url('./fonts/materialsymbolsoutlined.woff2') format('woff2');
   }
 :root {
-    --md-sys-color-primary: olive;
-    --md-sys-color-secondary: tomato;
+
     --md-ref-typeface-brand: 'Roboto';
-    --md-ref-typeface-plain: system-ui;
+    --md-ref-typeface-plain: 'Roboto';
     --md-dialog-headline-font: "Roboto";
+
+    
+  --md-sys-color-primary: rgb(143 76 56);
+  --md-sys-color-surface-tint: rgb(143 76 56);
+  --md-sys-color-on-primary: rgb(255 255 255);
+  --md-sys-color-primary-container: rgb(255 219 209);
+  --md-sys-color-on-primary-container: rgb(58 11 1);
+  --md-sys-color-secondary: rgb(119 87 78);
+  --md-sys-color-on-secondary: rgb(255 255 255);
+  --md-sys-color-secondary-container: rgb(255 219 209);
+  --md-sys-color-on-secondary-container: rgb(44 21 15);
+  --md-sys-color-tertiary: rgb(108 93 47);
+  --md-sys-color-on-tertiary: rgb(255 255 255);
+  --md-sys-color-tertiary-container: rgb(245 225 167);
+  --md-sys-color-on-tertiary-container: rgb(35 27 0);
+  --md-sys-color-error: rgb(186 26 26);
+  --md-sys-color-on-error: rgb(255 255 255);
+  --md-sys-color-error-container: rgb(255 218 214);
+  --md-sys-color-on-error-container: rgb(65 0 2);
+  --md-sys-color-background: rgb(255 248 246);
+  --md-sys-color-on-background: rgb(35 25 23);
+  --md-sys-color-surface: rgb(255 248 246);
+  --md-sys-color-on-surface: rgb(35 25 23);
+  --md-sys-color-surface-variant: rgb(245 222 216);
+  --md-sys-color-on-surface-variant: rgb(83 67 63);
+  --md-sys-color-outline: rgb(133 115 110);
+  --md-sys-color-outline-variant: rgb(216 194 188);
+  --md-sys-color-shadow: rgb(0 0 0);
+  --md-sys-color-scrim: rgb(0 0 0);
+  --md-sys-color-inverse-surface: rgb(57 46 43);
+  --md-sys-color-inverse-on-surface: rgb(255 237 232);
+  --md-sys-color-inverse-primary: rgb(255 181 160);
+  --md-sys-color-primary-fixed: rgb(255 219 209);
+  --md-sys-color-on-primary-fixed: rgb(58 11 1);
+  --md-sys-color-primary-fixed-dim: rgb(255 181 160);
+  --md-sys-color-on-primary-fixed-variant: rgb(114 53 35);
+  --md-sys-color-secondary-fixed: rgb(255 219 209);
+  --md-sys-color-on-secondary-fixed: rgb(44 21 15);
+  --md-sys-color-secondary-fixed-dim: rgb(231 189 178);
+  --md-sys-color-on-secondary-fixed-variant: rgb(93 64 55);
+  --md-sys-color-tertiary-fixed: rgb(245 225 167);
+  --md-sys-color-on-tertiary-fixed: rgb(35 27 0);
+  --md-sys-color-tertiary-fixed-dim: rgb(216 197 141);
+  --md-sys-color-on-tertiary-fixed-variant: rgb(83 70 25);
+  --md-sys-color-surface-dim: rgb(232 214 210);
+  --md-sys-color-surface-bright: rgb(255 248 246);
+  --md-sys-color-surface-container-lowest: rgb(255 255 255);
+  --md-sys-color-surface-container-low: rgb(255 241 237);
+  --md-sys-color-surface-container: rgb(252 234 229);
+  --md-sys-color-surface-container-high: rgb(247 228 224);
+  --md-sys-color-surface-container-highest: rgb(241 223 218);
+
+}
+
+@media (prefers-color-scheme: dark) {
+  :root{
+    /*https://material-foundation.github.io/material-theme-builder/*/
+
+    --md-sys-color-primary: rgb(255 181 160);
+    --md-sys-color-surface-tint: rgb(255 181 160);
+    --md-sys-color-on-primary: rgb(86 31 15);
+    --md-sys-color-primary-container: rgb(114 53 35);
+    --md-sys-color-on-primary-container: rgb(255 219 209);
+    --md-sys-color-secondary: rgb(231 189 178);
+    --md-sys-color-on-secondary: rgb(68 42 34);
+    --md-sys-color-secondary-container: rgb(93 64 55);
+    --md-sys-color-on-secondary-container: rgb(255 219 209);
+    --md-sys-color-tertiary: rgb(216 197 141);
+    --md-sys-color-on-tertiary: rgb(59 47 5);
+    --md-sys-color-tertiary-container: rgb(83 70 25);
+    --md-sys-color-on-tertiary-container: rgb(245 225 167);
+    --md-sys-color-error: rgb(255 180 171);
+    --md-sys-color-on-error: rgb(105 0 5);
+    --md-sys-color-error-container: rgb(147 0 10);
+    --md-sys-color-on-error-container: rgb(255 218 214);
+    --md-sys-color-background: rgb(26 17 15);
+    --md-sys-color-on-background: rgb(241 223 218);
+    --md-sys-color-surface: rgb(26 17 15);
+    --md-sys-color-on-surface: rgb(241 223 218);
+    --md-sys-color-surface-variant: rgb(83 67 63);
+    --md-sys-color-on-surface-variant: rgb(216 194 188);
+    --md-sys-color-outline: rgb(160 140 135);
+    --md-sys-color-outline-variant: rgb(83 67 63);
+    --md-sys-color-shadow: rgb(0 0 0);
+    --md-sys-color-scrim: rgb(0 0 0);
+    --md-sys-color-inverse-surface: rgb(241 223 218);
+    --md-sys-color-inverse-on-surface: rgb(57 46 43);
+    --md-sys-color-inverse-primary: rgb(143 76 56);
+    --md-sys-color-primary-fixed: rgb(255 219 209);
+    --md-sys-color-on-primary-fixed: rgb(58 11 1);
+    --md-sys-color-primary-fixed-dim: rgb(255 181 160);
+    --md-sys-color-on-primary-fixed-variant: rgb(114 53 35);
+    --md-sys-color-secondary-fixed: rgb(255 219 209);
+    --md-sys-color-on-secondary-fixed: rgb(44 21 15);
+    --md-sys-color-secondary-fixed-dim: rgb(231 189 178);
+    --md-sys-color-on-secondary-fixed-variant: rgb(93 64 55);
+    --md-sys-color-tertiary-fixed: rgb(245 225 167);
+    --md-sys-color-on-tertiary-fixed: rgb(35 27 0);
+    --md-sys-color-tertiary-fixed-dim: rgb(216 197 141);
+    --md-sys-color-on-tertiary-fixed-variant: rgb(83 70 25);
+    --md-sys-color-surface-dim: rgb(26 17 15);
+    --md-sys-color-surface-bright: rgb(66 55 52);
+    --md-sys-color-surface-container-lowest: rgb(20 12 10);
+    --md-sys-color-surface-container-low: rgb(35 25 23);
+    --md-sys-color-surface-container: rgb(39 29 27);
+    --md-sys-color-surface-container-high: rgb(50 40 37);
+    --md-sys-color-surface-container-highest: rgb(61 50 47);
+  }
   }
 
 body {
     margin: 0;
     font-family: 'Roboto';
+    background-color: var(--md-sys-color-surface-dim);
 }
 
 #card-container {
@@ -95,24 +148,37 @@ body {
 .explanation{
     width: 100%;
     padding-top: 1em;
+    background-color: white;
+    color: black;
+    
+}
+.explanation-container{
+  padding: 0.5em;
+  border-radius: 16px;
+  background-color: white;
 }
 .card,
 #loading-animation,
 .btn-continue-to-phase{
   position: relative;
 }
+
+#auth-card p,
+#auth-card span{
+  color: var(--md-sys-color-on-surface);
+}
 .card {
-    background-color: white;
+    
     padding: 1.5em;
-    background-color: white;
+    
     --md-elevation-level: 3;
 
     border-radius: 16px;
     min-width: 600px;
     
+    background-color: var(--md-sys-color-surface-bright);
 
-
-
+    color: var(--md-sys-color-on-surface);
   }
 
   #loading-animation{
@@ -129,8 +195,7 @@ body {
     --md-linear-progress-track-height: 8px;
     --md-linear-progress-track-shape: 8px;
     --md-linear-progress-active-indicator-height: 8px;
-    --md-sys-color-primary: #006A6A;
-    --md-sys-color-surface-container-highest: #DDE4E3;
+
   }
   #enter-fullscreen, #exit-fullscreen {
     top: 10px;
@@ -139,6 +204,15 @@ body {
     right: 0.5em;
    
     z-index: 100;
+
+}
+#open-instructions {
+  bottom: 10px;
+
+  position: fixed;
+  right: 0.5em;
+  display: none;
+  z-index: 100;
 
 }
 #exit-fullscreen {
@@ -187,7 +261,12 @@ body {
   border: 2px solid var(--md-sys-color-primary);
   border-radius: 5px;
 }
-
+#alert-token-invalid-ok{
+  color: var(--md-sys-color-primary);
+}
+#icon-token-invalid{
+  color: var(--md-sys-color-error);
+}
 /* Phase 0 */
 /* Phase 1*/
 .ground_truth,
@@ -195,10 +274,10 @@ body {
   font-weight: bold;
 }
 .wrongly-correctly[correctly]{
-  color: green;
+  color: var(--md-sys-color-tertiary);
 }
 .wrongly-correctly[wrongly]{
-  color: red;
+  color: var(--md-sys-color-error);
 }
 .detector-p-container{
   width: fit-content;
