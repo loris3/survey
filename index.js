@@ -319,13 +319,53 @@ async function loadPhase1(){
     
 
 }
-function submitResponse_(documentNr, phase){
-    return () =>{
+function showCommunicationError(){
+    document.querySelector("#progress-bar").setAttribute("indeterminate", "")
+    console.log("Communication error")
+
+    if(document.querySelector("#connection-issues-warning") == null){
+        const template = document.querySelector("#template-connection-issues-warning");
+        const node = template.content.cloneNode(true);
+        document.querySelector("body").appendChild(node);
+    }
+    document.querySelector("#connection-issues-warning").setAttribute('open','')
+    
+
+}
+let retryIntervals = [];
+function submitResponse_(documentNr, phase, retrying=false){
+    return async () =>{
         form = document.querySelector("#user-label-document-form-" + documentNr)
         let label = new FormData(form).get("user-label-document-" + documentNr) == "human" ? 1 : 0
+        try{
+            let response = await fetch("./submitPhase"+phase, {method:"POST", headers:getHeaders(), body: JSON.stringify({ID: documentNr, label})});
+            
+            if(response.status != 201){
+                
+                console.log("response", response.status)
+            }else{
+                document.querySelector("#connection-issues-warning").removeAttribute('open')
+                updateProgressBar();
+            }
+        }catch(error){
+            showCommunicationError()
+            if(!retrying){
+                const timeout = 10000;
+                
+                const updateDialog = (remaining) => {
+
+                    const span = document.querySelector("#retry-seconds-remaining")
+                    if(span != null && remaining > 0){
+                        span.innerHTML = remaining/1000
+                        setTimeout(()=>{updateDialog(remaining-1000)}, 1000)
+                    }
+                }
+                updateDialog(timeout)
+                setTimeout(submitResponse_(documentNr,phase), timeout+100)
+            }
+            
+        }
         
-        fetch("./submitPhase"+phase, {method:"POST", headers:getHeaders(), body: JSON.stringify({ID: documentNr, label})});
-       
     }
 }
 async function restorePhase(phase){

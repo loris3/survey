@@ -36,7 +36,18 @@
 </div>
 
 </body>
+<template id="template-connection-issues-warning">
+  <md-dialog id="connection-issues-warning" type="alert" open>
+    <md-icon slot="icon">wifi_off</md-icon>
+    <div slot="headline">You are offline</div>
+    <form id="form" slot="content" method="dialog">
+      <p>Please wait until your last response is transmitted.</p>
+      <p>Retrying in <span id="retry-seconds-remaining"></span> seconds</p>
+    </form>
+    
+  </md-dialog>
 
+</template>
 <template id="template-auth-card">
   <div class="card" id="auth-card">
     <md-elevation></md-elevation>
