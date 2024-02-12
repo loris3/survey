@@ -23,6 +23,7 @@
     "reload": "^3.2.1",
     "rollup": "^4.9.6",
     "sanitize-filename": "^1.6.3",
+    "seedrandom": "^3.0.5",
     "sqlite3": "^5.1.7"
   }
 }

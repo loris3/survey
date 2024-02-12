@@ -4,8 +4,9 @@ const sqlite3 = require("sqlite3").verbose();
 const path = require('path'); 
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
-
+const seedrandom = require('seedrandom');
 const db_path = "./db.db"
+
 
 
 if(!fs.existsSync('.env')){
@@ -45,6 +46,7 @@ const db = new sqlite3.Database(db_path, (error) => {
   );
 `);
 
+let n_documents = 0;
 const importPath = "./import/explanations/data"
 fs.readdirSync(importPath).forEach(file => {
     fs.readFile(path.join(importPath, file), 'utf8', function (err, data) {
@@ -79,6 +81,7 @@ fs.readdirSync(importPath).forEach(file => {
     
                 ]);
         }
+        n_documents++;
 
       });
   });
@@ -90,9 +93,11 @@ fs.readdirSync(importPath).forEach(file => {
   (
     ID INTEGER PRIMARY KEY AUTOINCREMENT,
     access_token TEXT NOT NULL UNIQUE,
-    current_phase INTEGER NOT NULL DEFAULT 0,
+    current_phase INTEGER NOT NULL DEFAULT -1,
     detector TEXT NOT NULL,
-    explainer TEXT NOT NULL
+    explainer TEXT NOT NULL,
+    document_order_a TEXT NOT NULL,
+    document_order_b TEXT NOT NULL
   );
 `);
 let pastTokens = [];
@@ -108,15 +113,24 @@ function createToken(){
 explainers = ["SHAP_Explainer", "LIME_Explainer", "Anchor_Explainer"]
 detectors = ["DetectorGuo", "DetectorRadford", "DetectorDetectGPT"]
 
+const n_documents_in_each_phase =  18;
+
 explainers.forEach(explainer => {
   detectors.forEach(detector =>{
     for(let i = 1; i <= 3; i++){
-      db.run(`INSERT INTO users (access_token, detector, explainer) VALUES (?,?,?)`,[createToken(), detector, explainer]);
+      // randomize order of documents (with seed)
+      let rng_a = new seedrandom("a"+explainer+detector+i)
+      let document_order_a = Array.from(Array(n_documents_in_each_phase-1).keys()).sort( ()=>rng_a()-0.5 );
+      rng_b = new seedrandom("b"+explainer+detector+i)
+      let document_order_b = Array.from(Array(n_documents_in_each_phase-1).keys()).sort( ()=>rng_b()-0.5 );
+
+      db.run(`INSERT INTO users (access_token, detector, explainer, document_order_a, document_order_b) VALUES (?,?,?,?,?)`,
+      [createToken(), detector, explainer, JSON.stringify(document_order_a), JSON.stringify(document_order_b)]);
     }
     
   });
 });
-db.run(`INSERT INTO users (access_token, detector, explainer) VALUES (?,?,?)`,["DEBUG","DetectorRadford", "SHAP_Explainer", ]);
+// db.run(`INSERT INTO users (access_token, detector, explainer) VALUES (?,?,?)`,["DDEBUG","DetectorRadford", "SHAP_Explainer", ]);
 
 db.exec(`
 DROP TABLE IF EXISTS responses_phase_2;
@@ -149,5 +163,20 @@ CREATE TABLE responses_phase_4
   
   FOREIGN KEY (document_nr)
      REFERENCES documents_a (document_nr)
+);
+
+DROP TABLE IF EXISTS participant_info;
+CREATE TABLE participant_info
+(
+  user_id INTEGER NOT NULL PRIMARY KEY,
+  has_seen_explanation_methods_before TEXT,
+  has_seen_SHAP_before TEXT,
+  has_seen_LIME_before TEXT,
+  has_seen_ANCHOR_before TEXT,
+  has_seen_OTHERS_before TEXT,
+  level_of_expertise TEXT,
+
+  FOREIGN KEY (user_id)
+     REFERENCES users (ID)
 );
 `);

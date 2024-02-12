@@ -52,7 +52,7 @@ function authMiddlewarePhase(req, res, next, phase) { // https://www.digitalocea
          res.sendStatus(403)
          return
     }
-    console.log("token",token)
+
     jwt.verify(token, process.env.TOKEN_SECRET, (err, data) => {
       if (err){
         console.log("auth err", err)
@@ -74,7 +74,7 @@ function authMiddlewarePhase(req, res, next, phase) { // https://www.digitalocea
 function authMiddleware(req, res, next) { // https://www.digitalocean.com/community/tutorials/nodejs-jwt-expressjs
   const authHeader = req.headers['authorization']
   const token = authHeader && authHeader.split(' ')[1]
-  console.log("token", token)
+
   if (token == null || token == "null"){
       console.log("no token provided")
       res.sendStatus(403)
@@ -109,7 +109,7 @@ app.get("/completeCurrentPhase", authMiddleware, (req,res)=>{
 app.get("/documentPhase1/:documentNr", (req,res, next) => {authMiddlewarePhase(req,res, next, 1)} ,(req,res)=>{
     db.get("SELECT * FROM documents_a WHERE document_nr=? and detector = (SELECT detector FROM users WHERE access_token=?) and explainer = (SELECT explainer FROM users WHERE access_token=?)", [req.params.documentNr, req.access_token, req.access_token],(err, row) =>{
         if (err) return res.sendStatus(500);    
-        console.log(row)
+
         if(row == undefined){
             res.sendStatus(404);
             return
@@ -121,7 +121,7 @@ app.get("/documentPhase1/:documentNr", (req,res, next) => {authMiddlewarePhase(r
 app.get("/documentPhase2/:documentNr", (req,res, next) => {authMiddlewarePhase(req,res, next, 2)} ,(req,res)=>{
   db.get("SELECT * FROM documents_b WHERE document_nr=? and detector = (SELECT detector FROM users WHERE access_token=?) and explainer = (SELECT explainer FROM users WHERE access_token=?)", [req.params.documentNr, req.access_token, req.access_token],(err, row) =>{
       if (err) return res.sendStatus(500);    
-      console.log(row)
+
       if(row == undefined){
           res.sendStatus(404);
           return
@@ -130,7 +130,7 @@ app.get("/documentPhase2/:documentNr", (req,res, next) => {authMiddlewarePhase(r
   })
 })
 app.post("/submitPhase2", (req,res, next) => {authMiddlewarePhase(req,res, next, 2)} ,(req,res)=>{
-  console.log(req.body)
+
 
   db.run(
     `INSERT INTO responses_phase_2 (user_id, document_nr, label) VALUES((SELECT ID FROM users WHERE access_token = ?),?,?);`,
@@ -151,7 +151,7 @@ app.post("/submitPhase2", (req,res, next) => {authMiddlewarePhase(req,res, next,
 app.get("/documentPhase3/:documentNr", (req,res, next) => {authMiddlewarePhase(req,res, next, 3)} ,(req,res)=>{
   db.get("SELECT * FROM documents_a WHERE document_nr=? and detector = (SELECT detector FROM users WHERE access_token=?) and explainer = (SELECT explainer FROM users WHERE access_token=?)", [req.params.documentNr, req.access_token, req.access_token],(err, row) =>{
       if (err) return res.sendStatus(500);    
-      console.log(row)
+
       if(row == undefined){
           res.sendStatus(404);
           return
@@ -160,15 +160,25 @@ app.get("/documentPhase3/:documentNr", (req,res, next) => {authMiddlewarePhase(r
   })
 })
 app.get("/explanation/:explanation_filename", (req,res, next) => {authMiddlewarePhase(req,res, next, 3)}, (req,res)=>{
-    console.log("serving", path.join(__dirname , "./import/explanations/html", sanitize(req.params.explanation_filename)+".html"))
-    res.sendFile(path.join(__dirname , "./import/explanations/html", sanitize(req.params.explanation_filename)+".html"))
+    // only allow explanations from the assigned method
+    db.get("SELECT EXISTS(SELECT 1 FROM documents_a WHERE explanation_filename=? and detector = (SELECT detector FROM users WHERE access_token=?) and explainer = (SELECT explainer FROM users WHERE access_token=?))", [sanitize(req.params.explanation_filename), req.access_token,req.access_token],(err, row) =>{
+      if (err) return res.sendStatus(403);
+      if(Object.values(row)[0]){// TODO this can't be the only way of doing this
+        //  console.log("serving", path.join(__dirname , "./import/explanations/html", sanitize(req.params.explanation_filename)+".html"))
+          res.sendFile(path.join(__dirname , "./import/explanations/html", sanitize(req.params.explanation_filename)+".html"))
+      }else{ 
+          // not permitted
+          return res.sendStatus(403);
+      }
+  })
+    
 })
 
 // phase 4: just as phase 2, just writes to another table
 app.get("/documentPhase4/:documentNr", (req,res, next) => {authMiddlewarePhase(req,res, next, 4)} ,(req,res)=>{
   db.get("SELECT * FROM documents_b WHERE document_nr=? and detector = (SELECT detector FROM users WHERE access_token=?) and explainer = (SELECT explainer FROM users WHERE access_token=?)", [req.params.documentNr, req.access_token, req.access_token],(err, row) =>{
       if (err) return res.sendStatus(500);    
-      console.log(row)
+
       if(row == undefined){
           res.sendStatus(404);
           return
@@ -177,7 +187,7 @@ app.get("/documentPhase4/:documentNr", (req,res, next) => {authMiddlewarePhase(r
   })
 })
 app.post("/submitPhase4", (req,res, next) => {authMiddlewarePhase(req,res, next, 4)} ,(req,res)=>{
-  console.log(req.body)
+
 
   db.run(
     `INSERT INTO responses_phase_4 (user_id, document_nr, label) VALUES((SELECT ID FROM users WHERE access_token = ?),?,?);`,
@@ -194,23 +204,72 @@ app.post("/submitPhase4", (req,res, next) => {authMiddlewarePhase(req,res, next,
     );
 
 })
+app.post("/submitParticipantInfo", (req,res, next) => {authMiddlewarePhase(req,res, next, -1)} ,(req,res)=>{
 
+  db.run(
+    `INSERT OR REPLACE INTO participant_info (user_id, has_seen_explanation_methods_before, has_seen_SHAP_before, has_seen_LIME_before, has_seen_ANCHOR_before,
+      has_seen_OTHERS_before, level_of_expertise) VALUES((SELECT ID FROM users WHERE access_token = ?),?,?,?,?,?,?);`,
+    [
+      req.access_token,
+      req.body?.has_seen_explanation_methods_before,
+      req.body?.has_seen_SHAP_before,
+      req.body?.has_seen_LIME_before,
+      req.body?.has_seen_ANCHOR_before,
+      req.body?.has_seen_OTHERS_before,
+      req.body?.level_of_expertise
+    ],
+    (error) => {
+      if (error) {
+        console.error(error.message);
+        console.log(error)
+        res.sendStatus(500);
+      }else{
+        res.sendStatus(201);
+      }
+    }
+    );
+  
+})
 
 // util endpoints
-app.get("/currentPhase", authMiddleware,(req,res)=>{
+app.get("/state", authMiddleware,(req,res)=>{
   db.get("SELECT * FROM users WHERE access_token=?", [req.access_token],(err, row) =>{
       if (err) return res.sendStatus(500);    
-      console.log(row)
+
       if(row == undefined){
           res.sendStatus(404);
           return
       }  
-      res.json(row.current_phase)
+      res.json({
+        current_phase: row.current_phase,
+        document_order_a: row.document_order_a,
+        document_order_b: row.document_order_b,
+        explainer: row.explainer
+      })
   })
 })
 
+app.get("/getParticipantInfo", (req,res, next) => {authMiddlewarePhase(req,res, next, -1)} ,(req,res)=>{
+
+
+  db.all(
+    `SELECT * FROM participant_info  WHERE user_id = (SELECT ID FROM users WHERE access_token = ?)`,
+    [req.access_token],
+    (error, rows) => {
+      if (error) {
+        console.error(error.message);
+        console.log(error)
+        res.sendStatus(500);
+      }else{
+        res.send(rows)
+      }
+    }
+    );
+
+})
+
 app.get("/getPhase4", (req,res, next) => {authMiddlewarePhase(req,res, next, 4)} ,(req,res)=>{
-  console.log(req.body)
+
 
   db.all(
     `SELECT label, document_nr, max(timestamp) FROM responses_phase_4 WHERE user_id = (SELECT ID FROM users WHERE access_token = ?) group by document_nr`,
@@ -228,7 +287,7 @@ app.get("/getPhase4", (req,res, next) => {authMiddlewarePhase(req,res, next, 4)}
 
 })
 app.get("/getPhase2", (req,res, next) => {authMiddlewarePhase(req,res, next, 2)} ,(req,res)=>{
-  console.log(req.body)
+
 
   db.all(
     `SELECT label, document_nr, max(timestamp) FROM responses_phase_2 WHERE user_id = (SELECT ID FROM users WHERE access_token = ?) group by document_nr;`,
@@ -258,7 +317,7 @@ app.get("/getPhase2", (req,res, next) => {authMiddlewarePhase(req,res, next, 2)}
 //   })
 // })
 
-app.get("/:access_token", (req,res)=>{
+app.get("/auth/:access_token", (req,res)=>{
   db.get("SELECT EXISTS (SELECT 1 FROM users WHERE access_token=? AND current_phase <= 4)", [req.params.access_token],(err, row) =>{
     if (err) return res.sendStatus(403);
     if(Object.values(row)[0]){// TODO this can't be the only way of doing this
@@ -269,5 +328,8 @@ app.get("/:access_token", (req,res)=>{
     }
 })
     
+})
+app.get("/:access_token", (req,res)=>{
+  res.sendFile(path.join(__dirname, "/public/index.html"))
 })
 reload(app);

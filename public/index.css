@@ -6,7 +6,13 @@
     font-display: swap;
     src: url('./fonts/Roboto/Roboto-Regular.ttf')
   }
-  
+@font-face {
+  font-family: 'RedactedScript';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./fonts/Redacted_Script/RedactedScript-Regular.ttf')
+} 
 
 @font-face {
     font-family: 'Material Symbols Outlined';
@@ -141,7 +147,7 @@ body {
     padding: 1em;
     padding-top: 2em;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+    width: min-content;
     gap: 0.5rem;
     max-width: 1200px;
   }
@@ -174,8 +180,8 @@ body {
     --md-elevation-level: 3;
 
     border-radius: 16px;
-    min-width: 600px;
-    
+    width: 80vw;
+    max-width: 800px;
     background-color: var(--md-sys-color-surface-bright);
 
     color: var(--md-sys-color-on-surface);
@@ -246,7 +252,8 @@ body {
 
 .container-continue-to-phase,
 #container-exit{
-  padding-top: 2em;
+  padding-top: 1em;
+  padding-bottom: var(--md-fab-container-height, 56px);
 }
 #auth-form{
   justify-content: center;
@@ -270,6 +277,7 @@ body {
 /* Phase 0 */
 /* Phase 1*/
 .ground_truth,
+.prediction,
 .wrongly-correctly{
   font-weight: bold;
 }
@@ -307,9 +315,7 @@ body {
 .section-input-document > span {
   font-weight: bold;
 }
-.section-input-document{
-  padding-top: 1em;
-}
+
 
 
 .example_div > .lime.raw_text {
@@ -318,8 +324,15 @@ body {
 
 .document-only-card-document{
   text-align: justify;
-}
+    overflow-wrap: break-word;
+    hyphens: auto;
+    word-wrap: break-word;
 
+    
+}
+.i-think-text{
+  margin-bottom: 0;
+}
 /* Phase 2 */
 .labeling > div {
   padding-bottom: 1em;
@@ -328,7 +341,7 @@ body {
   justify-content: center;
   align-content: center;
   display: flex;
-  padding-top: 1em;
+  
 }
 .labeling form > div{
   
@@ -389,3 +402,64 @@ body {
       display: block;
     }
 }
+#dialog-viewport-width-to-low{
+  --md-dialog-container-color: var(--md-sys-color-surface-bright)
+}
+#please-rotate-text{
+  color: var(--md-sys-color-tertiary);
+  font-weight: bold;
+}
+
+/*Participant info form*/
+.participant-data-answers-container-binary,
+.participant-data-answers-container-select-group{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  max-width: 400px;
+  margin: auto;
+}
+
+.participant-data-answer{
+  justify-content: center;
+  justify-self: center;
+  padding-bottom: 1em;
+
+
+}
+.participant-data-answer label{
+  text-align: center;
+  margin: auto;
+  display: block;
+
+}
+.participant-data-answer md-radio,
+.participant-data-answer md-checkbox{
+  display: block;
+  padding-bottom: 0.5em;
+}
+md-checkbox,
+md-radio {
+  margin: auto;
+}
+#participant-data-optional-has-used-explanation-methods-before{
+  display: none;
+}
+
+
+.lime.raw_text,
+.lime.text_div{
+ 
+  overflow: visible !important;
+  max-height: initial !important;
+}
+
+
+/**************************/
+/* .explanation > div > div > div,
+svg  text,
+.lime.raw_text *,
+.lime.text_div *,
+.document-only-card-document,
+.explanation button span{
+  font-family: "RedactedScript" !important;
+} */

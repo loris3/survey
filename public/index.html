@@ -4,6 +4,7 @@
         <link rel="icon" type="image/x-icon" href="./list-box-outline.svg">
         <link rel="stylesheet" href="./index.css">
         <link rel="preload" href="./fonts/Roboto/Roboto-Regular.ttf" as="font" type="font/ttf" crossorigin>
+        <link rel="preload" href="./fonts/Redacted_Script/RedactedScript-Regular.ttf" as="font" type="font/ttf" crossorigin>
         <link rel="preload" href="./fonts/materialsymbolsoutlined.woff2" as="font" type="font/woff2" crossorigin>
 
         <script src="/reload/reload.js"></script>
@@ -22,15 +23,17 @@
   <md-fab id="open-instructions" label="Instructions" variant="primary">
     <md-icon slot="icon">info</md-icon>
   </md-fab>
+
   <md-dialog id="dialog-viewport-width-to-low" type="alert">
-    <div slot="headline">Info</div>
+    <md-icon slot="icon">screen_rotation</md-icon>
+
     <form id="form" slot="content" method="dialog">
-      <b>Please rotate your device before continuing.</b> <br/> Your screen size is too small in portrait mode but it's sufficent if you switch to landscape mode.
-      This ensures all participants have a similar experience. 
+      <p id="please-rotate-text">Please rotate your device for this phase</p>
+      <p>Your screen size is too small to display the content in portrait mode but it's sufficent if you switch to landscape mode. You can switch back to portrait mode for the next phase.
+        This ensures all participants have a similar experience.</p>
     </form>
     
   </md-dialog>
-
 
 
 
@@ -112,6 +115,79 @@
     <p><b>This experiment takes about 30 minutes to complete.</b> As there is a memory component to this, please complete the experiment in one sitting. Should you run into connection issues, you can resume it at any point on any device by re-entering your token. Your progress isn't lost. </p>
 
 </template>
+<template id="template-participant-data-form-card">
+  <div class="card" id="participant-data-form-card">
+    <md-elevation></md-elevation>
+    <form id="participant-info-form">
+      <div>
+        <p class="participant-data-question">Have you heard about explanation methods for machine-learning models before? (e.g., LIME, SHAP, Anchor)</p>
+        <div class="participant-data-answers-container-binary">
+          <div class="participant-data-answer">
+            <md-radio class="participant-data-radio" name="has_seen_explanation_methods_before" id="participant-data-has-seen-explanation-methods-before-no" value="no" required></md-radio>
+            <label for="participant-data-has-seen-explanation-methods-before-no">No</label>
+          </div>
+          <div class="participant-data-answer">
+            <md-radio class="participant-data-radio" name="has_seen_explanation_methods_before" id="participant-data-has-seen-explanation-methods-before-yes" value="yes" required></md-radio>
+            <label for="participant-data-has-seen-explanation-methods-before-yes">Yes</label>
+          </div>
+        </div>
+      </div>
+      <md-divider></md-divider>
+      <div id="participant-data-optional-has-used-explanation-methods-before">
+        <p class="participant-data-question">Have you used any of these before?</p>
+        <div class="participant-data-answers-container-select-group">
+          <div class="participant-data-answer">
+            <md-checkbox id="participant-data-has-seen-LIME-before" name ="has_seen_LIME_before" value="yes" touch-target="wrapper"></md-checkbox>
+            <label for="participant-data-has-seen-LIME-before">LIME</label>
+          </div>
+          <div class="participant-data-answer">
+            <md-checkbox id="participant-data-has-seen-SHAP-before" name ="has_seen_SHAP_before"  value="yes"touch-target="wrapper"></md-checkbox>
+            <label for="participant-data-has-seen-SHAP-before">SHAP</label>
+          </div>
+          <div class="participant-data-answer">
+            <md-checkbox id="participant-data-has-seen-ANCHOR-before" name ="has_seen_ANCHOR_before" value="yes" touch-target="wrapper"></md-checkbox>
+            <label for="participant-data-has-seen-ANCHOR-before">Anchor</label>
+          </div>
+          <div class="participant-data-answer">
+            <md-checkbox id="participant-data-has-seen-OTHERS-before" name ="has_seen_OTHERS_before" value="yes" touch-target="wrapper"></md-checkbox>
+            <label for="participant-data-has-seen-OTHERS-before">Others</label>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p class="participant-data-question">Please select your level of expertise in Natural Language Processing/Machine Learning</p>
+        <div class="participant-data-answers-container-select-group">
+          <md-outlined-select id="participant-data-level-of-expertise" name="level_of_expertise">
+            <md-select-option aria-label="blank"></md-select-option>
+            <md-select-option value="no-experience">
+              <div slot="headline">No prior experience</div>
+            </md-select-option>
+            <md-select-option value="has-taken-course">
+              <div slot="headline">I have taken a course on ML</div>
+            </md-select-option>
+            <md-select-option value="is-researcher">
+              <div slot="headline">I do research in this field</div>
+            </md-select-option>
+            <md-select-option value="is-researcher-explainability">
+              <div slot="headline">I do research on explanation methods</div>
+            </md-select-option>
+          </md-outlined-select>
+        </div>
+      </div>
+      
+    </form>
+    
+    <p class="go-fullscreen-hint"><b>Info:</b> Your screen is small. Consider enabeling fullscreen mode with the button on the upper right.</p>
+    
+    <div id="container-continue-to-phase1" class="container-continue-to-phase">
+      <md-filled-button id="btn-continue-to-phase0">
+        Submit
+        <md-icon slot="icon">arrow_right_alt</md-icon>
+      </md-filled-button>
+    </div>
+
+  </div>
+</template>
 <template id="template-phase0-instructions-card">
   <div class="card" id="phase0-instructions-card">
     <md-elevation></md-elevation>
@@ -120,7 +196,7 @@
     
     <p class="go-fullscreen-hint"><b>Info:</b> Your screen is small. Consider enabeling fullscreen mode with the button on the upper right.</p>
     
-    <div id="container-continue-to-phase1">
+    <div id="container-continue-to-phase1" class="container-continue-to-phase">
       <md-filled-button id="btn-continue-to-phase1">
         Start
         <md-icon slot="icon">arrow_right_alt</md-icon>
@@ -186,6 +262,18 @@
     <p>In the next phase, you will be asked to guess what the detector does on the same documents from phase 2. Base your decisions on the behaviour you see here.</p>
     <p>Please read trough the instructions on how to interpret the visualizations of the method that was assigned to you:</p>
     <div id="explanation-method-specific-instructions-container"></div>
+    <p class="go-fullscreen-hint"><b>Info:</b> Your screen is small. Consider enabeling fullscreen mode with the button on the upper right.</p>
+  
+
+  </div>
+</template>
+<template id="template-phase4-instructions-card">
+  <div class="card" id="phase4-instructions-card">
+    <md-elevation></md-elevation>
+    <h1>Phase 4/4</h1>
+    <p>Please try to guess the detectors prediction on these documents. Try to apply your observations from the previous phase.</p>
+    <p>If this where a game, points are awarded if you correctly predict the detector's decision, not if you figure out the <i>correct</i> answer yourself.</p>
+    <p>You may find this difficult/frustrating. But this only serves as a baseline to compare your performance in phase 4 to. TODO</p>
     <p class="go-fullscreen-hint"><b>Info:</b> Your screen is small. Consider enabeling fullscreen mode with the button on the upper right.</p>
   
 
@@ -257,7 +345,7 @@
   <div class="card document-only-card">
     <md-elevation></md-elevation>
     <span>The following document is <span class="ground_truth">machine generated</span>.</span><br/>
-    <span>The detector <span class="wrongly-correctly">correctly</span> predicted that this document is <span class="ground_truth">machine generated</span>.</span>
+    <span>The detector <span class="wrongly-correctly">correctly</span> predicted that this document is <span class="prediction">prediction generated</span>.</span>
     <div class="section-detector-output">
       <span>Detector output:</span><br/>
       <div class="detector-p-container">
@@ -273,41 +361,13 @@
   </div>
 </template>
 
-<template id="template-document-only-card-labeling">
-  <div class="card document-only-card labeling">
-    <md-elevation></md-elevation>
-    <div>
-      <span>Please predict <b>the detectors</b> prediction</span>.</span><br/>
-    </div>
-    
-    <md-divider></md-divider>
-    <div class="section-input-document">
-        <span>Input document:</span><br/>
-        <p class="document-only-card-document"></p>
-    </div>
-    <md-divider></md-divider>
-    <form>
-      <!--Ids replaced in index.js-->
-      <div>
-        <md-icon>robot_2</md-icon>
-        <label for="user-label-document-machine" id="user-label-document-label-machine">Machine</label>
-        <md-radio class="user-label-document-radio" name="user-label-document" id="user-label-document-machine"value="machine" required></md-radio>
-      </div>
-      <div>
-        <md-icon>person</md-icon>
-        <label for="user-label-document-human" id="user-label-document-label-human">Human</label>
-        <md-radio class="user-label-document-radio" name="user-label-document" id="user-label-document-human" value="human" required></md-radio>
-      </div>
 
-    </form>
-  </div>
-</template>
 
 <template id="template-explanation-card">
   <div class="card explanation-card">
     <md-elevation></md-elevation>
     <span>The following document is <span class="ground_truth">machine generated</span>.</span><br/>
-    <span>The detector <span class="wrongly-correctly">correctly</span> predicted that this document is <span class="ground_truth">machine generated</span>.</span>
+    <span>The detector <span class="wrongly-correctly">correctly</span> predicted that this document is <span class="prediction">machine generated</span>.</span>
     <div class="section-detector-output">
       <span>Detector output:</span><br/>
       <div class="detector-p-container">
