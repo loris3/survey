@@ -1,3 +1,4 @@
+import './index.css'
 import '@material/web/button/filled-button.js';
 import '@material/web/button/outlined-button.js';
 import '@material/web/iconbutton/icon-button.js';
@@ -571,7 +572,7 @@ async function restorePhase(phase){
 
     const oldState = await response.json()
     oldState.forEach((row)=>{
-
+        
         if(row.label == 0){
             document.querySelector("#user-label-document-machine-" + row.document_nr).checked = true; 
         }else{

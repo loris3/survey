@@ -1,6 +1,5 @@
 const path = require('path');
 const express = require('express')
-const reload = require('reload')
 const app = express()
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
@@ -36,7 +35,7 @@ const db = new sqlite3.Database(db_path, (error) => {
 
 
 
-app.use(express.static('./public'));
+app.use(express.static('./build'));
 app.use(express.json());
 
 app.listen(port, () => {
@@ -330,6 +329,5 @@ app.get("/auth/:access_token", (req,res)=>{
     
 })
 app.get("/:access_token", (req,res)=>{
-  res.sendFile(path.join(__dirname, "/public/index.html"))
+  res.sendFile(path.join(__dirname, "/build/index.html"))
 })
-reload(app);

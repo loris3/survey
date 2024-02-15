@@ -4,26 +4,31 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npx rollup -p @rollup/plugin-node-resolve index.js -o ./public/bundle.js"
+    "build": "rollup -c",
+    "watch": "rollup -c -w",
+    "dev": "npm-run-all --parallel watch start",
+    "start": "node app.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@material/material-color-utilities": "^0.2.7",
     "@material/web": "^1.2.0",
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "connect-livereload": "^0.6.1",
-    "cookie-parse": "^0.4.0",
-    "dotenv": "^16.4.1",
+    "dotenv": "^16.4.2",
     "express": "^4.18.2",
-    "express-jwt": "^8.4.1",
     "jsonwebtoken": "^9.0.2",
-    "livereload": "^0.9.3",
-    "reload": "^3.2.1",
-    "rollup": "^4.9.6",
     "sanitize-filename": "^1.6.3",
     "seedrandom": "^3.0.5",
     "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@web/rollup-plugin-copy": "^0.5.1",
+    "@web/rollup-plugin-html": "^2.1.2",
+    "npm-run-all": "^4.1.5",
+    "rollup": "^2.79.1",
+    "rollup-plugin-minify-html-literals": "^1.2.6",
+    "rollup-plugin-postcss": "^4.0.2",
+    "rollup-plugin-summary": "^2.0.0"
   }
 }

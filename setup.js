@@ -120,9 +120,9 @@ explainers.forEach(explainer => {
     for(let i = 1; i <= 3; i++){
       // randomize order of documents (with seed)
       let rng_a = new seedrandom("a"+explainer+detector+i)
-      let document_order_a = Array.from(Array(n_documents_in_each_phase-1).keys()).sort( ()=>rng_a()-0.5 );
+      let document_order_a = Array.from(Array(n_documents_in_each_phase).keys()).sort( ()=>rng_a()-0.5 );
       rng_b = new seedrandom("b"+explainer+detector+i)
-      let document_order_b = Array.from(Array(n_documents_in_each_phase-1).keys()).sort( ()=>rng_b()-0.5 );
+      let document_order_b = Array.from(Array(n_documents_in_each_phase).keys()).sort( ()=>rng_b()-0.5 );
 
       db.run(`INSERT INTO users (access_token, detector, explainer, document_order_a, document_order_b) VALUES (?,?,?,?,?)`,
       [createToken(), detector, explainer, JSON.stringify(document_order_a), JSON.stringify(document_order_b)]);
