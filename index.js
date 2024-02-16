@@ -783,7 +783,7 @@ async function loadPhase4(){ // identical to phase 2 save for the prompt
             return elem.reportValidity() && acc;
         }, true)
         if(all_valid){
-            showConfirmDialog(3)
+            showConfirmDialog(5)
         }
         
         

@@ -455,11 +455,37 @@ md-radio {
 
 
 /**************************/
-/* .explanation > div > div > div,
+.explanation > div > div > div,
 svg  text,
 .lime.raw_text *,
 .lime.text_div *,
 .document-only-card-document,
 .explanation button span{
   font-family: "RedactedScript" !important;
-} */
+}
+
+.images-side-by-side {
+  display: flex;
+}
+.images-side-by-side-col {
+  flex: 40%;
+  
+  
+
+}
+.images-side-by-side-col figcaption, .images-side-by-side-col *{
+  text-align: center;
+  color: var(--md-sys-color-on-surface);
+}
+.images-side-by-side-col figcaption{
+  font-size: large;
+}
+.images-side-by-side-col img{
+  width: 100%;
+  height: 5em;
+  object-fit: cover;
+  overflow: hidden;
+}
+.images-side-by-side-col a{
+  font-size: smaller;
+}

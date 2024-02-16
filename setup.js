@@ -47,7 +47,7 @@ const db = new sqlite3.Database(db_path, (error) => {
 `);
 
 let n_documents = 0;
-const importPath = "./import/explanations/data"
+const importPath = "./import_new/explanations/data"
 fs.readdirSync(importPath).forEach(file => {
     fs.readFile(path.join(importPath, file), 'utf8', function (err, data) {
         if (err) throw err;

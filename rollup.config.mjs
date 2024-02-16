@@ -23,6 +23,8 @@ export default {
       patterns: [
         'fonts/**',
         '*.svg',
+        '*.jpeg',
+        '*.jpg',
         '*.html'
       ],
     }),
