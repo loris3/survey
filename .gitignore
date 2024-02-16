@@ -1,5 +1,6 @@
 *.html
 !index.html
+!template-labeling-card.html
 node_modules
 .vscode
 import
