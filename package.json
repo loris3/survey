@@ -7,7 +7,8 @@
     "build": "rollup -c",
     "watch": "rollup -c -w",
     "dev": "npm-run-all --parallel watch start",
-    "start": "node app.js"
+    "start": "node app.js",
+    "setup": "node setup.js"
   },
   "author": "",
   "license": "ISC",

@@ -151,14 +151,14 @@ body {
     gap: 0.5rem;
     max-width: 1200px;
   }
-.explanation{
+.explanation-html, #anchors-example{
     width: 100%;
     padding-top: 1em;
     background-color: white;
     color: black;
     
 }
-.explanation-container{
+.explanation-container, #anchors-example{
   padding: 0.5em;
   border-radius: 16px;
   background-color: white;
@@ -299,7 +299,15 @@ body {
 .detector-p-human{
   float: right;
 }
-
+.lime.anchor.model_prediction.label{
+  padding: 0;
+}
+.ant-collapse-header {
+  padding-right: 1em !important;
+}
+.model_prediction {
+  padding-top: 1em !important;
+}
 .detector-p-machine,
 .detector-p-human,
 .detector-p-label{
@@ -357,14 +365,34 @@ body {
 .labeling form > div label{
   font-size: larger;
 }
-/*anchors*/
-/* antd.css was changed to only apply inside .explanation elements */
-.ant-card.ant-card-bordered {
-    padding: 1em;
+/*lime*/
+.lime.top_div {
+ justify-content: center;
 }
-
+/*anchors*/
+/* antd.css was changed to only apply inside .explanation-html elements */
+div.ant-card-body  i::before{
+  /* hotfix so that anticons don't have to be imported*/
+  content: "✓";
+}
+.ant-card.ant-card-bordered {
+    padding-top: 0.5em;
+}
+.lime.explanation svg{
+  padding-right: 1em;
+}
+.ant-col-12{
+  width: 47%;
+}
+.ant-card-body{
+  padding: 0.5em;
+}
+.ant-row{
+  margin: 0 !important;
+}
 .lime.explanation_frame > div:nth-child(2) {
     margin-top: 1em !important;
+    
 }
 .lime.explanation_frame * {
     font-size: medium !important; /* default browser setting*/
@@ -375,19 +403,21 @@ body {
     margin-top: 1em;
     padding: 0.1em;
 }
-.model_prediction {
-    padding-top: 1em !important;
+#anchors-example{
+  padding-bottom: 1em;
+  padding-top: 1em;
+  width: initial;
 }
 .lime.anchor,
 :not(.lime.example_roll) .lime.raw_text {
     padding-top: 1em !important;
 }
 /*LIME*/
-.lime.top_div *{
+.lime.top_div *, #anchors-example *{
     font-family: 'Roboto' !important;
     text-align: justify;
 }
-.explanation *{
+.explanation-html *{
   font-family: 'Roboto' !important;
 }
 .lime.text_div h3{
@@ -455,14 +485,14 @@ md-radio {
 
 
 /**************************/
-.explanation > div > div > div,
+/* .explanation-html > div > div > div,
 svg  text,
 .lime.raw_text *,
 .lime.text_div *,
 .document-only-card-document,
-.explanation button span{
+.explanation-html button span{
   font-family: "RedactedScript" !important;
-}
+} */
 
 .images-side-by-side {
   display: flex;

@@ -175,6 +175,7 @@ CREATE TABLE participant_info
   has_seen_ANCHOR_before TEXT,
   has_seen_OTHERS_before TEXT,
   level_of_expertise TEXT,
+  familiarity_with_chatgpt TEXT,
 
   FOREIGN KEY (user_id)
      REFERENCES users (ID)

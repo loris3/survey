@@ -162,6 +162,7 @@ app.get("/explanation/:explanation_filename", (req,res, next) => {authMiddleware
     // only allow explanations from the assigned method
     db.get("SELECT EXISTS(SELECT 1 FROM documents_a WHERE explanation_filename=? and detector = (SELECT detector FROM users WHERE access_token=?) and explainer = (SELECT explainer FROM users WHERE access_token=?))", [sanitize(req.params.explanation_filename), req.access_token,req.access_token],(err, row) =>{
       if (err) return res.sendStatus(403);
+      console.log(sanitize(req.params.explanation_filename))
       if(Object.values(row)[0]){// TODO this can't be the only way of doing this
         //  console.log("serving", path.join(__dirname , "./import/explanations/html", sanitize(req.params.explanation_filename)+".html"))
           res.sendFile(path.join(__dirname , "./import_new/explanations/html", sanitize(req.params.explanation_filename)+".html"))
@@ -207,7 +208,7 @@ app.post("/submitParticipantInfo", (req,res, next) => {authMiddlewarePhase(req,r
 
   db.run(
     `INSERT OR REPLACE INTO participant_info (user_id, has_seen_explanation_methods_before, has_seen_SHAP_before, has_seen_LIME_before, has_seen_ANCHOR_before,
-      has_seen_OTHERS_before, level_of_expertise) VALUES((SELECT ID FROM users WHERE access_token = ?),?,?,?,?,?,?);`,
+      has_seen_OTHERS_before, level_of_expertise, familiarity_with_chatgpt) VALUES((SELECT ID FROM users WHERE access_token = ?),?,?,?,?,?,?,?);`,
     [
       req.access_token,
       req.body?.has_seen_explanation_methods_before,
@@ -215,7 +216,8 @@ app.post("/submitParticipantInfo", (req,res, next) => {authMiddlewarePhase(req,r
       req.body?.has_seen_LIME_before,
       req.body?.has_seen_ANCHOR_before,
       req.body?.has_seen_OTHERS_before,
-      req.body?.level_of_expertise
+      req.body?.level_of_expertise,
+      req.body?.familiarity_with_chatgpt
     ],
     (error) => {
       if (error) {

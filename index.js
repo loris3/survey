@@ -25,7 +25,6 @@ import '@material/web/select/outlined-select.js'
 import '@material/web/select/select-option.js'
 
 
-
 // https://stackoverflow.com/questions/2592092/executing-script-elements-inserted-with-innerhtml
 function setInnerHTML(elm, html) {
 
@@ -300,9 +299,7 @@ async function loadParticipantInfoForm(){
     document.querySelector("#card-container").appendChild(node);
 
 
-    document.querySelector("#btn-continue-to-phase0").addEventListener("click", (event) => {
-        nextPhase(0);
-    })
+
     document.querySelector('#participant-data-has-seen-explanation-methods-before-yes').addEventListener("change", (event)=>{
         if(event.target.value == "yes"){
             document.querySelector("#participant-data-optional-has-used-explanation-methods-before").style.display = "initial";
@@ -318,7 +315,17 @@ async function loadParticipantInfoForm(){
 
     document.querySelector("#participant-info-form").addEventListener("input", submitParticipantInfoForm)
 
+    document.querySelector("#btn-continue-to-phase0").addEventListener("click", (event)=>{
+
+        if(document.querySelector("#participant-info-form").reportValidity()){
+            nextPhase(0);
+        }
+        
+        
+    });
+
     restoreParticipantInfoForm(); // fetch and load old state
+
 }
 async function restoreParticipantInfoForm(){
     let response = null;
@@ -338,6 +345,7 @@ async function restoreParticipantInfoForm(){
         const form = document.querySelector("#participant-info-form");
         
         form.querySelector("#participant-data-level-of-expertise").value = participant_info.level_of_expertise
+        form.querySelector("#participant-data-familiarity-with-chatgpt").value = participant_info.familiarity_with_chatgpt
         
         if(participant_info.has_seen_explanation_methods_before == "yes"){
             document.querySelector("#participant-data-has-seen-explanation-methods-before-yes").setAttribute("checked","")
@@ -639,6 +647,59 @@ async function loadPhase2(){
     
 
 }
+async function loadAnchorsExample(){
+    div = d3.select("#anchors-example");
+    lime.RenderExplanationFrame(div,["example", "example"], [0.0, 1.0],
+    false, {
+        "names": ["example", "This", "is"], "certainties": [0.6, 0.8, 0.9], "supports": [0.0,0.0,0.0], "allPrecision": 0, 
+        "examples": [
+        {"coveredTrue": [
+                {"text": "This was an example.", "rawIndexes": [["example", 12, 1]]}, 
+                {"text": "This can be an example.", "rawIndexes": [["example", 15, 1]]}, 
+                {"text": "This might be an example.", "rawIndexes": [["example", 17, 1]]}, 
+                {"text": "This is the example.", "rawIndexes": [["example", 12, 1]]}, 
+                {"text": "This is one example.", "rawIndexes": [["example", 12, 1]]}, 
+                {"text": "This is another  example.", "rawIndexes": [["example", 17, 1]]}, 
+                ], 
+            "coveredFalse": [
+            {"text": "The word example.", "rawIndexes": [["example", 9, 1]]}, 
+                {"text": "It can't be an example.", "rawIndexes": [["example", 15, 1]]}, 
+                {"text": "It can't count as an example.", "rawIndexes": [["example", 21, 1]]}, 
+                {"text": "This ain't an example.", "rawIndexes": [["example", 14, 1]]}, 
+                {"text": "This can't be an example.", "rawIndexes": [["example", 17, 1]]}, 
+                {"text": "This does not count as an example.", "rawIndexes": [["example", 26, 1]]}, 
+                {"text": "This is not an example.", "rawIndexes": [["example", 15, 1]]}, 
+                {"text": "This is never an example.", "rawIndexes": [["example", 17, 1]]}, 
+            ], },
+            {"coveredTrue": [
+                {"text": "This was an example.", "rawIndexes": [["This", 0,1],["example", 12, 1]]}, 
+                {"text": "This can be an example.", "rawIndexes": [["This", 0,1],["example", 15, 1]]}, 
+                {"text": "This might be an example.", "rawIndexes": [["This", 0,1],["example", 17, 1]]}, 
+                {"text": "This is the example.", "rawIndexes": [["This", 0,1],["example", 12, 1]]}, 
+                {"text": "This is one example.", "rawIndexes": [["This", 0,1],["example", 12, 1]]}, 
+                {"text": "This is another  example.", "rawIndexes": [["This", 0,1],["example", 17, 1]]}, 
+                ], 
+            "coveredFalse": [
+                {"text": "This ain't an example.", "rawIndexes": [["This", 0,1],["example", 14, 1]]}, 
+                {"text": "This can't be an example.", "rawIndexes": [["This", 0,1],["example", 17, 1]]}, 
+                {"text": "This does not count as an example.", "rawIndexes": [["This", 0,1],["example", 26, 1]]}, 
+                {"text": "This is not an example.", "rawIndexes": [["This", 0,1],["example", 15, 1]]}, 
+                {"text": "This is never an example.", "rawIndexes": [["This", 0,1],["example", 17, 1]]}, 
+            ], },
+            {"coveredTrue": [
+                {"text": "This is the example.", "rawIndexes": [["This", 0,1],["is", 5, 1],["example", 12, 1]]}, 
+                {"text": "This is one example.", "rawIndexes": [["This", 0,1],["is", 5, 1],["example", 12, 1]]}, 
+                {"text": "This is another  example.", "rawIndexes": [["This", 0,1],["is", 5, 1],["example", 17, 1]]}, 
+                ], 
+            "coveredFalse": [
+            {"text": "This is not an example.", "rawIndexes": [["This", 0,1],["is", 5, 1],["example", 15, 1]]}, 
+                {"text": "This is never an example.", "rawIndexes": [["This", 0,1],["is", 5, 1],["example", 17, 1]]}, 
+            ], },
+        ]
+    }, {"text": "This is an example.", "rawIndexes": [["example", 11, 1],["This", 0, 1],["is", 5, 1]]}, "text", "anchor");
+    document.querySelector("#anchors-example > div > div:nth-child(2) > div > div > div > div:nth-child(1) > div > div > div").click();
+    document.querySelector("#anchors-example > div > div:nth-child(2) > div > div > div > div:nth-child(2) > div > div > div").click();
+}   
 // just like loadPhase1 but now with explanations
 async function loadPhase3(){
     checkMinViewportWidht()
@@ -648,12 +709,20 @@ async function loadPhase3(){
 
     // load explanation method specific prompt
     let template_instructions_explanation_method = null;
-    template_instructions_explanation_method  = document.querySelector("#template-phase3-instructions-shap");
+    if(state.explainer == "SHAP_Explainer"){
+        template_instructions_explanation_method  = document.querySelector("#template-phase3-instructions-shap");
+    }else if(state.explainer == "LIME_Explainer"){
+        template_instructions_explanation_method  = document.querySelector("#template-phase3-instructions-lime");
+    }else if(state.explainer == "Anchor_Explainer"){
+        template_instructions_explanation_method  = document.querySelector("#template-phase3-instructions-anchors");
+    }
 
 
     const node_instructions_explanation_method = template_instructions_explanation_method.content.cloneNode(true);
     document.querySelector("#phase3-instructions-card > #explanation-method-specific-instructions-container").appendChild(node_instructions_explanation_method);
-
+    if(state.explainer == "Anchor_Explainer"){
+        loadAnchorsExample();
+    }
 
     for(let i = 0; i < state.document_order_a.length; i++) { // sync to retain order
         const documentNr = state.document_order_a[i];
@@ -693,15 +762,16 @@ async function loadPhase3(){
                 showLoadingError()
                 return
             }
-            
+           
             if(response_explanation.status == 200){
                 const explanation_html = await response_explanation.text();
-                setInnerHTML(node.querySelector('.explanation'), explanation_html);
+                document.querySelector("#card-container").appendChild(node); // need to add this to document first as LIME has a loop to determine barchart width!!
+                setInnerHTML(document.querySelector("#card-container .card:last-child .explanation-html"), explanation_html);
             }else{
                 throw Error("Error fetching explanation")
             }
             // node.querySelector(".document-only-card-document").innerHTML = doc.document
-            document.querySelector("#card-container").appendChild(node);
+           // document.querySelector("#card-container").appendChild(node);
         }else if(response.status == 403){
             throw new Error("Wrong phase")
         }else{

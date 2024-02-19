@@ -25,7 +25,9 @@ export default {
         '*.svg',
         '*.jpeg',
         '*.jpg',
-        '*.html'
+        '*.html',
+        'lime_bundle.js',
+        'anchor_bundle.js'
       ],
     }),
     summary(),
