@@ -754,8 +754,25 @@ async function loadPhase3(){
                 setInnerHTML(document.querySelector("#card-container .card:last-child .explanation-html"), explanation_html);
                 
                 if(state.explainer == "SHAP_Explainer"){
+                    // fix some minor display bugs
                     document.querySelectorAll("#card-container .card:last-child .explanation-html > svg > text:nth-child(15)").forEach((element) =>{element.remove()})
                     document.querySelectorAll("#card-container .card:last-child .explanation-html > svg > text:nth-child(14)").forEach((element) =>{element.remove()})
+                    
+                    // SHAP adds event listeners to nonexistent elements in the forceplot
+                    // clone and re-add to get rid of them
+                    document.querySelectorAll(".explanation-container > div > div[align='center'] > div > div").forEach((element)=>{
+                        // the issue are the elements with no arrow in the forceplot, i.e. those with zero fi, i.e. the unshaded ones
+                       if(element.style.background.split(',')[3] == " 0)"){
+                        element.removeAttribute('onmouseover')
+                        element.removeAttribute('onmouseout')
+                        element.removeAttribute('onclick')
+                        let new_ = element.cloneNode(true);
+                        element.parentNode.replaceChild(new_, element); 
+                       }
+
+                    })
+                    
+                    
                     const template = document.querySelector("#template-shap-force-plot-legend");
                     const node = template.content.cloneNode(true);
                     const explanation_html = document.querySelector("#card-container .card:last-child .explanation-html")
