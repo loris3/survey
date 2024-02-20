@@ -2,6 +2,7 @@ import './index.css'
 import '@material/web/button/filled-button.js';
 import '@material/web/button/outlined-button.js';
 import '@material/web/iconbutton/icon-button.js';
+import '@material/web/iconbutton/filled-tonal-icon-button.js'
 import '@material/web/checkbox/checkbox.js';
 import '@material/web/textfield/outlined-text-field.js';
 import '@material/web/divider/divider.js';
@@ -25,6 +26,9 @@ import '@material/web/select/outlined-select.js'
 import '@material/web/select/select-option.js'
 
 
+import { loadAnchorsExample1, loadAnchorsExample2 } from './anchors-example';
+import { loadLIMEExample1 } from './lime-example';
+import { loadShapExample1 } from './shap_example';
 // https://stackoverflow.com/questions/2592092/executing-script-elements-inserted-with-innerhtml
 function setInnerHTML(elm, html) {
 
@@ -91,8 +95,8 @@ async function nextPhase(expectedPhase){
         clearCardContainerAndDisplayLoadingAnimation();
 
         try {
-            response = await fetch("./completeCurrentPhase",  {method: 'GET',  headers: getHeaders()})
-                if(response.status == 200){
+            response = await fetch("./completeCurrentPhase",  {method: 'POST', body:JSON.stringify({"expected": expectedPhase}), headers: getHeaders()})
+                if(response.status == 200 || response.status == 208){
                     clearCardContainerAndDisplayLoadingAnimation()
                     loadPhase();
                 }else{
@@ -217,6 +221,9 @@ function updateProgressBar(){
             total_progress = (state.current_phase - 1) * 25;
         }
         let progress_current_phase = 25 * Math.ceil(document.documentElement.scrollTop)/(document.documentElement.scrollHeight - document.documentElement.clientHeight);
+        if(state.current_phase == -1){
+            progress_current_phase = 0;
+        }
         total_progress += progress_current_phase
         document.querySelector("#progress-bar").setAttribute("value", Math.min(100,total_progress))
         document.querySelector("#progress-bar").removeAttribute("indeterminate")
@@ -324,6 +331,17 @@ async function loadParticipantInfoForm(){
         
     });
 
+    document.querySelector("#btn-open-cvd-info-dialog").addEventListener("click",(event)=>{
+        event.preventDefault();
+        if(!document.querySelector("#cvd-dialog")){
+            const template = document.querySelector("#template-cvd-dialog");
+            const node = template.content.cloneNode(true);
+            document.querySelector("body").appendChild(node);
+        }
+        document.querySelector("#cvd-dialog").setAttribute('open','')
+        
+    })
+
     restoreParticipantInfoForm(); // fetch and load old state
 
 }
@@ -346,14 +364,28 @@ async function restoreParticipantInfoForm(){
         
         form.querySelector("#participant-data-level-of-expertise").value = participant_info.level_of_expertise
         form.querySelector("#participant-data-familiarity-with-chatgpt").value = participant_info.familiarity_with_chatgpt
-        
-        if(participant_info.has_seen_explanation_methods_before == "yes"){
+        if(participant_info.prefers_monochromatic_methods == "yes"){
             document.querySelector("#participant-data-has-seen-explanation-methods-before-yes").setAttribute("checked","")
             document.querySelector("#participant-data-optional-has-used-explanation-methods-before").style.display = "initial";
 
         }
         if(participant_info.has_seen_explanation_methods_before == "no"){
             document.querySelector("#participant-data-has-seen-explanation-methods-before-no").setAttribute("checked","")
+        }
+        
+        if(participant_info.has_seen_explanation_methods_before == "yes"){
+            document.querySelector("#participant-data-has-seen-explanation-methods-before-yes").setAttribute("checked","")
+            document.querySelector("#participant-data-optional-has-used-explanation-methods-before").style.display = "initial";
+
+        }
+
+        if(participant_info.prefers_monochromatic_methods == "no"){
+            document.querySelector("#prefers-monochromatic-methods-no").setAttribute("checked","")
+        }
+        
+        if(participant_info.prefers_monochromatic_methods == "yes"){
+            document.querySelector("#prefers-monochromatic-methods-yes").setAttribute("checked","")
+
         }
 
         if(participant_info.has_seen_ANCHOR_before == "yes"){
@@ -647,59 +679,7 @@ async function loadPhase2(){
     
 
 }
-async function loadAnchorsExample(){
-    div = d3.select("#anchors-example");
-    lime.RenderExplanationFrame(div,["example", "example"], [0.0, 1.0],
-    false, {
-        "names": ["example", "This", "is"], "certainties": [0.6, 0.8, 0.9], "supports": [0.0,0.0,0.0], "allPrecision": 0, 
-        "examples": [
-        {"coveredTrue": [
-                {"text": "This was an example.", "rawIndexes": [["example", 12, 1]]}, 
-                {"text": "This can be an example.", "rawIndexes": [["example", 15, 1]]}, 
-                {"text": "This might be an example.", "rawIndexes": [["example", 17, 1]]}, 
-                {"text": "This is the example.", "rawIndexes": [["example", 12, 1]]}, 
-                {"text": "This is one example.", "rawIndexes": [["example", 12, 1]]}, 
-                {"text": "This is another  example.", "rawIndexes": [["example", 17, 1]]}, 
-                ], 
-            "coveredFalse": [
-            {"text": "The word example.", "rawIndexes": [["example", 9, 1]]}, 
-                {"text": "It can't be an example.", "rawIndexes": [["example", 15, 1]]}, 
-                {"text": "It can't count as an example.", "rawIndexes": [["example", 21, 1]]}, 
-                {"text": "This ain't an example.", "rawIndexes": [["example", 14, 1]]}, 
-                {"text": "This can't be an example.", "rawIndexes": [["example", 17, 1]]}, 
-                {"text": "This does not count as an example.", "rawIndexes": [["example", 26, 1]]}, 
-                {"text": "This is not an example.", "rawIndexes": [["example", 15, 1]]}, 
-                {"text": "This is never an example.", "rawIndexes": [["example", 17, 1]]}, 
-            ], },
-            {"coveredTrue": [
-                {"text": "This was an example.", "rawIndexes": [["This", 0,1],["example", 12, 1]]}, 
-                {"text": "This can be an example.", "rawIndexes": [["This", 0,1],["example", 15, 1]]}, 
-                {"text": "This might be an example.", "rawIndexes": [["This", 0,1],["example", 17, 1]]}, 
-                {"text": "This is the example.", "rawIndexes": [["This", 0,1],["example", 12, 1]]}, 
-                {"text": "This is one example.", "rawIndexes": [["This", 0,1],["example", 12, 1]]}, 
-                {"text": "This is another  example.", "rawIndexes": [["This", 0,1],["example", 17, 1]]}, 
-                ], 
-            "coveredFalse": [
-                {"text": "This ain't an example.", "rawIndexes": [["This", 0,1],["example", 14, 1]]}, 
-                {"text": "This can't be an example.", "rawIndexes": [["This", 0,1],["example", 17, 1]]}, 
-                {"text": "This does not count as an example.", "rawIndexes": [["This", 0,1],["example", 26, 1]]}, 
-                {"text": "This is not an example.", "rawIndexes": [["This", 0,1],["example", 15, 1]]}, 
-                {"text": "This is never an example.", "rawIndexes": [["This", 0,1],["example", 17, 1]]}, 
-            ], },
-            {"coveredTrue": [
-                {"text": "This is the example.", "rawIndexes": [["This", 0,1],["is", 5, 1],["example", 12, 1]]}, 
-                {"text": "This is one example.", "rawIndexes": [["This", 0,1],["is", 5, 1],["example", 12, 1]]}, 
-                {"text": "This is another  example.", "rawIndexes": [["This", 0,1],["is", 5, 1],["example", 17, 1]]}, 
-                ], 
-            "coveredFalse": [
-            {"text": "This is not an example.", "rawIndexes": [["This", 0,1],["is", 5, 1],["example", 15, 1]]}, 
-                {"text": "This is never an example.", "rawIndexes": [["This", 0,1],["is", 5, 1],["example", 17, 1]]}, 
-            ], },
-        ]
-    }, {"text": "This is an example.", "rawIndexes": [["example", 11, 1],["This", 0, 1],["is", 5, 1]]}, "text", "anchor");
-    document.querySelector("#anchors-example > div > div:nth-child(2) > div > div > div > div:nth-child(1) > div > div > div").click();
-    document.querySelector("#anchors-example > div > div:nth-child(2) > div > div > div > div:nth-child(2) > div > div > div").click();
-}   
+ 
 // just like loadPhase1 but now with explanations
 async function loadPhase3(){
     checkMinViewportWidht()
@@ -721,7 +701,12 @@ async function loadPhase3(){
     const node_instructions_explanation_method = template_instructions_explanation_method.content.cloneNode(true);
     document.querySelector("#phase3-instructions-card > #explanation-method-specific-instructions-container").appendChild(node_instructions_explanation_method);
     if(state.explainer == "Anchor_Explainer"){
-        loadAnchorsExample();
+        loadAnchorsExample1();
+        loadAnchorsExample2();
+    }else if(state.explainer == "LIME_Explainer"){
+        loadLIMEExample1();
+    }else if(state.explainer == "SHAP_Explainer"){
+        loadShapExample1();
     }
 
     for(let i = 0; i < state.document_order_a.length; i++) { // sync to retain order
@@ -767,6 +752,16 @@ async function loadPhase3(){
                 const explanation_html = await response_explanation.text();
                 document.querySelector("#card-container").appendChild(node); // need to add this to document first as LIME has a loop to determine barchart width!!
                 setInnerHTML(document.querySelector("#card-container .card:last-child .explanation-html"), explanation_html);
+                
+                if(state.explainer == "SHAP_Explainer"){
+                    document.querySelectorAll("#card-container .card:last-child .explanation-html > svg > text:nth-child(15)").forEach((element) =>{element.remove()})
+                    document.querySelectorAll("#card-container .card:last-child .explanation-html > svg > text:nth-child(14)").forEach((element) =>{element.remove()})
+                    const template = document.querySelector("#template-shap-force-plot-legend");
+                    const node = template.content.cloneNode(true);
+                    const explanation_html = document.querySelector("#card-container .card:last-child .explanation-html")
+                    explanation_html.insertBefore(node, explanation_html.firstChild)
+                }
+
             }else{
                 throw Error("Error fetching explanation")
             }

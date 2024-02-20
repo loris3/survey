@@ -94,8 +94,8 @@ fs.readdirSync(importPath).forEach(file => {
     ID INTEGER PRIMARY KEY AUTOINCREMENT,
     access_token TEXT NOT NULL UNIQUE,
     current_phase INTEGER NOT NULL DEFAULT -1,
-    detector TEXT NOT NULL,
-    explainer TEXT NOT NULL,
+    detector TEXT,
+    explainer TEXT,
     document_order_a TEXT NOT NULL,
     document_order_b TEXT NOT NULL
   );
@@ -114,24 +114,37 @@ explainers = ["SHAP_Explainer", "LIME_Explainer", "Anchor_Explainer"]
 detectors = ["DetectorGuo", "DetectorRadford", "DetectorDetectGPT"]
 
 const n_documents_in_each_phase =  18;
+const n_tokens = 36;
+  for(let i = 1; i <= n_tokens; i++){
+    // randomize order of documents (with seed)
+    let rng_a = new seedrandom("a"+i)
+    let document_order_a = Array.from(Array(n_documents_in_each_phase).keys()).sort( ()=>rng_a()-0.5 );
+    rng_b = new seedrandom("b"+i)
+    let document_order_b = Array.from(Array(n_documents_in_each_phase).keys()).sort( ()=>rng_b()-0.5 );
 
-explainers.forEach(explainer => {
-  detectors.forEach(detector =>{
-    for(let i = 1; i <= 3; i++){
-      // randomize order of documents (with seed)
-      let rng_a = new seedrandom("a"+explainer+detector+i)
-      let document_order_a = Array.from(Array(n_documents_in_each_phase).keys()).sort( ()=>rng_a()-0.5 );
-      rng_b = new seedrandom("b"+explainer+detector+i)
-      let document_order_b = Array.from(Array(n_documents_in_each_phase).keys()).sort( ()=>rng_b()-0.5 );
-
-      db.run(`INSERT INTO users (access_token, detector, explainer, document_order_a, document_order_b) VALUES (?,?,?,?,?)`,
-      [createToken(), detector, explainer, JSON.stringify(document_order_a), JSON.stringify(document_order_b)]);
-    }
+    db.run(`INSERT INTO users (access_token, document_order_a, document_order_b) VALUES (?,?,?)`,
+    [createToken(), JSON.stringify(document_order_a), JSON.stringify(document_order_b)]);
+  }
     
-  });
-});
-// db.run(`INSERT INTO users (access_token, detector, explainer) VALUES (?,?,?)`,["DDEBUG","DetectorRadford", "SHAP_Explainer", ]);
 
+db.run(`INSERT INTO users (access_token, document_order_a, document_order_b) VALUES (?,?,?)`,["DDEBUG",JSON.stringify(Array.from(Array(n_documents_in_each_phase).keys())),JSON.stringify(Array.from(Array(n_documents_in_each_phase).keys()))]);
+
+db.exec(`
+DROP TABLE IF EXISTS groups;
+CREATE TABLE groups
+(
+  ID INTEGER PRIMARY KEY AUTOINCREMENT,
+  explainer TEXT NOT NULL,
+  detector TEXT NOT NULL
+);
+
+`)
+explainers.forEach((explainer)=>{
+  detectors.forEach((detector)=>{
+    db.run(`INSERT INTO groups (explainer, detector) VALUES (?,?)`,[explainer,detector]);
+
+  })
+})
 db.exec(`
 DROP TABLE IF EXISTS responses_phase_2;
 CREATE TABLE responses_phase_2
@@ -176,7 +189,7 @@ CREATE TABLE participant_info
   has_seen_OTHERS_before TEXT,
   level_of_expertise TEXT,
   familiarity_with_chatgpt TEXT,
-
+  prefers_monochromatic_methods TEXT,
   FOREIGN KEY (user_id)
      REFERENCES users (ID)
 );

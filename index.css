@@ -151,18 +151,55 @@ body {
     gap: 0.5rem;
     max-width: 1200px;
   }
-.explanation-html, #anchors-example{
+  .shap-force-plot-legend-container{
+    display: flex;
+    margin-bottom: 1em;
+  }
+  /*shap*/
+  .shap-force-plot-label{
+    margin: auto;
+  }
+  .shap-force-plot-label.machine{
+    color: #e83752;
+    float: left;
+  }  .shap-force-plot-label.human{
+    color: #4287f7;
+    float: left;
+  }
+  /* div >  svg > text{
+    display: none;
+  } */
+.lime-example-container, .shap-example{
+  background-color: white;
+  padding: 1em;
+  color: black;
+  border-radius: 16px;
+}
+.explanation-html, .anchors-example{
     width: 100%;
     padding-top: 1em;
     background-color: white;
     color: black;
     
 }
-.explanation-container, #anchors-example{
+.explanation-container, .anchors-example{
   padding: 0.5em;
   border-radius: 16px;
   background-color: white;
 }
+
+#anchors-example-2 > div > div:nth-child(1) > div:nth-child(2) > div > div.ant-card-body > div > div:nth-child(1) > div > button:nth-child(2){
+  animation: glow 1s infinite alternate;
+}
+@keyframes glow { /*https://stackoverflow.com/a/34821366*/
+  from {
+    box-shadow: 0 0 10px -10px var(--md-sys-color-primary);
+  }
+  to {
+    box-shadow: 0 0 10px 10px var(--md-sys-color-primary)
+  }
+}
+
 .card,
 #loading-animation,
 .btn-continue-to-phase{
@@ -382,7 +419,25 @@ div.ant-card-body  i::before{
   padding-right: 1em;
 }
 .ant-col-12{
-  width: 47%;
+  width: 46%;
+}
+.cvd-btn-container{
+  display: flex;
+}
+.cvd-btn-container md-filled-tonal-icon-button {
+
+  float: left;
+}
+.cvd-btn-container label{
+  text-align:right;
+  padding-left: 1em;
+  float: right;
+  overflow: hidden; 
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#participant-info-form > div{
+  padding-bottom: 1em;
 }
 .ant-card-body{
   padding: 0.5em;
@@ -403,17 +458,40 @@ div.ant-card-body  i::before{
     margin-top: 1em;
     padding: 0.1em;
 }
-#anchors-example{
+.anchors-example{
   padding-bottom: 1em;
   padding-top: 1em;
   width: initial;
+  margin-bottom: 1em;
+}
+span.emphasis{
+  font-weight: bold;
+  color: var(--md-sys-color-tertiary);
+}
+span.term{
+  font-weight: bold;
+  font-style: italic;
+  color: var(--md-sys-color-secondary);
+}
+span.replace{
+  color: var(--md-sys-color-error);
+}
+#anchors-example-document{
+  --md-elevation-level: 4;
+  position: relative;
+  background-color: white;
+  color: black;
+  width: fit-content;
+  border-radius: 8px;
+  padding: 2em;
+  margin-left: 0;
 }
 .lime.anchor,
 :not(.lime.example_roll) .lime.raw_text {
     padding-top: 1em !important;
 }
 /*LIME*/
-.lime.top_div *, #anchors-example *{
+.lime.top_div *, .anchors-example *{
     font-family: 'Roboto' !important;
     text-align: justify;
 }
