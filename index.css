@@ -382,25 +382,66 @@ body {
 .labeling > div {
   padding-bottom: 1em;
 }
-.labeling form {
+.labeling form:not(.user-label-explanation-form),
+.labeling .lickert-row {
   justify-content: center;
   align-content: center;
   display: flex;
   
 }
-.labeling form > div{
+.user-label-explanation-form{
+  padding-top: 1em;
+}
+.labeling .lickert-row > div:not(.lickert-question){
+  width: 20%;
+  text-align: center;
+}
+.lickert-legend {
+  text-wrap: wrap;
+}
+.labeling form > div:not(.lickert-row){
+  padding: 1em;
+}
+.labeling form > div,
+.labeling .lickert-row > div{
   
   justify-content: center;
   align-content: center;
-  padding: 1em;
+
 }
-.labeling form > div *{
+
+.labeling form > div *,
+.labeling .lickert-row > div *{
   display: block;
   margin: auto;
 }
 
 .labeling form > div label{
   font-size: larger;
+}
+
+/*phase 3*/
+.lickert-question{
+  display: block;
+}
+.user-label-explanation-form{
+  display: grid;
+  grid-template-columns: 1fr minmax(22em, 1fr);
+  grid-row-gap: 1em;
+  grid-template-rows: auto;
+  align-items: center;
+  hyphens:auto;
+}
+
+
+.lickert-question:not(.lickert-legend-empty), .lickert-row:not(.lickert-legend){
+  border-top: 1px solid var(--md-divider-color, var(--md-sys-color-outline-variant, #cac4d0));
+  height: 100%;
+  padding-top: 1em;
+
+}
+.lickert-row:not(.lickert-legend) *{
+  margin: 0;
 }
 /*lime*/
 .lime.top_div {
