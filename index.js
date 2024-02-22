@@ -31,6 +31,7 @@ import {
     setInnerHTML, 
     checkMinViewportWidhtAndDisplayWarning,
     toggleFullscreen,
+    downloadBackup,
 } from './js/client/util.js';
 
 
@@ -38,6 +39,7 @@ import {
 import { clearCardContainerAndDisplayLoadingAnimation, updateProgressBar } from './js/client/util.js';
 
 import { loadPhase } from './js/client/ui.js';
+import { getHeaders } from './js/client/api.js';
 
 async function init() {
     loadPhase();
@@ -56,6 +58,9 @@ async function init() {
         }
 
     });
+    
+
+
 
 }
 

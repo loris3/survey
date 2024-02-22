@@ -5,6 +5,9 @@ const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const sqlite3 = require("sqlite3").verbose();
 const fs = require('fs');
+const zlib = require('zlib');
+const bwipjs = require('bwip-js');
+const pdfkit = require('pdfkit');
 var sanitize = require("sanitize-filename");
 
 if (!fs.existsSync('.env')) {
@@ -98,24 +101,24 @@ function authMiddleware(req, res, next) { // https://www.digitalocean.com/commun
 }
 
 app.post("/completeCurrentPhase", authMiddleware, (req, res) => {
-  
+
   db.get("SELECT current_phase, prefers_monochromatic_methods FROM users JOIN participant_info on users.ID = participant_info.user_id WHERE access_token = ?", [req.access_token], (err, row) => {
     if (err) return res.sendStatus(500);
     if (row == undefined) {
       res.sendStatus(404);
       return
     }
-    if(req.body?.expected == row.current_phase){
+    if (req.body?.expected == row.current_phase) {
       res.sendStatus(208);
       return
     }
-    if(row.current_phase == -1){ // assign group
+    if (row.current_phase == -1) { // assign group
       let query;
-      if(row.prefers_monochromatic_methods == "yes"){
+      if (row.prefers_monochromatic_methods == "yes") {
         // select where explainer = Anchors, with the least participants
         query = `WITH choice as (SELECT count(users.current_phase > 4) as numcompleted, count(users.detector) as count_ , groups.detector, groups.explainer FROM groups LEFT JOIN users ON groups.explainer = users.explainer AND groups.detector = users.detector   WHERE groups.explainer = "Anchor_Explainer" GROUP BY groups.explainer, groups.detector ORDER BY count_, numcompleted, groups.explainer DESC limit 1)
         UPDATE users SET detector = (SELECT detector from choice), explainer = (SELECT explainer from choice) WHERE access_token = ?`
-      }else{
+      } else {
         // select the one with the least participants
         query = `WITH choice as (SELECT count(users.current_phase > 4) as numcompleted, count(users.detector) as count_ , groups.detector, groups.explainer FROM groups LEFT JOIN users ON groups.explainer = users.explainer AND groups.detector = users.detector  GROUP BY groups.explainer, groups.detector ORDER BY count_, numcompleted, groups.explainer DESC limit 1)
         UPDATE users SET detector = (SELECT detector from choice), explainer = (SELECT explainer from choice) WHERE access_token = ?`
@@ -126,10 +129,10 @@ app.post("/completeCurrentPhase", authMiddleware, (req, res) => {
 
     }
     db.run("UPDATE users SET current_phase = current_phase + 1 WHERE access_token = ?", [req.access_token], (err, row) => {
-        if (err) return res.sendStatus(403);
-        return res.sendStatus(200);
-      })
-    
+      if (err) return res.sendStatus(403);
+      return res.sendStatus(200);
+    })
+
   })
 
 })
@@ -264,10 +267,10 @@ app.post("/submitParticipantInfo", (req, res, next) => { authMiddlewarePhase(req
 })
 app.post("/submitPhase3", (req, res, next) => { authMiddlewarePhase(req, res, next, 3) }, (req, res) => {
 
-try {
-  console.log(req.body)
+  try {
+    console.log(req.body)
     for (const [question_name, label] of Object.entries(req.body)) {
-      if(question_name == "document_nr"){
+      if (question_name == "document_nr") {
         continue;
       }
       const question_nr = (/-q(.*)-/gm).exec(question_name)[1];
@@ -279,18 +282,18 @@ try {
           if (error) {
             console.error(error.message);
             console.log(error)
-          } 
+          }
         }
       );
     }
-} catch (error) {
-  console.log(error)
-  res.sendStatus(500);
-  return;
-}
- res.sendStatus(201);
- return
-  
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(500);
+    return;
+  }
+  res.sendStatus(201);
+  return
+
 
 })
 // util endpoints
@@ -307,7 +310,7 @@ app.get("/state", authMiddleware, (req, res) => {
       document_order_a: row.document_order_a,
       document_order_b: row.document_order_b,
       explainer: row.explainer,
-      detector : row.detector // TODO this is for simulatability.ipynb
+      detector: row.detector // TODO this is for simulatability.ipynb
     })
   })
 })
@@ -402,7 +405,7 @@ app.get("/getPhase3", (req, res, next) => { authMiddlewarePhase(req, res, next, 
 
 app.get("/auth/:access_token", (req, res) => {
   console.log(req.params.access_token)
-  db.get("SELECT EXISTS (SELECT 1 FROM users WHERE access_token=? AND current_phase <= 4)", [req.params.access_token], (err, row) => {
+  db.get("SELECT EXISTS (SELECT 1 FROM users WHERE access_token=?)", [req.params.access_token], (err, row) => {
     if (err) return res.sendStatus(403);
     if (Object.values(row)[0]) {// TODO this can't be the only way of doing this
       res.json(jwt.sign({ access_token: req.params.access_token }, process.env.TOKEN_SECRET, { expiresIn: 60 * 60 * 24 * 30 }));
@@ -417,3 +420,98 @@ app.get("/auth/:access_token", (req, res) => {
 app.get("/:access_token", (req, res) => {
   res.sendFile(path.join(__dirname, "/build/index.html"))
 })
+
+async function getDataDump(access_token) {
+  let user_data = {};
+  let promises = [
+    new Promise((resolve, reject) => {
+      db.get("SELECT * FROM users WHERE access_token = ?", [access_token], (err, row) => {
+        if (err) reject()
+        user_data.user = row
+        resolve()
+      })
+    }),
+    new Promise((resolve, reject) => {
+      db.get("SELECT * FROM participant_info WHERE user_id = (SELECT ID from users WHERE access_token = ?)", [access_token], (err, row) => {
+        if (err) reject()
+        user_data.participant_info = row
+        resolve()
+      })
+    }),
+    new Promise((resolve, reject) => {
+      db.all("SELECT label, document_nr, max(timestamp) as timestamp_ FROM responses_phase_2 WHERE user_id = (SELECT ID FROM users WHERE access_token = ?) group by document_nr", [access_token], (err, rows) => {
+        if (err) reject()
+        user_data.responses_phase_2 = rows.map(({ timestamp_, ...f }) => f)
+        resolve()
+      })
+    }),
+    new Promise((resolve, reject) => {
+      db.all("SELECT label, document_nr, question_nr, max(timestamp) as timestamp_ FROM responses_phase_3 WHERE user_id = (SELECT ID FROM users WHERE access_token = ?) group by document_nr", [access_token], (err, rows) => {
+        if (err) reject()
+        user_data.responses_phase_3 = rows.map(({ timestamp_, ...f }) => f)
+        resolve()
+      })
+    }),
+    new Promise((resolve, reject) => {
+      db.all("SELECT label, document_nr, max(timestamp) as timestamp_ FROM responses_phase_4 WHERE user_id = (SELECT ID FROM users WHERE access_token = ?) group by document_nr", [access_token], (err, rows) => {
+        if (err) reject()
+        user_data.responses_phase_4 = rows.map(({ timestamp_, ...f }) => f)
+        resolve()
+      })
+    }),
+
+
+  ]
+  await Promise.all(promises)
+  return user_data
+}
+
+app.get("/api/dump", authMiddleware, async (req, res) => {
+
+  const filename = req.access_token + "-backup.pdf"
+  const out = path.join(__dirname, "backup", filename)
+
+  let user_data = await getDataDump(req.access_token);
+  const encoded = JSON.stringify(user_data);
+  const chunks = encoded.match(/.{1,1000}/g);
+  const doc = new pdfkit({ size: 'A5' });
+  const writeStream = fs.createWriteStream(out);
+  doc.pipe(writeStream);
+
+  doc.text("This is a backup of your responses.")
+  doc.fontSize(10);
+  doc.text("All data was successfully submitted, no further action is required on your part.")
+  doc.fontSize(9);
+  doc.text("Please hold on to this file just in case.")
+  doc.text(" ")
+  doc.fontSize(5);
+  doc.text(" ")
+  doc.text(JSON.stringify(user_data))
+  for (let i = 0; i < chunks.length; i++) {
+    await new Promise((resolve, reject) => {
+      bwipjs.toBuffer({
+        bcid: 'pdf417',       // Barcode type
+        text: chunks[i],    // Text to encode
+        rotate: "L",
+        padding: 10,
+      },
+        (err, png) => {
+          if (err) {
+            reject()
+          } else {
+            doc.addPage()
+            doc.image(png, 10, 10, { height: 500 })
+            doc.text(i + "/" + chunks.length + " " + req.access_token, 1, 1)
+            resolve()
+          }
+        });
+    })
+  }
+  doc.end();
+  writeStream.on('finish', function () {
+    res.sendFile(out)
+  });
+
+
+
+});

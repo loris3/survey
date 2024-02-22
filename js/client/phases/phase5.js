@@ -1,4 +1,6 @@
 import { clearCookie } from "../api";
+import { loadAuthCard } from "../auth";
+import { clearCardContainerAndDisplayLoadingAnimation, downloadBackup, updateProgressBar } from "../util";
 
 export async function loadPhase5(loadPhase) {
     const template = document.querySelector("#template-phase5-card");
@@ -8,6 +10,10 @@ export async function loadPhase5(loadPhase) {
     document.querySelector("#btn-exit").addEventListener("click", (event) => {
         console.log("Clearing cookie")
         clearCookie();
-        loadPhase();
+        clearCardContainerAndDisplayLoadingAnimation();
+        loadAuthCard();
+        updateProgressBar();
+        
     })
+    downloadBackup();
 }

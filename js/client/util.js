@@ -1,4 +1,4 @@
-import { getState } from "./api";
+import { getHeaders, getState } from "./api";
 
 // https://stackoverflow.com/questions/2592092/executing-script-elements-inserted-with-innerhtml
 export function setInnerHTML(elm, html) {
@@ -33,6 +33,18 @@ export async function checkMinViewportWidhtAndDisplayWarning() {
     }
 
 
+}
+export async function downloadBackup(){
+    let dump = await fetch("./api/dump", { method: "GET", headers: getHeaders()});
+    // needed as api/dump requires the auth_token https://stackoverflow.com/questions/19327749/javascript-blob-filename-without-link
+    const objURL = window.URL.createObjectURL(await dump.blob());
+    const a = document.createElement("a");
+    a.style = "display: none";
+    document.body.appendChild(a);
+    a.href = objURL;
+    a.download = "user-study-backup.pdf";
+    a.click();
+    window.URL.revokeObjectURL(objURL);
 }
 
 export function toggleFullscreen() {

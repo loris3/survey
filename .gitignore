@@ -16,3 +16,4 @@ build
 package-lock.json
 public
 import_new.zip
+backup/*
