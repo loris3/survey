@@ -262,7 +262,37 @@ app.post("/submitParticipantInfo", (req, res, next) => { authMiddlewarePhase(req
   );
 
 })
+app.post("/submitPhase3", (req, res, next) => { authMiddlewarePhase(req, res, next, 3) }, (req, res) => {
 
+try {
+  console.log(req.body)
+    for (const [question_name, label] of Object.entries(req.body)) {
+      if(question_name == "document_nr"){
+        continue;
+      }
+      const question_nr = (/-q(.*)-/gm).exec(question_name)[1];
+      console.log(req.access_token, req.body.document_nr, question_nr, label)
+      db.run(
+        `INSERT INTO responses_phase_3 (user_id, document_nr, question_nr, label) VALUES((SELECT ID FROM users WHERE access_token = ?),?,?, ?);`,
+        [req.access_token, req.body.document_nr, question_nr, label],
+        (error) => {
+          if (error) {
+            console.error(error.message);
+            console.log(error)
+          } 
+        }
+      );
+    }
+} catch (error) {
+  console.log(error)
+  res.sendStatus(500);
+  return;
+}
+ res.sendStatus(201);
+ return
+  
+
+})
 // util endpoints
 app.get("/state", authMiddleware, (req, res) => {
   db.get("SELECT * FROM users WHERE access_token=?", [req.access_token], (err, row) => {
@@ -337,6 +367,26 @@ app.get("/getPhase2", (req, res, next) => { authMiddlewarePhase(req, res, next, 
 
 })
 
+app.get("/getPhase3", (req, res, next) => { authMiddlewarePhase(req, res, next, 3) }, (req, res) => {
+
+
+  db.all(
+    `SELECT label, document_nr, question_nr, max(timestamp) FROM responses_phase_3 WHERE user_id = (SELECT ID FROM users WHERE access_token = ?) group by document_nr, question_nr;`,
+    [req.access_token],
+    (error, rows) => {
+      if (error) {
+        console.error(error.message);
+        console.log(error)
+        res.sendStatus(500);
+      } else {
+        res.send(rows)
+      }
+    }
+  );
+
+})
+
+
 // app.get("/numDocuments", authMiddleware,(req,res)=>{
 //   db.get("SELECT COUNT(documents_a.ID) FROM documents_a",(err, row) =>{
 //       if (err) return res.sendStatus(500);    
@@ -350,12 +400,14 @@ app.get("/getPhase2", (req, res, next) => { authMiddlewarePhase(req, res, next, 
 // })
 
 app.get("/auth/:access_token", (req, res) => {
+  console.log(req.params.access_token)
   db.get("SELECT EXISTS (SELECT 1 FROM users WHERE access_token=? AND current_phase <= 4)", [req.params.access_token], (err, row) => {
     if (err) return res.sendStatus(403);
     if (Object.values(row)[0]) {// TODO this can't be the only way of doing this
       res.json(jwt.sign({ access_token: req.params.access_token }, process.env.TOKEN_SECRET, { expiresIn: 60 * 60 * 24 * 30 }));
     } else {
       // no such token
+      console.log("no such token")
       return res.sendStatus(403);
     }
   })

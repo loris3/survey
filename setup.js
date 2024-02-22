@@ -127,7 +127,7 @@ const n_tokens = 36;
   }
     
 
-db.run(`INSERT INTO users (access_token, document_order_a, document_order_b) VALUES (?,?,?)`,["DDEBUG",JSON.stringify(Array.from(Array(n_documents_in_each_phase).keys())),JSON.stringify(Array.from(Array(n_documents_in_each_phase).keys()))]);
+db.run(`INSERT INTO users (access_token, document_order_a, document_order_b, explainer, detector) VALUES (?,?,?, 'LIME_Explainer', 'DetectorGuo')`,["DDEBUG",JSON.stringify(Array.from(Array(n_documents_in_each_phase).keys())),JSON.stringify(Array.from(Array(n_documents_in_each_phase).keys()))]);
 
 db.exec(`
 DROP TABLE IF EXISTS groups;
@@ -159,9 +159,22 @@ CREATE TABLE responses_phase_2
      REFERENCES users (ID),
   
   FOREIGN KEY (document_nr)
+     REFERENCES documents_b (document_nr)
+);
+DROP TABLE IF EXISTS responses_phase_3;
+CREATE TABLE responses_phase_3
+(
+  ID INTEGER PRIMARY KEY AUTOINCREMENT,
+  timestamp TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  label INTEGER NOT NULL,
+  user_id       INTEGER NOT NULL,
+  document_nr   INTEGER NOT NULL,
+  question_nr INTEGER NOT NULL,
+  FOREIGN KEY (user_id)
+     REFERENCES users (ID),
+  FOREIGN KEY (document_nr)
      REFERENCES documents_a (document_nr)
 );
-
 DROP TABLE IF EXISTS responses_phase_4;
 CREATE TABLE responses_phase_4
 (
@@ -175,7 +188,7 @@ CREATE TABLE responses_phase_4
      REFERENCES users (ID),
   
   FOREIGN KEY (document_nr)
-     REFERENCES documents_a (document_nr)
+     REFERENCES documents_b (document_nr)
 );
 
 DROP TABLE IF EXISTS participant_info;
