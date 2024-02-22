@@ -306,7 +306,8 @@ app.get("/state", authMiddleware, (req, res) => {
       current_phase: row.current_phase,
       document_order_a: row.document_order_a,
       document_order_b: row.document_order_b,
-      explainer: row.explainer
+      explainer: row.explainer,
+      detector : row.detector // TODO this is for simulatability.ipynb
     })
   })
 })
