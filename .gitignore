@@ -1,6 +1,7 @@
 *.html
 !index.html
 !template-labeling-card.html
+!template-explanation-card.html
 node_modules
 .vscode
 import
@@ -17,3 +18,5 @@ package-lock.json
 public
 import_new.zip
 backup/*
+*.zip
+*.db
