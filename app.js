@@ -198,7 +198,7 @@ app.get("/explanation/:explanation_filename", (req, res, next) => { authMiddlewa
     console.log(sanitize(req.params.explanation_filename))
     if (Object.values(row)[0]) {// TODO this can't be the only way of doing this
       //  console.log("serving", path.join(__dirname , "./import/explanations/html", sanitize(req.params.explanation_filename)+".html"))
-      res.sendFile(path.join(__dirname, "./import_new/explanations/html", sanitize(req.params.explanation_filename) + ".html"))
+      res.sendFile(path.join(__dirname, "./explanations/html", sanitize(req.params.explanation_filename) + ".html"))
     } else {
       // not permitted
       return res.sendStatus(403);

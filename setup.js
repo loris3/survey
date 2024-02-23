@@ -47,7 +47,7 @@ const db = new sqlite3.Database(db_path, (error) => {
 `);
 
 let n_documents = 0;
-const importPath = "./import_new/explanations/data"
+const importPath = "./explanations/data"
 fs.readdirSync(importPath).forEach(file => {
     fs.readFile(path.join(importPath, file), 'utf8', function (err, data) {
         if (err) throw err;
@@ -113,7 +113,7 @@ function createToken(){
 explainers = ["SHAP_Explainer", "LIME_Explainer", "Anchor_Explainer"]
 detectors = ["DetectorGuo", "DetectorRadford", "DetectorDetectGPT"]
 
-const n_documents_in_each_phase =  18;
+const n_documents_in_each_phase =  12;
 const n_tokens = 36;
   for(let i = 1; i <= n_tokens; i++){
     // randomize order of documents (with seed)
