@@ -2,27 +2,31 @@
   "name": "survey",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.mjs",
   "scripts": {
     "build": "rollup -c",
     "watch": "rollup -c -w",
     "dev": "npm-run-all --parallel watch start",
-    "start": "node app.js",
-    "setup": "node setup.js"
+    "start": "node app.mjs",
+    "setup": "node setup.js",
+    "deploy": "rollup -c &&  pm2 start ecosystem.config.js --env production"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@material/web": "^1.2.0",
+    "buffer-image-size": "^0.6.4",
     "bwip-js": "^4.2.0",
     "dotenv": "^16.4.2",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
     "node-scp": "^0.0.23",
     "pdfkit": "^0.14.0",
+    "pm2": "^5.3.1",
     "sanitize-filename": "^1.6.3",
     "seedrandom": "^3.0.5",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "^5.1.7",
+    "winston": "^3.11.0"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^15.2.3",

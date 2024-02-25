@@ -1,7 +1,7 @@
 import { advancePhase, getParticipantInfo, submitParticipantInfo } from "../api";
-import { showCommunicationError, showLoadingError, updateProgressBar } from "../util";
+import { showCommunicationError, showLoadingError } from "../util";
 
-export async function loadParticipantInfoForm(loadPhase) {
+export async function loadParticipantInfoForm(loadPhase, updateProgressBar) {
     const template = document.querySelector("#template-participant-data-form-card");
     const node = template.content.cloneNode(true);
     document.querySelector("#card-container").appendChild(node);
@@ -20,7 +20,7 @@ export async function loadParticipantInfoForm(loadPhase) {
     })
 
 
-    document.querySelector("#participant-info-form").addEventListener("input", submitParticipantInfoForm)
+    document.querySelector("#participant-info-form").addEventListener("input", (event)=>{submitParticipantInfoForm(event, updateProgressBar)})
 
     document.querySelector("#btn-continue-to-phase0").addEventListener("click", async (event) => {
 
@@ -54,62 +54,60 @@ export async function loadParticipantInfoForm(loadPhase) {
 }
 
 async function restoreParticipantInfoForm() {
-    let oldState;
+    let participant_info;
     try {
-        oldState =  await getParticipantInfo();
+        participant_info =  await getParticipantInfo();
     } catch (error) {
         showLoadingError();
         return;
     }
 
-    if (oldState.length > 0) {
-        const participant_info = oldState[0]
-        console.log(participant_info)
-        const form = document.querySelector("#participant-info-form");
 
-        form.querySelector("#participant-data-level-of-expertise").value = participant_info.level_of_expertise
-        form.querySelector("#participant-data-familiarity-with-chatgpt").value = participant_info.familiarity_with_chatgpt
-        if (participant_info.prefers_monochromatic_methods == "yes") {
-            document.querySelector("#participant-data-has-seen-explanation-methods-before-yes").setAttribute("checked", "")
-            document.querySelector("#participant-data-optional-has-used-explanation-methods-before").style.display = "initial";
+    const form = document.querySelector("#participant-info-form");
 
-        }
-        if (participant_info.has_seen_explanation_methods_before == "no") {
-            document.querySelector("#participant-data-has-seen-explanation-methods-before-no").setAttribute("checked", "")
-        }
+    form.querySelector("#participant-data-level-of-expertise").value = participant_info.level_of_expertise
+    form.querySelector("#participant-data-familiarity-with-chatgpt").value = participant_info.familiarity_with_chatgpt
+    if (participant_info.prefers_monochromatic_methods == "yes") {
+        document.querySelector("#participant-data-has-seen-explanation-methods-before-yes").setAttribute("checked", "")
+        document.querySelector("#participant-data-optional-has-used-explanation-methods-before").style.display = "initial";
 
-        if (participant_info.has_seen_explanation_methods_before == "yes") {
-            document.querySelector("#participant-data-has-seen-explanation-methods-before-yes").setAttribute("checked", "")
-            document.querySelector("#participant-data-optional-has-used-explanation-methods-before").style.display = "initial";
-
-        }
-
-        if (participant_info.prefers_monochromatic_methods == "no") {
-            document.querySelector("#prefers-monochromatic-methods-no").setAttribute("checked", "")
-        }
-
-        if (participant_info.prefers_monochromatic_methods == "yes") {
-            document.querySelector("#prefers-monochromatic-methods-yes").setAttribute("checked", "")
-
-        }
-
-        if (participant_info.has_seen_ANCHOR_before == "yes") {
-            document.querySelector("#participant-data-has-seen-ANCHOR-before").setAttribute("checked", "")
-        }
-        if (participant_info.has_seen_LIME_before == "yes") {
-            document.querySelector("#participant-data-has-seen-LIME-before").setAttribute("checked", "")
-        }
-        if (participant_info.has_seen_SHAP_before == "yes") {
-            document.querySelector("#participant-data-has-seen-SHAP-before").setAttribute("checked", "")
-        }
-        if (participant_info.has_seen_OTHERS_before == "yes") {
-            document.querySelector("#participant-data-has-seen-OTHERS-before").setAttribute("checked", "")
-        }
     }
+    if (participant_info.has_seen_explanation_methods_before == "no") {
+        document.querySelector("#participant-data-has-seen-explanation-methods-before-no").setAttribute("checked", "")
+    }
+
+    if (participant_info.has_seen_explanation_methods_before == "yes") {
+        document.querySelector("#participant-data-has-seen-explanation-methods-before-yes").setAttribute("checked", "")
+        document.querySelector("#participant-data-optional-has-used-explanation-methods-before").style.display = "initial";
+
+    }
+
+    if (participant_info.prefers_monochromatic_methods == "no") {
+        document.querySelector("#prefers-monochromatic-methods-no").setAttribute("checked", "")
+    }
+
+    if (participant_info.prefers_monochromatic_methods == "yes") {
+        document.querySelector("#prefers-monochromatic-methods-yes").setAttribute("checked", "")
+
+    }
+
+    if (participant_info.has_seen_ANCHOR_before == "yes") {
+        document.querySelector("#participant-data-has-seen-ANCHOR-before").setAttribute("checked", "")
+    }
+    if (participant_info.has_seen_LIME_before == "yes") {
+        document.querySelector("#participant-data-has-seen-LIME-before").setAttribute("checked", "")
+    }
+    if (participant_info.has_seen_SHAP_before == "yes") {
+        document.querySelector("#participant-data-has-seen-SHAP-before").setAttribute("checked", "")
+    }
+    if (participant_info.has_seen_OTHERS_before == "yes") {
+        document.querySelector("#participant-data-has-seen-OTHERS-before").setAttribute("checked", "")
+    }
+
 
 }
 
-async function submitParticipantInfoForm(event) {
+async function submitParticipantInfoForm(event, updateProgressBar) {
     const form = document.querySelector("#participant-info-form");
     if(!await submitParticipantInfo(form)){
         showCommunicationError();
@@ -122,7 +120,7 @@ async function submitParticipantInfoForm(event) {
             }
         }
         updateDialog(timeout)
-        setTimeout(() => { submitParticipantInfoForm(event) }, timeout + 100)
+        setTimeout(() => { submitParticipantInfoForm(event, updateProgressBar) }, timeout + 100)
     }else{
         if (document.querySelector("#connection-issues-warning")) {
             document.querySelector("#connection-issues-warning").removeAttribute('open')

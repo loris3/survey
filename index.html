@@ -301,6 +301,24 @@
 
   </md-dialog>
 </template>
+<template id="template-incomplete-input-error">
+  <md-dialog id="incomplete-input-error">
+   
+    <span slot="headline">
+      
+      <span style="flex: 1;">Incomplete Input</span>
+      <md-icon-button form="incomplete-input-form" value="close" aria-label="Close dialog">
+        <md-icon>close</md-icon>
+      </md-icon-button>
+    </span>
+    <form id="incomplete-input-form" slot="content" method="dialog">
+      <p><b>Some responses were not submitted to the server, please check your answers.</b> Refresh the page if this error persists.</p>
+
+    </form>
+
+
+  </md-dialog>
+</template>
 <template id="template-cvd-dialog">
   <md-dialog id="cvd-dialog">
     <span slot="headline">

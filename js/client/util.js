@@ -1,5 +1,3 @@
-import {getState, hasToken } from "./api";
-
 // https://stackoverflow.com/questions/2592092/executing-script-elements-inserted-with-innerhtml
 export function setInnerHTML(elm, html) {
 
@@ -19,26 +17,7 @@ export function setInnerHTML(elm, html) {
             oldScriptEl.parentNode.replaceChild(newScriptEl, oldScriptEl);
         });
 }
-export async function checkMinViewportWidhtAndDisplayWarning() {
-    let current_phase;
-    if(!hasToken()){
-        current_phase = -1;
-    }else{
-        try {
-            current_phase = (await getState()).current_phase;
-        } catch (error) {
-            showGenericError(error)
-        }
-    }
 
-    if (screen.availWidth <= 600 && screen.availHeight > screen.availWidth && current_phase == 3) {
-        document.getElementById("dialog-viewport-width-to-low").setAttribute('open', '')
-    } else {
-        document.getElementById("dialog-viewport-width-to-low").removeAttribute("open")
-    }
-
-
-}
 
 
 export function toggleFullscreen() {
@@ -65,34 +44,6 @@ export function toggleFullscreen() {
 }
 
 
-export async function updateProgressBar() {
-    if(!hasToken()){
-        document.querySelector("#progress-bar").removeAttribute("indeterminate")
-        document.querySelector("#progress-bar").setAttribute("value", 0)
-        
-        return;
-    }
-    let state; 
-    try {
-        state = await getState();
-    } catch (error) {
-        showGenericError(error)
-    }
-
-    let total_progress = 0;
-
-    if (state.current_phase > 0) {
-        total_progress = (state.current_phase - 1) * 25;
-        let progress_current_phase = 25 * Math.ceil(document.documentElement.scrollTop) / (document.documentElement.scrollHeight - document.documentElement.clientHeight);
-        if(isNaN(progress_current_phase)){
-            progress_current_phase = 0;
-        }
-        total_progress += progress_current_phase
-    }
-    document.querySelector("#progress-bar").removeAttribute("indeterminate")
-    document.querySelector("#progress-bar").setAttribute("value", Math.min(100, total_progress))
-    
-}
 
 export async function clearCardContainerAndDisplayLoadingAnimation() {
     document.querySelector("#progress-bar").setAttribute("indeterminate", "")
@@ -133,7 +84,19 @@ export function showLoadingError() {
 
 
 }
+export function showIncompleteInputError() {
+    console.error("Incomplete Input error")
 
+    if (document.querySelector("#incomplete-input-error") == null) {
+        const template = document.querySelector("#template-incomplete-input-error");
+        const node = template.content.cloneNode(true);
+        document.querySelector("body").appendChild(node);
+    }
+    document.querySelector("#incomplete-input-error").setAttribute('open', '')
+
+
+
+}
 export function showGenericError(err) {
     document.querySelector("#progress-bar").setAttribute("indeterminate", "")
     console.error("Generic error", err)

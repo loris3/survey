@@ -119,7 +119,7 @@ explainers = ["SHAP_Explainer", "LIME_Explainer", "Anchor_Explainer"]
 detectors = ["DetectorGuo", "DetectorRadford", "DetectorDetectGPT"]
 
 const n_documents_in_each_phase =  12;
-const n_tokens = 36;
+const n_tokens = 27;
   for(let i = 1; i <= n_tokens; i++){
     // randomize order of documents (with seed)
     let rng_a = new seedrandom("a"+i)

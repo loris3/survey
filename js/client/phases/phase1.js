@@ -2,7 +2,7 @@ import { getHeaders, getState } from "../api";
 import { showLoadingError } from "../util";
 import { showConfirmDialog } from "./util";
 
-export async function loadPhase1(loadPhase) {
+export async function loadPhase1(loadPhase, updateProgressBar) {
     const template_instructions = document.querySelector("#template-phase1-instructions-card");
     const node_instructions = template_instructions.content.cloneNode(true);
     document.querySelector("#card-container").appendChild(node_instructions);
@@ -12,7 +12,7 @@ export async function loadPhase1(loadPhase) {
         const documentNr = state.document_order_a[i];
         let response = null;
         try {
-            response = await fetch("./documentPhase1/" + documentNr, { method: 'GET', headers: getHeaders() })
+            response = await fetch("./api/documentPhase1/" + documentNr, { method: 'GET', headers: getHeaders() })
         } catch (error) {
             showLoadingError()
             return

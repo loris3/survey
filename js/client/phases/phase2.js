@@ -2,7 +2,7 @@ import { getHeaders, getState } from "../api";
 import { showLoadingError } from "../util";
 import { restorePhase, showConfirmDialog, submitResponse_ } from "./util";
 
-export async function loadPhase2(loadPhase) {
+export async function loadPhase2(loadPhase, updateProgressBar) {
     const template_instructions = document.querySelector("#template-phase2-instructions-card");
     const node_instructions = template_instructions.content.cloneNode(true);
     document.querySelector("#card-container").appendChild(node_instructions);
@@ -19,7 +19,7 @@ export async function loadPhase2(loadPhase) {
         const documentNr = state.document_order_b[i];
         let response = null;
         try {
-            response = await fetch("./documentPhase2/" + documentNr, { method: 'GET', headers: getHeaders() })
+            response = await fetch("./api/documentPhase2/" + documentNr, { method: 'GET', headers: getHeaders() })
         } catch (error) {
             showLoadingError()
             return
@@ -30,7 +30,7 @@ export async function loadPhase2(loadPhase) {
             card.setAttribute("class", "card document-only-card labeling")
             card.innerHTML = template_html.replaceAll("nr", doc.document_nr)
             card.querySelector(".document-only-card-document").innerHTML = doc.document
-            card.querySelector("form").addEventListener("change", submitResponse_(doc.document_nr, 2))
+            card.querySelector("form").addEventListener("change", submitResponse_(doc.document_nr, 2, updateProgressBar))
             document.querySelector("#card-container").appendChild(card);
 
         } else if (response.status == 403) {
@@ -46,9 +46,13 @@ export async function loadPhase2(loadPhase) {
     node.querySelector("#btn-continue-to-phase3").addEventListener("click", (event) => {
 
         let all_valid = Array.from(document.querySelectorAll("form")).reduce((acc, elem) => {
-            return elem.reportValidity() && acc;
+            if(acc){ // only trigger invalid once
+                return elem.reportValidity() && acc;
+            }else{
+                return acc;
+            }
         }, true)
-        if (true || all_valid) {
+        if ( all_valid) {
             showConfirmDialog(3, loadPhase)
         }
 

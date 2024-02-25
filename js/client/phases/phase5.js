@@ -1,8 +1,8 @@
 import { clearCookie, getHeaders } from "../api";
 import { loadAuthCard } from "../auth";
-import { clearCardContainerAndDisplayLoadingAnimation, updateProgressBar } from "../util";
+import { clearCardContainerAndDisplayLoadingAnimation } from "../util";
 
-export async function loadPhase5(loadPhase, download=false) {
+export async function loadPhase5(loadPhase, updateProgressBar, download=false) {
     const template = document.querySelector("#template-phase5-card");
     const node = template.content.cloneNode(true);
     document.querySelector("#card-container").appendChild(node);

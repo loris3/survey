@@ -29,16 +29,16 @@ import '@material/web/select/select-option.js'
 
 import {
     setInnerHTML, 
-    checkMinViewportWidhtAndDisplayWarning,
     toggleFullscreen,
 } from './js/client/util.js';
 
 
 
-import { clearCardContainerAndDisplayLoadingAnimation, updateProgressBar } from './js/client/util.js';
+import { clearCardContainerAndDisplayLoadingAnimation } from './js/client/util.js';
 
-import { loadPhase } from './js/client/ui.js';
-import { getHeaders } from './js/client/api.js';
+import { checkMinViewportWidhtAndDisplayWarning, loadPhase, updateProgressBar } from './js/client/ui.js';
+import { getHeaders, hasToken } from './js/client/api.js';
+
 
 async function init() {
     loadPhase();
@@ -62,8 +62,6 @@ async function init() {
 
 
 }
-
-
 
 
 

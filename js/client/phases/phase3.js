@@ -1,14 +1,14 @@
 import { loadAnchorsExample1, loadAnchorsExample2 } from "../../../anchors-example";
 import { loadShapExample1 } from "../../../shap_example";
 import { loadLIMEExample1 } from "../../../lime-example";
-import { checkMinViewportWidhtAndDisplayWarning, setInnerHTML, showCommunicationError, showLoadingError, updateProgressBar } from "../util";
+import { setInnerHTML, showCommunicationError, showLoadingError } from "../util";
 import { getHeaders, getState, submitLickert } from "../api";
 
 import { showConfirmDialog } from "./util";
 
 // just like loadPhase1 but now with explanations
-export async function loadPhase3(loadPhase) {
-    checkMinViewportWidhtAndDisplayWarning()
+export async function loadPhase3(loadPhase, updateProgressBar) {
+    
     const template_instructions = document.querySelector("#template-phase3-instructions-card");
     const node_instructions = template_instructions.content.cloneNode(true);
     document.querySelector("#card-container").appendChild(node_instructions);
@@ -46,7 +46,7 @@ export async function loadPhase3(loadPhase) {
         const documentNr = state.document_order_a[i];
         let response = null;
         try {
-            response = await fetch("./documentPhase3/" + documentNr, { method: 'GET', headers: getHeaders() })
+            response = await fetch("./api/documentPhase3/" + documentNr, { method: 'GET', headers: getHeaders() })
         } catch (error) {
             showLoadingError()
             console.log("catch")
@@ -75,11 +75,11 @@ export async function loadPhase3(loadPhase) {
             card.querySelector(".detector-p-machine-val").innerHTML = parseFloat(doc.detector_p_machine * 100).toFixed(2).padStart(12).replaceAll(" ", "&nbsp; ");
             card.querySelector(".detector-p-human-val").innerHTML = parseFloat(doc.detector_p_human * 100).toFixed(2).padStart(12).replaceAll(" ", "&nbsp; ");
             
-            card.querySelector("form").addEventListener("change", submitResponseLickert_(doc.document_nr))
+            card.querySelector("form").addEventListener("change", submitResponseLickert_(doc.document_nr, updateProgressBar))
             // fetch explanation
             let response_explanation = null;
             try {
-                response_explanation = await fetch("./explanation/" + doc.explanation_filename, { method: 'GET', headers: getHeaders() })
+                response_explanation = await fetch("./api/explanation/" + doc.explanation_filename, { method: 'GET', headers: getHeaders() })
             } catch (error) {
                 showLoadingError()
                 return
@@ -135,9 +135,13 @@ export async function loadPhase3(loadPhase) {
     const node = template.content.cloneNode(true);
     node.querySelector("#btn-continue-to-phase4").addEventListener("click", (event) => {
         let all_valid = Array.from(document.querySelectorAll("form")).reduce((acc, elem) => {
-            return true || elem.reportValidity() && acc;
+            if(acc){ // only trigger invalid once
+                return elem.reportValidity() && acc;
+            }else{
+                return acc;
+            }
         }, true)
-        if (true || all_valid) {
+        if (all_valid) {
             showConfirmDialog(4, loadPhase)
         }
         
@@ -147,7 +151,7 @@ export async function loadPhase3(loadPhase) {
     restorePhase3();
 }
 
-export function submitResponseLickert_(documentNr) {
+export function submitResponseLickert_(documentNr, updateProgressBar) {
     return async () => {
         const form = document.querySelector("#user-label-explanation-form-"+documentNr);
         if(!await submitLickert(form, documentNr)){
@@ -161,7 +165,7 @@ export function submitResponseLickert_(documentNr) {
                 }
             }
             updateDialog(timeout)
-            setTimeout(submitResponseLickert_(documentNr), timeout + 100)
+            setTimeout(submitResponseLickert_(documentNr, updateProgressBar), timeout + 100)
         }else{
             if (document.querySelector("#connection-issues-warning")) {
                 document.querySelector("#connection-issues-warning").removeAttribute('open')
@@ -175,7 +179,7 @@ export function submitResponseLickert_(documentNr) {
 export async function restorePhase3() {
     let response = null;
     try {
-        response = await fetch("./getPhase3", { method: 'GET', headers: getHeaders() });
+        response = await fetch("./api/getPhase3", { method: 'GET', headers: getHeaders() });
     } catch (error) {
         showLoadingError()
     }

@@ -2,7 +2,7 @@ import { getHeaders, getState } from "../api";
 import { showLoadingError } from "../util";
 import { restorePhase, showConfirmDialog, submitResponse_ } from "./util";
 
-export async function loadPhase4(loadPhase) { // identical to phase 2 save for the prompt
+export async function loadPhase4(loadPhase, updateProgressBar) { // identical to phase 2 save for the prompt
     const template_instructions = document.querySelector("#template-phase4-instructions-card");
     const node_instructions = template_instructions.content.cloneNode(true);
     document.querySelector("#card-container").appendChild(node_instructions);
@@ -19,7 +19,7 @@ export async function loadPhase4(loadPhase) { // identical to phase 2 save for t
         const documentNr = state.document_order_b[i];
         let response = null;
         try {
-            response = await fetch("./documentPhase4/" + documentNr, { method: 'GET', headers: getHeaders() })
+            response = await fetch("./api/documentPhase4/" + documentNr, { method: 'GET', headers: getHeaders() })
         } catch (error) {
             showLoadingError()
             return
@@ -30,7 +30,7 @@ export async function loadPhase4(loadPhase) { // identical to phase 2 save for t
             card.setAttribute("class", "card document-only-card labeling")
             card.innerHTML = template_html.replaceAll("nr", doc.document_nr)
             card.querySelector(".document-only-card-document").innerHTML = doc.document
-            card.querySelector("form").addEventListener("change", submitResponse_(doc.document_nr, 4))
+            card.querySelector("form").addEventListener("change", submitResponse_(doc.document_nr, 4, updateProgressBar))
             document.querySelector("#card-container").appendChild(card);
 
         } else if (response.status == 403) {
@@ -47,9 +47,13 @@ export async function loadPhase4(loadPhase) { // identical to phase 2 save for t
     node.querySelector("#btn-continue-to-phase5").addEventListener("click", (event) => {
 
         let all_valid = Array.from(document.querySelectorAll("form")).reduce((acc, elem) => {
-            return elem.reportValidity() && acc;
+            if(acc){ // only trigger invalid once
+                return elem.reportValidity() && acc;
+            }else{
+                return acc;
+            }
         }, true)
-        if (true || all_valid) {
+        if (all_valid) {
             showConfirmDialog(5, () =>{loadPhase(firstLoad=true)})
         }
 

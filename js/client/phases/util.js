@@ -1,10 +1,11 @@
 import { advancePhase, getHeaders } from "../api";
-import { showCommunicationError, showLoadingError, updateProgressBar } from "../util";
+
+import { showCommunicationError, showLoadingError } from "../util";
 
 export async function restorePhase(phase) {
     let response = null;
     try {
-        response = await fetch("./getPhase" + phase, { method: 'GET', headers: getHeaders() });
+        response = await fetch("./api/getPhase" + phase, { method: 'GET', headers: getHeaders() });
     } catch (error) {
         showLoadingError()
     }
@@ -27,12 +28,12 @@ export async function restorePhase(phase) {
 
 }
 let retryIntervals = [];
-export function submitResponse_(documentNr, phase) {
+export function submitResponse_(documentNr, phase, updateProgressBar) {
     return async () => {
         form = document.querySelector("#user-label-document-form-" + documentNr)
         let label = new FormData(form).get("user-label-document-" + documentNr) == "human" ? 1 : 0
         try {
-            let response = await fetch("./submitPhase" + phase, { method: "POST", headers: getHeaders(), body: JSON.stringify({ ID: documentNr, label }) });
+            let response = await fetch("./api/submitPhase" + phase, { method: "POST", headers: getHeaders(), body: JSON.stringify({ ID: documentNr, label }) });
 
             if (response.status != 201) {
 
@@ -59,7 +60,7 @@ export function submitResponse_(documentNr, phase) {
                 }
             }
             updateDialog(timeout)
-            setTimeout(submitResponse_(documentNr, phase), timeout + 100)
+            setTimeout(submitResponse_(documentNr, phase, updateProgressBar), timeout + 100)
 
 
         }
@@ -69,8 +70,8 @@ export function submitResponse_(documentNr, phase) {
 
 
 export async function showConfirmDialog(next, loadPhase) {
-    if (document.querySelector("confirm-complete-phase") != null) {
-        document.querySelector("confirm-complete-phase").remove();
+    if (document.querySelector("#confirm-complete-phase") != null) {
+        document.querySelector("#confirm-complete-phase").remove();
     }
     const template = document.querySelector("#template-confirm-complete-phase");
     const node = template.content.cloneNode(true);

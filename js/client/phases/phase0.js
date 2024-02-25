@@ -1,7 +1,7 @@
 import { advancePhase } from "../api";
 import { showLoadingError } from "../util";
 
-export async function loadPhase0(loadPhase) {
+export async function loadPhase0(loadPhase, updateProgressBar) {
     const template = document.querySelector("#template-phase0-instructions-card");
     const node = template.content.cloneNode(true);
     document.querySelector("#card-container").appendChild(node);

@@ -1,4 +1,4 @@
-import { showGenericError } from "./util";
+import { showGenericError, showIncompleteInputError } from "./util";
 
 
 
@@ -41,7 +41,7 @@ export async function getState() {
 }
 
 export async function getParticipantInfo() {
-    let response = await fetch("./getParticipantInfo", { method: 'GET', headers: getHeaders() });
+    let response = await fetch("./api/getParticipantInfo", { method: 'GET', headers: getHeaders() });
 
     return await response.json()
 }
@@ -53,7 +53,7 @@ export async function submitParticipantInfo(form) {
     const json = JSON.stringify(plainFormData);
 
     try {
-        let response = await fetch("./submitParticipantInfo", { method: "POST", headers: getHeaders(), body: json });
+        let response = await fetch("./api/submitParticipantInfo", { method: "POST", headers: getHeaders(), body: json });
 
         return response.status == 201;
     } catch (error) {
@@ -69,7 +69,7 @@ export async function submitLickert(form, documentNr) {
 
 
     try {
-        let response = await fetch("./submitPhase3", { method: "POST", headers: getHeaders(), body: json });
+        let response = await fetch("./api/submitPhase3", { method: "POST", headers: getHeaders(), body: json });
 
         return response.status == 201;
     } catch (error) {
@@ -80,7 +80,7 @@ export async function updateState() {
     state = null;
     let response;
     try {
-        response = await fetch("./state", { method: 'GET', headers: getHeaders() })
+        response = await fetch("./api/state", { method: 'GET', headers: getHeaders() })
     } catch (error) {
         return false;
     }
@@ -98,13 +98,16 @@ export async function updateState() {
     return state
 }
 export async function advancePhase(expectedPhase) {
-    response = await fetch("./completeCurrentPhase", { method: 'POST', body: JSON.stringify({ "expected": expectedPhase }), headers: getHeaders() })
+    response = await fetch("./api/completeCurrentPhase", { method: 'POST', body: JSON.stringify({ "expected": expectedPhase }), headers: getHeaders() })
     if(response.status == 208){
         return false;
     }else if (response.status == 200) {
         await updateState();
         return true;
-    } else {
+    } else if (response.status == 405) {
+        showIncompleteInputError()
+        return true; // so that the phase is reloaded
+    }else{
         const err = new Error("Couldn't advance phase");
         showGenericError(err)
         throw err;
