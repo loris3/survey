@@ -2,7 +2,7 @@ import { loadAnchorsExample1, loadAnchorsExample2 } from "../../../anchors-examp
 import { loadShapExample1 } from "../../../shap_example";
 import { loadLIMEExample1 } from "../../../lime-example";
 import { checkMinViewportWidhtAndDisplayWarning, setInnerHTML, showCommunicationError, showLoadingError, updateProgressBar } from "../util";
-import { getHeaders, submitLickert } from "../api";
+import { getHeaders, getState, submitLickert } from "../api";
 
 import { showConfirmDialog } from "./util";
 
@@ -13,6 +13,7 @@ export async function loadPhase3(loadPhase) {
     const node_instructions = template_instructions.content.cloneNode(true);
     document.querySelector("#card-container").appendChild(node_instructions);
 
+    const state = await getState();
     // load explanation method specific prompt
     let template_instructions_explanation_method = null;
     if (state.explainer == "SHAP_Explainer") {
@@ -123,15 +124,8 @@ export async function loadPhase3(loadPhase) {
             } else {
                 throw Error("Error fetching explanation")
             }
-            // node.querySelector(".document-only-card-document").innerHTML = doc.document
-            // document.querySelector("#card-container").appendChild(node);
         } else if (response.status == 403) {
-            //throw new Error("Wrong phase")
-            // db didn't update yet
-            setTimeout(() => {
-                loadPhase();
-            }, 1000);
-            return
+            throw new Error("Wrong phase")
         } else {
             throw new Error("Error fetching document in phase 3")
         }
@@ -143,7 +137,7 @@ export async function loadPhase3(loadPhase) {
         let all_valid = Array.from(document.querySelectorAll("form")).reduce((acc, elem) => {
             return true || elem.reportValidity() && acc;
         }, true)
-        if (all_valid) {
+        if (true || all_valid) {
             showConfirmDialog(4, loadPhase)
         }
         
@@ -191,7 +185,6 @@ export async function restorePhase3() {
     }
 
     const oldState = await response.json()
-    console.log(oldState)
     oldState.forEach((row) => {
         document.querySelector(`md-radio[name='lickert-q${row.question_nr}-${row.document_nr}'][value='${row.label}']`).checked = true;
 

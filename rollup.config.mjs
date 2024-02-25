@@ -9,7 +9,8 @@ import postcss from 'rollup-plugin-postcss';
 const production = !process.env.ROLLUP_WATCH;
 export default {
   watch: {
-    exclude: 'db.*'
+    exclude: ['db.*', '*.pdf']
+    
   },
   input: 'index.js',
   plugins: [

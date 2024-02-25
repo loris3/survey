@@ -76,15 +76,16 @@ export async function showConfirmDialog(next, loadPhase) {
     const node = template.content.cloneNode(true);
     document.querySelector("body").appendChild(node);
 
-    document.querySelector("#confirm-complete-phase-continue").removeev
     document.querySelector("#confirm-complete-phase-continue").addEventListener("click", async () => {
         try {
-            await advancePhase(next);
+            if(await advancePhase(next)){
+                loadPhase();
+            }
         } catch (error) {
             showLoadingError();
             return;
         }
-        loadPhase();
+        
         document.querySelector("#confirm-complete-phase").removeAttribute('open')
 
     });

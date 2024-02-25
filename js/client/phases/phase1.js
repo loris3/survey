@@ -39,12 +39,8 @@ export async function loadPhase1(loadPhase) {
 
             document.querySelector("#card-container").appendChild(node);
         } else if (response.status == 403) {
-            //throw new Error("Wrong phase")
-            // db didn't update yet
-            setTimeout(() => {
-                loadPhase();
-            }, 1000);
-            return
+            throw new Error("Wrong phase")
+
         } else {
             throw new Error("Error fetching document in phase 1")
         }

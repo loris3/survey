@@ -1,4 +1,4 @@
-import { getHeaders, getState } from "./api";
+import {getState, hasToken } from "./api";
 
 // https://stackoverflow.com/questions/2592092/executing-script-elements-inserted-with-innerhtml
 export function setInnerHTML(elm, html) {
@@ -20,12 +20,17 @@ export function setInnerHTML(elm, html) {
         });
 }
 export async function checkMinViewportWidhtAndDisplayWarning() {
-    let current_phase = -1;
-    try {
-        current_phase = (await getState()).current_phase;
-    } catch (error) {
-        
+    let current_phase;
+    if(!hasToken()){
+        current_phase = -1;
+    }else{
+        try {
+            current_phase = (await getState()).current_phase;
+        } catch (error) {
+            showGenericError(error)
+        }
     }
+
     if (screen.availWidth <= 600 && screen.availHeight > screen.availWidth && current_phase == 3) {
         document.getElementById("dialog-viewport-width-to-low").setAttribute('open', '')
     } else {
@@ -34,18 +39,7 @@ export async function checkMinViewportWidhtAndDisplayWarning() {
 
 
 }
-export async function downloadBackup(){
-    let dump = await fetch("./api/dump", { method: "GET", headers: getHeaders()});
-    // needed as api/dump requires the auth_token https://stackoverflow.com/questions/19327749/javascript-blob-filename-without-link
-    const objURL = window.URL.createObjectURL(await dump.blob());
-    const a = document.createElement("a");
-    a.style = "display: none";
-    document.body.appendChild(a);
-    a.href = objURL;
-    a.download = "user-study-backup.pdf";
-    a.click();
-    window.URL.revokeObjectURL(objURL);
-}
+
 
 export function toggleFullscreen() {
 
@@ -72,25 +66,32 @@ export function toggleFullscreen() {
 
 
 export async function updateProgressBar() {
+    if(!hasToken()){
+        document.querySelector("#progress-bar").removeAttribute("indeterminate")
+        document.querySelector("#progress-bar").setAttribute("value", 0)
+        
+        return;
+    }
     let state; 
     try {
         state = await getState();
     } catch (error) {
-        document.querySelector("#progress-bar").setAttribute("value", 0)
-        document.querySelector("#progress-bar").removeAttribute("indeterminate")
-        return;
+        showGenericError(error)
     }
+
     let total_progress = 0;
-    if (state.current_phase >= 0) {
+
+    if (state.current_phase > 0) {
         total_progress = (state.current_phase - 1) * 25;
+        let progress_current_phase = 25 * Math.ceil(document.documentElement.scrollTop) / (document.documentElement.scrollHeight - document.documentElement.clientHeight);
+        if(isNaN(progress_current_phase)){
+            progress_current_phase = 0;
+        }
+        total_progress += progress_current_phase
     }
-    let progress_current_phase = 25 * Math.ceil(document.documentElement.scrollTop) / (document.documentElement.scrollHeight - document.documentElement.clientHeight);
-    if (state.current_phase == -1) {
-        progress_current_phase = 0;
-    }
-    total_progress += progress_current_phase
-    document.querySelector("#progress-bar").setAttribute("value", Math.min(100, total_progress))
     document.querySelector("#progress-bar").removeAttribute("indeterminate")
+    document.querySelector("#progress-bar").setAttribute("value", Math.min(100, total_progress))
+    
 }
 
 export async function clearCardContainerAndDisplayLoadingAnimation() {
@@ -107,7 +108,7 @@ export async function clearCardContainerAndDisplayLoadingAnimation() {
 
 export function showCommunicationError() {
     document.querySelector("#progress-bar").setAttribute("indeterminate", "")
-    console.log("Communication error")
+    console.error("Communication error")
 
     if (document.querySelector("#connection-issues-warning") == null) {
         const template = document.querySelector("#template-connection-issues-warning");
@@ -120,7 +121,7 @@ export function showCommunicationError() {
 }
 export function showLoadingError() {
     document.querySelector("#progress-bar").setAttribute("indeterminate", "")
-    console.log("Loading error")
+    console.error("Loading error")
 
     if (document.querySelector("#loading-issues-warning") == null) {
         const template = document.querySelector("#template-loading-issues-warning");
@@ -132,3 +133,22 @@ export function showLoadingError() {
 
 
 }
+
+export function showGenericError(err) {
+    document.querySelector("#progress-bar").setAttribute("indeterminate", "")
+    console.error("Generic error", err)
+
+    if (document.querySelector("#generic-issues-warning") == null) {
+        const template = document.querySelector("#template-generic-issues-warning");
+        const node = template.content.cloneNode(true);
+        document.querySelector("body").appendChild(node);
+    }
+    document.querySelector("#generic-error-stack").innerHTML = err.stack;
+    document.querySelector("#generic-error-name").innerHTML = err.name;
+    document.querySelector("#generic-error-message").innerHTML = err.message;
+    document.querySelector("#generic-issues-warning").setAttribute('open', '')
+
+
+
+}
+

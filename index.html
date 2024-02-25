@@ -1,18 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <link rel="icon" type="image/x-icon" href="list-box-outline.svg">
-        <link rel="preload" href="fonts/Roboto/Roboto-Regular.ttf" as="font" type="font/ttf" crossorigin>
-        <link rel="preload" href="fonts/Redacted_Script/RedactedScript-Regular.ttf" as="font" type="font/ttf" crossorigin>
-        <link rel="preload" href="fonts/materialsymbolsoutlined.woff2" as="font" type="font/woff2" crossorigin>
-        <script src="anchor_bundle.js"></script>
-        <script src="index.js"></script>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-    </head>
-<body>
-<md-linear-progress class="form-progress" max=100 value=0  buffer="max" id="progress-bar" indeterminate></md-linear-progress>
 
-<md-fab size="small" id="enter-fullscreen" touch-target="none" aria-label="Edit">
+<head>
+  <link rel="icon" type="image/x-icon" href="list-box-outline.svg">
+  <link rel="preload" href="fonts/Roboto/Roboto-Regular.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="preload" href="fonts/Redacted_Script/RedactedScript-Regular.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="preload" href="fonts/materialsymbolsoutlined.woff2" as="font" type="font/woff2" crossorigin>
+  <script src="anchor_bundle.js"></script>
+  <script src="index.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body>
+  <md-linear-progress class="form-progress" max=100 value=0 buffer="max" id="progress-bar"
+    indeterminate></md-linear-progress>
+
+  <md-fab size="small" id="enter-fullscreen" touch-target="none" aria-label="Edit">
     <md-icon slot="icon">fullscreen</md-icon>
   </md-fab>
   <md-fab size="small" id="exit-fullscreen" touch-target="none" aria-label="Edit">
@@ -27,18 +30,19 @@
 
     <form id="form" slot="content" method="dialog">
       <p id="please-rotate-text">Please rotate your device for this phase</p>
-      <p>Your screen size is too small to display the content in portrait mode but it's sufficent if you switch to landscape mode. You can switch back to portrait mode for the next phase.
+      <p>Your screen size is too small to display the content in portrait mode but it's sufficent if you switch to
+        landscape mode. You can switch back to portrait mode for the next phase.
         This ensures all participants have a similar experience.</p>
     </form>
-    
+
   </md-dialog>
 
 
 
 
-<div id="card-container">
-<!--everything in here will be cleared when switching to the next phase-->
-</div>
+  <div id="card-container">
+    <!--everything in here will be cleared when switching to the next phase-->
+  </div>
 
 </body>
 <template id="template-connection-issues-warning">
@@ -49,7 +53,7 @@
       <p>Please wait until your last response is transmitted.</p>
       <p>Retrying in <span id="retry-seconds-remaining"></span> seconds</p>
     </form>
-    
+
   </md-dialog>
 
 </template>
@@ -61,7 +65,26 @@
       <p>Please refresh this page</p>
       <p><b>Your progress isn't lost!</b> You will continue where you left off</p>
     </form>
+
+  </md-dialog>
+
+</template>
+<template id="template-generic-issues-warning">
+  <md-dialog id="generic-issues-warning" type="alert" open>
+    <md-icon slot="icon">bug_report</md-icon>
+    <div slot="headline">An error occurred</div>
     
+    <form id="form" slot="content" method="dialog">
+      <p>Please refresh this page</p>
+      <p><b>Your progress isn't lost!</b> You will continue where you left off</p>
+      <div id="error-box">
+        <pre id="generic-error-message"></pre>
+        <pre id="generic-error-name"></pre>
+        <pre id="generic-error-stack"></pre>
+      </div>
+
+    </form>
+
   </md-dialog>
 
 </template>
@@ -71,49 +94,48 @@
     <p>Please enter your access token</p>
     <div id="token-example-container">
       <span>survey.loris.fyi/</span>
-      <div id="token-example-token-arrow-group"><span id="token-example-token">TOKEN</span><span id="token-arrow">&darr;</span></div>
+      <div id="token-example-token-arrow-group"><span id="token-example-token">TOKEN</span><span
+          id="token-arrow">&darr;</span></div>
     </div>
     <form id="auth-form">
-      <md-outlined-text-field label="Token" 
-      required
-      maxlength="6" 
-      minlength="6" 
-      pattern="[A-Z]+" 
-      prefix-text="survey.loris.fyi/"
-      spellcheck="false"
-      autocorrect="off"
+      <md-outlined-text-field label="Token" required maxlength="6" minlength="6" pattern="[A-Z]+"
+        prefix-text="survey.loris.fyi/" spellcheck="false" autocorrect="off" id="text-field-access-token">
 
-      id="text-field-access-token"
-      
-      >
-      
       </md-outlined-text-field>
       <div>
-      <p><b>A single cookie will be stored in your browser.</b></p>
-      <p>You can resume this experiment at any time and on any device.</p>
-      <md-filled-tonal-button id="auth-form-submit" disabled="true">
-        Login
-        <md-icon slot="icon">login</md-icon>
-      </md-filled-tonal-button>
-    </div>
-  </form>
-  
+        <p><b>A single cookie will be stored in your browser.</b></p>
+        <p>You can resume this experiment at any time and on any device.</p>
+        <md-filled-tonal-button id="auth-form-submit" disabled="true">
+          Login
+          <md-icon slot="icon">login</md-icon>
+        </md-filled-tonal-button>
+      </div>
+    </form>
+
   </div>
 </template>
 <template id="template-phase0-text">
 
-    <p>This experiment analizes techniques called <b>explanation methods</b> that can be used to inspect machine-learning models. They are used to explain the behaviour of <b>detectors of machine generated text</b> here.</p>
-    <p>The detector you will work with tries to determine wether a document was <b>written by a human or generated by ChatGPT</b>. Unfortunately, little is known about how exactly this detector reaches its conclusions.</p>
-    <h2>Procedure</h2>
-    <p><b>In this experiment you will investigate how this detector works.</b></p>
-    <p>There are 4 phases. In the first, you will be shown some decisions the detector made on documents that where either generated by ChatGPT or written by humans.</p>
-    <p>In the second pahse, you will try to predict <b>the detector's decision</b> on new documents.</p>
-    <p>In the third pahse, you will see the documents from Phase 1 again but will be provided with additional information generated by an <b>explanation method</b>.</p>
-    <p>In the final phase, you will label the documents from Phase 2 again to track the effect the method has on your performance.</p>
-    <h2>About this Form</h2>
-    <p>Once you complete a phase, you can't return to it. This means you can't go back and review the examples while you are giving your answers.</p>
-    <p>You can re-open these instructions at any point by pressing on the button in the lower right.</p>
-    <p><b>This experiment takes about 30 minutes to complete.</b> As there is a memory component to this, please complete the experiment in one sitting. Should you however run into connection issues, you can re-open the form at any point on any device by refreshing the page or re-entering your token. <b>Your progress won't be lost.</b> </p>
+  <p>This experiment analizes techniques called <b>explanation methods</b> that can be used to inspect machine-learning
+    models. They are used to explain the behaviour of <b>detectors of machine generated text</b> here.</p>
+  <p>The detector you will work with tries to determine wether a document was <b>written by a human or generated by
+      ChatGPT</b>. Unfortunately, little is known about how exactly this detector reaches its conclusions.</p>
+  <h2>Procedure</h2>
+  <p><b>In this experiment you will investigate how this detector works.</b></p>
+  <p>There are 4 phases. In the first, you will be shown some decisions the detector made on documents that where either
+    generated by ChatGPT or written by humans.</p>
+  <p>In the second pahse, you will try to predict <b>the detector's decision</b> on new documents.</p>
+  <p>In the third pahse, you will see the documents from Phase 1 again but will be provided with additional information
+    generated by an <b>explanation method</b>.</p>
+  <p>In the final phase, you will label the documents from Phase 2 again to track the effect the method has on your
+    performance.</p>
+  <h2>About this Form</h2>
+  <p>Once you complete a phase, you can't return to it. This means you can't go back and review the examples while you
+    are giving your answers.</p>
+  <p>You can re-open these instructions at any point by pressing on the button in the lower right.</p>
+  <p><b>This experiment takes about 30 minutes to complete.</b> As there is a memory component to this, please complete
+    the experiment in one sitting. Should you however run into connection issues, you can re-open the form at any point
+    on any device by refreshing the page or re-entering your token. <b>Your progress won't be lost.</b> </p>
 
 </template>
 <template id="template-participant-data-form-card">
@@ -124,14 +146,17 @@
         <h1>Welcome!</h1>
         <p>Please provide some information about you:</p>
         <md-divider></md-divider>
-        <p class="participant-data-question">Have you heard about <b>explanation methods</b> for machine-learning models before? (e.g., LIME, SHAP, Anchor)</p>
+        <p class="participant-data-question">Have you heard about <b>explanation methods</b> for machine-learning models
+          before? (e.g., LIME, SHAP, Anchor)</p>
         <div class="participant-data-answers-container-binary">
           <div class="participant-data-answer">
-            <md-radio class="participant-data-radio" name="has_seen_explanation_methods_before" id="participant-data-has-seen-explanation-methods-before-no" value="no" required></md-radio>
+            <md-radio class="participant-data-radio" name="has_seen_explanation_methods_before"
+              id="participant-data-has-seen-explanation-methods-before-no" value="no" required></md-radio>
             <label for="participant-data-has-seen-explanation-methods-before-no">No</label>
           </div>
           <div class="participant-data-answer">
-            <md-radio class="participant-data-radio" name="has_seen_explanation_methods_before" id="participant-data-has-seen-explanation-methods-before-yes" value="yes" required></md-radio>
+            <md-radio class="participant-data-radio" name="has_seen_explanation_methods_before"
+              id="participant-data-has-seen-explanation-methods-before-yes" value="yes" required></md-radio>
             <label for="participant-data-has-seen-explanation-methods-before-yes">Yes</label>
           </div>
         </div>
@@ -141,25 +166,30 @@
         <p class="participant-data-question">Have you used any of these before?</p>
         <div class="participant-data-answers-container-select-group">
           <div class="participant-data-answer">
-            <md-checkbox id="participant-data-has-seen-LIME-before" name ="has_seen_LIME_before" value="yes" touch-target="wrapper"></md-checkbox>
+            <md-checkbox id="participant-data-has-seen-LIME-before" name="has_seen_LIME_before" value="yes"
+              touch-target="wrapper"></md-checkbox>
             <label for="participant-data-has-seen-LIME-before">LIME</label>
           </div>
           <div class="participant-data-answer">
-            <md-checkbox id="participant-data-has-seen-SHAP-before" name ="has_seen_SHAP_before"  value="yes"touch-target="wrapper"></md-checkbox>
+            <md-checkbox id="participant-data-has-seen-SHAP-before" name="has_seen_SHAP_before" value="yes"
+              touch-target="wrapper"></md-checkbox>
             <label for="participant-data-has-seen-SHAP-before">SHAP</label>
           </div>
           <div class="participant-data-answer">
-            <md-checkbox id="participant-data-has-seen-ANCHOR-before" name ="has_seen_ANCHOR_before" value="yes" touch-target="wrapper"></md-checkbox>
+            <md-checkbox id="participant-data-has-seen-ANCHOR-before" name="has_seen_ANCHOR_before" value="yes"
+              touch-target="wrapper"></md-checkbox>
             <label for="participant-data-has-seen-ANCHOR-before">Anchor</label>
           </div>
           <div class="participant-data-answer">
-            <md-checkbox id="participant-data-has-seen-OTHERS-before" name ="has_seen_OTHERS_before" value="yes" touch-target="wrapper"></md-checkbox>
+            <md-checkbox id="participant-data-has-seen-OTHERS-before" name="has_seen_OTHERS_before" value="yes"
+              touch-target="wrapper"></md-checkbox>
             <label for="participant-data-has-seen-OTHERS-before">Others</label>
           </div>
         </div>
       </div>
       <div>
-        <p class="participant-data-question">Please select your level of expertise in Natural Language Processing/Machine Learning. Choose the highest level that applies to you.</p>
+        <p class="participant-data-question">Please select your level of expertise in Natural Language
+          Processing/Machine Learning. Choose the highest level that applies to you.</p>
         <div class="participant-data-answers-container-select-group">
           <md-outlined-select id="participant-data-level-of-expertise" name="level_of_expertise" required>
             <md-select-option aria-label="blank" value=""></md-select-option>
@@ -179,7 +209,8 @@
         </div>
       </div>
       <div>
-        <p class="participant-data-question">How familiar are you with text generated by ChatGPT? Choose the highest level that applies to you.</p>
+        <p class="participant-data-question">How familiar are you with text generated by ChatGPT? Choose the highest
+          level that applies to you.</p>
         <div class="participant-data-answers-container-select-group">
           <md-outlined-select id="participant-data-familiarity-with-chatgpt" name="familiarity_with_chatgpt" required>
             <md-select-option aria-label="blank" value=""></md-select-option>
@@ -198,17 +229,19 @@
           </md-outlined-select>
         </div>
       </div>
-      <md-divider></md-divider> 
+      <md-divider></md-divider>
       <div>
-        <p class="participant-data-question">Some visualization techniques tested in this study rely on color. 
+        <p class="participant-data-question">Some visualization techniques tested in this study rely on color.
           Would you like to be assigned one that doesn't?</p>
         <div class="participant-data-answers-container-binary">
           <div class="participant-data-answer">
-            <md-radio class="participant-data-radio" name="prefers_monochromatic_methods" id="prefers-monochromatic-methods-no" value="no" required></md-radio>
+            <md-radio class="participant-data-radio" name="prefers_monochromatic_methods"
+              id="prefers-monochromatic-methods-no" value="no" required></md-radio>
             <label for="prefers-monochromatic-methods-no">No</label>
           </div>
           <div class="participant-data-answer">
-            <md-radio class="participant-data-radio" name="prefers_monochromatic_methods" id="prefers-monochromatic-methods-yes" value="yes" required></md-radio>
+            <md-radio class="participant-data-radio" name="prefers_monochromatic_methods"
+              id="prefers-monochromatic-methods-yes" value="yes" required></md-radio>
             <label for="prefers-monochromatic-methods-yes">Yes</label>
           </div>
           <div class="participant-data-answer cvd-btn-container">
@@ -220,9 +253,10 @@
         </div>
       </div>
     </form>
-    
-    <p class="go-fullscreen-hint"><b>Info:</b> Your screen is small. Consider enabeling fullscreen mode with the button on the upper right.</p>
-    
+
+    <p class="go-fullscreen-hint"><b>Info:</b> Your screen is small. Consider enabeling fullscreen mode with the button
+      on the upper right.</p>
+
     <div id="container-continue-to-phase1" class="container-continue-to-phase">
       <md-filled-button id="btn-continue-to-phase0">
         Submit
@@ -237,9 +271,10 @@
     <md-elevation></md-elevation>
     <h1>Instructions</h1>
     <div class="phase-0-text"></div>
-    
-    <p class="go-fullscreen-hint"><b>Info:</b> Your screen is small. Consider enabeling fullscreen mode with the button on the upper right.</p>
-    
+
+    <p class="go-fullscreen-hint"><b>Info:</b> Your screen is small. Consider enabeling fullscreen mode with the button
+      on the upper right.</p>
+
     <div id="container-continue-to-phase1" class="container-continue-to-phase">
       <md-filled-button id="btn-continue-to-phase1">
         Start
@@ -262,8 +297,8 @@
       <md-divider></md-divider>
       <div class="phase-0-text"></div>
     </form>
-    
-    
+
+
   </md-dialog>
 </template>
 <template id="template-cvd-dialog">
@@ -279,13 +314,15 @@
       <p><b>If you select <i>Yes</i> you will be assigned a method that doesn't.</b></p>
       <p>Select <i>Yes</i> if you have difficulties distinguishing</p>
       <ul>
-        <li><span style="color: white; background-color: rgb(31, 119, 180);">Blue</span> from <span style="color: white; background-color: rgb(255, 127, 14);">Orange</span></li>
-        <li><span style="color: white; background-color: #4287f7;">Blue</span> from <span style="color: white; background-color: #e83752;">Pink</span></li>
+        <li><span style="color: white; background-color: rgb(31, 119, 180);">Blue</span> from <span
+            style="color: white; background-color: rgb(255, 127, 14);">Orange</span></li>
+        <li><span style="color: white; background-color: #4287f7;">Blue</span> from <span
+            style="color: white; background-color: #e83752;">Pink</span></li>
         <li>or between shades of these individual colors</li>
       </ul>
     </form>
-    
-    
+
+
   </md-dialog>
 </template>
 <template id="template-phase1-instructions-card">
@@ -294,32 +331,40 @@
     <h1>Phase 1/4</h1>
     <p>Here are 18 decisions the detector made. Please review them as follows:</p>
     <p>For each of these examples, ask yourself the question <i>"Why did the detector decide this way?"</i>.</p>
-    <p> Try to identify at least one property for each document you can point to when asked this question by someone else.</p>
+    <p> Try to identify at least one property for each document you can point to when asked this question by someone
+      else.</p>
 
-    <p>In the next phase, you will be asked to guess how the detector would decide on similar documents. Base your decisions on the behaviour you see here.</p>
-    <p>You may find this difficult but note that you will see these exact documents again in phase 3 where you are provided additional information. The results of the first two phases will serve as a baseline without that tool.</p>
-    <p class="go-fullscreen-hint"><b>Info:</b> Your screen is small. Consider enabeling fullscreen mode with the button on the upper right.</p>
+    <p>In the next phase, you will be asked to guess how the detector would decide on similar documents. Base your
+      decisions on the behaviour you see here.</p>
+    <p>You may find this difficult but note that you will see these exact documents again in phase 3 where you are
+      provided additional information. The results of the first two phases will serve as a baseline without that tool.
+    </p>
+    <p class="go-fullscreen-hint"><b>Info:</b> Your screen is small. Consider enabeling fullscreen mode with the button
+      on the upper right.</p>
 
     <h3>Example</h3>
-    <p><i>The detector classified the image on the left as machine-woven because of the perfectly straight lines.</i></p>
+    <p><i>The detector classified the image on the left as machine-woven because of the perfectly straight lines.</i>
+    </p>
     <p><i>The detector classified the image on the right as hand-knitted because of the thread count.</i></p>
     <div class="images-side-by-side">
       <div class="images-side-by-side-col">
         <figure>
           <img src="./machine-woven.jpeg">
           <figcaption>Machine-woven</figcaption>
-          <a href="https://commons.wikimedia.org/wiki/File:52_105_Ottoman_(149030139).jpeg">Matthew Bellemare</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY-SA 3.0</a>
+          <a href="https://commons.wikimedia.org/wiki/File:52_105_Ottoman_(149030139).jpeg">Matthew Bellemare</a>, <a
+            href="https://creativecommons.org/licenses/by-sa/3.0">CC BY-SA 3.0</a>
         </figure>
       </div>
       <div class="images-side-by-side-col">
         <figure>
           <img src="./hand-knitted.jpg">
           <figcaption>Hand-knitted</figcaption>
-          <a href="https://commons.wikimedia.org/wiki/File:Patentstickning.jpg">Hobbsansak</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>
+          <a href="https://commons.wikimedia.org/wiki/File:Patentstickning.jpg">Hobbsansak</a>, <a
+            href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>
         </figure>
       </div>
 
-    </div> 
+    </div>
 
   </div>
 </template>
@@ -328,11 +373,15 @@
   <div class="card" id="phase2-instructions-card">
     <md-elevation></md-elevation>
     <h1>Phase 2/4</h1>
-    <p>Please try to guess <b>the detectors prediction</b> on these documents. Try to apply your observations from the previous phase.</p>
-    <p>If this where a game, points are awarded if you correctly predict the detector's decision, <u>not if you figure out the <i>correct</i> answer yourself</u>.</p>
-    <p>You may find this difficult but note that you will see these exact documents again in phase 3 where you are provided additional information. The results of this phase will serve as a baseline without that tool.</p>
-    <p class="go-fullscreen-hint"><b>Info:</b> Your screen is small. Consider enabeling fullscreen mode with the button on the upper right.</p>
-  
+    <p>Please try to guess <b>the detectors prediction</b> on these documents. Try to apply your observations from the
+      previous phase.</p>
+    <p>If this where a game, points are awarded if you correctly predict the detector's decision, <u>not if you figure
+        out the <i>correct</i> answer yourself</u>.</p>
+    <p>You may find this difficult but note that you will see these exact documents again in phase 3 where you are
+      provided additional information. The results of this phase will serve as a baseline without that tool.</p>
+    <p class="go-fullscreen-hint"><b>Info:</b> Your screen is small. Consider enabeling fullscreen mode with the button
+      on the upper right.</p>
+
 
   </div>
 </template>
@@ -341,49 +390,61 @@
   <div class="card" id="phase3-instructions-card">
     <md-elevation></md-elevation>
     <h1>Phase 3/4</h1>
-    <p>These are the same documents you saw in phase 1. A visualization technique will assist you this time around. <p>Please read the instructions on how to interpret the visualizations of the method that was assigned to you:</p>
+    <p>These are the same documents you saw in phase 1. A visualization technique will assist you this time around.
+    <p>Please read the instructions on how to interpret the visualizations of the method that was assigned to you:</p>
     <div id="explanation-method-specific-instructions-container"></div>
     <md-divider></md-divider>
     <div>
-    <p>Procede in the same way as you did before. Here are the instructions from phase 1 again for your reference:</p>
-    <p>For each of these examples, ask yourself the question <i>"Why did the detector decide this way?"</i>.</p>
-    <p> Try to identify at least one property for each document you can point to when asked this question by someone else.</p>
+      <p>Procede in the same way as you did before. Here are the instructions from phase 1 again for your reference:</p>
+      <p>For each of these examples, ask yourself the question <i>"Why did the detector decide this way?"</i>.</p>
+      <p> Try to identify at least one property for each document you can point to when asked this question by someone
+        else.</p>
 
-    <p>In the next phase, you will be asked to guess how the detector would decide on similar documents. Base your decisions on the behaviour you see here.</p>
-    <p class="go-fullscreen-hint"><b>Info:</b> Your screen is small. Consider enabeling fullscreen mode with the button on the upper right.</p>
+      <p>In the next phase, you will be asked to guess how the detector would decide on similar documents. Base your
+        decisions on the behaviour you see here.</p>
+      <p class="go-fullscreen-hint"><b>Info:</b> Your screen is small. Consider enabeling fullscreen mode with the
+        button on the upper right.</p>
 
-    <h3>Example</h3>
-    <p><i>The detector classified the image on the left as machine-woven because of the perfectly straight lines.</i></p>
-    <p><i>The detector classified the image on the right as hand-knitted because of the thread count.</i></p>
-    <div class="images-side-by-side">
-      <div class="images-side-by-side-col">
-        <figure>
-          <img src="./machine-woven.jpeg">
-          <figcaption>Machine-woven</figcaption>
-          <a href="https://commons.wikimedia.org/wiki/File:52_105_Ottoman_(149030139).jpeg">Matthew Bellemare</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY-SA 3.0</a>
-        </figure>
-      </div>
-      <div class="images-side-by-side-col">
-        <figure>
-          <img src="./hand-knitted.jpg">
-          <figcaption>Hand-knitted</figcaption>
-          <a href="https://commons.wikimedia.org/wiki/File:Patentstickning.jpg">Hobbsansak</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>
-        </figure>
+      <h3>Example</h3>
+      <p><i>The detector classified the image on the left as machine-woven because of the perfectly straight lines.</i>
+      </p>
+      <p><i>The detector classified the image on the right as hand-knitted because of the thread count.</i></p>
+      <div class="images-side-by-side">
+        <div class="images-side-by-side-col">
+          <figure>
+            <img src="./machine-woven.jpeg">
+            <figcaption>Machine-woven</figcaption>
+            <a href="https://commons.wikimedia.org/wiki/File:52_105_Ottoman_(149030139).jpeg">Matthew Bellemare</a>, <a
+              href="https://creativecommons.org/licenses/by-sa/3.0">CC BY-SA 3.0</a>
+          </figure>
+        </div>
+        <div class="images-side-by-side-col">
+          <figure>
+            <img src="./hand-knitted.jpg">
+            <figcaption>Hand-knitted</figcaption>
+            <a href="https://commons.wikimedia.org/wiki/File:Patentstickning.jpg">Hobbsansak</a>, <a
+              href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>
+          </figure>
+        </div>
       </div>
     </div>
-  </div>
-  
-  <p class="go-fullscreen-hint"><b>Info:</b> Your screen is small. Consider enabeling fullscreen mode with the button on the upper right.</p>
+
+    <p class="go-fullscreen-hint"><b>Info:</b> Your screen is small. Consider enabeling fullscreen mode with the button
+      on the upper right.</p>
 </template>
 <template id="template-phase4-instructions-card">
   <div class="card" id="phase4-instructions-card">
     <md-elevation></md-elevation>
     <h1>Phase 4/4</h1>
-    <p>Please try to guess the detectors prediction on these documents. Try to apply your observations from the previous phase.</p>
-    <p>If this where a game, points are awarded if you correctly predict the detector's decision, not if you figure out the <i>correct</i> answer yourself.</p>
-    <p>You may find this difficult/frustrating. But this only serves as a baseline to compare your performance in phase 4 to. TODO</p>
-    <p class="go-fullscreen-hint"><b>Info:</b> Your screen is small. Consider enabeling fullscreen mode with the button on the upper right.</p>
-  
+    <p>Please try to guess the detectors prediction on these documents. Try to apply your observations from the previous
+      phase.</p>
+    <p>If this where a game, points are awarded if you correctly predict the detector's decision, not if you figure out
+      the <i>correct</i> answer yourself.</p>
+    <p>You may find this difficult/frustrating. But this only serves as a baseline to compare your performance in phase
+      4 to. TODO</p>
+    <p class="go-fullscreen-hint"><b>Info:</b> Your screen is small. Consider enabeling fullscreen mode with the button
+      on the upper right.</p>
+
 
   </div>
 </template>
@@ -393,20 +454,29 @@
     <p><b>Thanks for participating!</b></p>
     <p>You may close this window now.</p>
     <div id="container-exit">
-      <md-filled-button id="btn-exit">
+
+      <md-filled-button id="btn-download">
+        Download Responses
+        <md-icon slot="icon">download</md-icon>
+      </md-filled-button>
+
+      <md-filled-tonal-button id="btn-exit">
         Delete Cookie
         <md-icon slot="icon">cookie_off</md-icon>
-      </md-filled-button>
-  
+      </md-filled-tonal-button>
 
-  </div>
+
+
+
+    </div>
 </template>
 <!--Explanation method specific instructions-->
 <template id="template-phase3-instructions-lime">
   <h2>LIME</h2>
   <p>This method attempts to highlight words that are important for the detector's decision.</p>
 
-  <p> Suppose you have a detector that detects <i>examples</i> (it assigns the labels <i>example</i> or <i>not an example</i> to documents).</p>
+  <p> Suppose you have a detector that detects <i>examples</i> (it assigns the labels <i>example</i> or <i>not an
+      example</i> to documents).</p>
   <p>For the document</p>
   <figure id="anchors-example-document">
     <md-elevation></md-elevation>
@@ -418,10 +488,12 @@
   </div>
 
   <p>Each word is assigned an <span class="emphasis">importance score</span>.</p>
-  <p>The words highlighted in blue increase the detector's confidence that this is an <i>example</i>. The words highlighted in orange decrease it. The darker the shade the stronger the effect.</p> 
+  <p>The words highlighted in blue increase the detector's confidence that this is an <i>example</i>. The words
+    highlighted in orange decrease it. The darker the shade the stronger the effect.</p>
   <p>The visiualizaiton depicted here can be interpreted as follows:</p>
   <figure>
-    <p>The word <span class="term">example</span> appears to be more important for the detector's decision then the word <span class="term">This</span> is.</p>
+    <p>The word <span class="term">example</span> appears to be more important for the detector's decision then the word
+      <span class="term">This</span> is.</p>
     <p>The word <span class="term">an</span> decreases the detector's confidence. All other words incrase it.</p>
   </figure>
 </template>
@@ -430,29 +502,35 @@
   <h2>SHAP</h2>
   <p>This method attempts to highlight words that are important for the detector's decision.</p>
 
-  <p> Suppose you have a detector that detects <i>examples</i> (it assigns the labels <i>example</i> or <i>not an example</i>).</p>
+  <p> Suppose you have a detector that detects <i>examples</i> (it assigns the labels <i>example</i> or <i>not an
+      example</i>).</p>
   <p>For the document</p>
   <figure id="anchors-example-document">
     <md-elevation></md-elevation>
     This is an example.
   </figure>
   <p>where the detector predicts <i>example</i>, the visualization can look like this:</p>
-    <div class="shap-example" id="shap-example-1"></div>
+  <div class="shap-example" id="shap-example-1"></div>
 
 
   <p>Each word is assigned an <span class="emphasis">importance score</span>.</p>
-  <p>The words highlighted in pink increase the detector's confidence that this is an <i>example</i>. The words highlighted in blue decrease it. The darker the shade the stronger the effect.</p> 
+  <p>The words highlighted in pink increase the detector's confidence that this is an <i>example</i>. The words
+    highlighted in blue decrease it. The darker the shade the stronger the effect.</p>
   <p>The visiualizaiton depicted here can be interpreted as follows:</p>
   <figure>
-    <p>The word <span class="term">This</span> appears to be more important for the detector's decision then the word <span class="term">example</span> is.</p>
+    <p>The word <span class="term">This</span> appears to be more important for the detector's decision then the word
+      <span class="term">example</span> is.</p>
     <p>The word <span class="term">This</span> increases the detector's confidence. All other words decrease it.</p>
   </figure>
-  <p>The upper part of the plot provides the same information: the words in blue lower the confidence that this is an <i>example</i>, the word in pink increases it.</p>
+  <p>The upper part of the plot provides the same information: the words in blue lower the confidence that this is an
+    <i>example</i>, the word in pink increases it.</p>
 </template>
 <template id="template-phase3-instructions-anchors">
   <h2>Anchor</h2>
-  <p>This method provides you with <span class="emphasis">rules</span> in an attempt of explaining the detector's decision.</p>
-  <p> Suppose you have a detector that detects <i>examples</i> (it assigns the labels <i>example</i> or <i>not an example</i> to documents).</p>
+  <p>This method provides you with <span class="emphasis">rules</span> in an attempt of explaining the detector's
+    decision.</p>
+  <p> Suppose you have a detector that detects <i>examples</i> (it assigns the labels <i>example</i> or <i>not an
+      example</i> to documents).</p>
   <p>For the document</p>
   <figure id="anchors-example-document">
     <md-elevation></md-elevation>
@@ -460,16 +538,22 @@
   </figure>
   <p>where the detector predicts <i>example</i>, a rule can look like this:</p>
   <div class="anchors-example" id="anchors-example-1"></div>
-  <p>The box on the upper right specifies <span class="emphasis">conditions</span> that likely led to the prediction beeing <i>example</i>.</p>
-  <p>These were generated by tracking the detector's decisions on <span class="emphasis">similar documents</span>, some of wich are provided in the boxes at the bottom.</p>
+  <p>The box on the upper right specifies <span class="emphasis">conditions</span> that likely led to the prediction
+    beeing <i>example</i>.</p>
+  <p>These were generated by tracking the detector's decisions on <span class="emphasis">similar documents</span>, some
+    of wich are provided in the boxes at the bottom.</p>
   <p>The rule depicted here can be interpreted as follows:</p>
-  <p>Of all analyzed document, those that contained all the specified words got the prediction <i>example</i> in 90% of cases.</p>
-  <p>In other words, if one where to change out any words in the document that are not in this list, e.g., 
-    <figure>
-      <i>This is <span class="replace">the</span> example.</i> or <i>This is <span class="replace">not</span> an example.</i>,</figure>
-    one should expect the detector to still predict <i>example</i> 90% of the time.</p>
-  
-  <p>The visualization is interactive. Clicking on any word in the list updates the rule and documents. Note how the percentage decreases for shorter rules: </p>
+  <p>Of all analyzed document, those that contained all the specified words got the prediction <i>example</i> in 90% of
+    cases.</p>
+  <p>In other words, if one where to change out any words in the document that are not in this list, e.g.,
+  <figure>
+    <i>This is <span class="replace">the</span> example.</i> or <i>This is <span class="replace">not</span> an
+      example.</i>,
+  </figure>
+  one should expect the detector to still predict <i>example</i> 90% of the time.</p>
+
+  <p>The visualization is interactive. Clicking on any word in the list updates the rule and documents. Note how the
+    percentage decreases for shorter rules: </p>
   <div class="anchors-example" id="anchors-example-2"></div>
 </template>
 <template id="template-phase1-complete">
@@ -507,19 +591,22 @@
 <template id="template-document-only-card">
   <div class="card document-only-card">
     <md-elevation></md-elevation>
-    <span>The following document is <span class="ground_truth">machine generated</span>.</span><br/>
-    <span>The detector <span class="wrongly-correctly">correctly</span> predicted that this document is <span class="prediction">prediction generated</span>.</span>
+    <span>The following document is <span class="ground_truth">machine generated</span>.</span><br />
+    <span>The detector <span class="wrongly-correctly">correctly</span> predicted that this document is <span
+        class="prediction">prediction generated</span>.</span>
     <div class="section-detector-output">
-      <span>Detector output:</span><br/>
+      <span>Detector output:</span><br />
       <div class="detector-p-container">
-        <span class="detector-p-label">p(machine)</span> <span class="detector-p-machine">=<span class="detector-p-machine-val">10</span>&percnt;</span><br/>
-        <span class="detector-p-label">p(human) </span> <span class="detector-p-human">=<span class="detector-p-human-val">90</span>&percnt;</span>
+        <span class="detector-p-label">p(machine)</span> <span class="detector-p-machine">=<span
+            class="detector-p-machine-val">10</span>&percnt;</span><br />
+        <span class="detector-p-label">p(human) </span> <span class="detector-p-human">=<span
+            class="detector-p-human-val">90</span>&percnt;</span>
       </div>
     </div>
     <md-divider></md-divider>
-      <div class="section-input-document">
-        <span>Input document:</span><br/>
-        <p class="document-only-card-document"></p>
+    <div class="section-input-document">
+      <span>Input document:</span><br />
+      <p class="document-only-card-document"></p>
     </div>
   </div>
 </template>
@@ -539,12 +626,13 @@
     <md-icon slot="icon" id="icon-token-invalid">warning</md-icon>
     <div slot="headline">Invalid Token</div>
     <form id="alert-token-invalid-form" slot="content" method="dialog">
-      <b>Please check your input and retry</b><br/> If your token is not accepted and you haven't completed the experiment yet, please request a new token.
+      <b>Please check your input and retry</b><br /> If your token is not accepted and you haven't completed the
+      experiment yet, please request a new token.
     </form>
     <div slot="actions">
       <md-text-button form="alert-token-invalid-form" id="alert-token-invalid-ok">OK</md-text-button>
     </div>
-    
+
   </md-dialog>
 </template>
 <template id="template-confirm-complete-phase">

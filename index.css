@@ -283,14 +283,22 @@ body {
 #container-exit{
   justify-content: center;
   align-items: center;
-  display: flex;
+  display: grid;
+  grid-column: auto;
+  grid-row: auto;
+  row-gap: 1em;
 }
-
 
 .container-continue-to-phase,
 #container-exit{
   padding-top: 1em;
   padding-bottom: var(--md-fab-container-height, 56px);
+}
+
+#error-box{
+  background-color: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+  font-family: "Lucida Console", Monaco, monospace;
 }
 #auth-form{
   justify-content: center;

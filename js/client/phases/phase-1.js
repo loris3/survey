@@ -26,12 +26,13 @@ export async function loadParticipantInfoForm(loadPhase) {
 
         if (document.querySelector("#participant-info-form").reportValidity()) {
             try {
-                await advancePhase(0);
+                if(await advancePhase(0)){
+                    loadPhase();
+                }
             } catch (error) {
                 showLoadingError();
                 return;
             }
-            loadPhase();
         }
 
 

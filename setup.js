@@ -11,6 +11,11 @@ const db_path = "./db.db"
 
 if(!fs.existsSync('.env')){
   fs.writeFileSync('.env', `TOKEN_SECRET=${require('crypto').randomBytes(64).toString('hex')}`);
+  if(fs.existsSync('.config')){
+    fs.appendFileSync('.env', "\n")
+    fs.appendFileSync('.env', fs.readFileSync(".config"))
+  }
+  
 }
 
 

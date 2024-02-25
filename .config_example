@@ -1,0 +1,6 @@
+BACKUP_HOST="10.10.10.10"
+BACKUP_PORT="22"
+BACKUP_USERNAME="username"
+BACKUP_PRIVATE_KEY="full_path_to_private_key"
+BACKUP_DESTINATION_DIR_PDF="/full/path/with/delimiter/"
+BACKUP_DESTINATION_DIR_DB="/full/path/with/delimiter/"

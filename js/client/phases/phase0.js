@@ -12,12 +12,14 @@ export async function loadPhase0(loadPhase) {
 
     document.querySelector("#btn-continue-to-phase1").addEventListener("click", async(event) => {
         try {
-            await advancePhase(1);
+            if(await advancePhase(1)){
+                loadPhase();
+            }
         } catch (error) {
             showLoadingError();
             return;
         }
-        loadPhase();
+        
     })
 }
 

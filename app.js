@@ -8,7 +8,10 @@ const fs = require('fs');
 const zlib = require('zlib');
 const bwipjs = require('bwip-js');
 const pdfkit = require('pdfkit');
-var sanitize = require("sanitize-filename");
+const sanitize = require("sanitize-filename");
+
+const { Client } =  require("node-scp");
+const { exit } = require('process');
 
 if (!fs.existsSync('.env')) {
   throw new Error("Run 'node setup.js' first!")
@@ -101,39 +104,45 @@ function authMiddleware(req, res, next) { // https://www.digitalocean.com/commun
 }
 
 app.post("/completeCurrentPhase", authMiddleware, (req, res) => {
-
   db.get("SELECT current_phase, prefers_monochromatic_methods FROM users JOIN participant_info on users.ID = participant_info.user_id WHERE access_token = ?", [req.access_token], (err, row) => {
+
     if (err) return res.sendStatus(500);
     if (row == undefined) {
       res.sendStatus(404);
       return
     }
-    if (req.body?.expected == row.current_phase) {
+    if (req.body?.expected != row.current_phase + 1) {
       res.sendStatus(208);
       return
     }
-    if (row.current_phase == -1) { // assign group
-      let query;
-      if (row.prefers_monochromatic_methods == "yes") {
-        // select where explainer = Anchors, with the least participants
-        query = `WITH choice as (SELECT count(users.current_phase > 4) as numcompleted, count(users.detector) as count_ , groups.detector, groups.explainer FROM groups LEFT JOIN users ON groups.explainer = users.explainer AND groups.detector = users.detector   WHERE groups.explainer = "Anchor_Explainer" GROUP BY groups.explainer, groups.detector ORDER BY count_, numcompleted, groups.explainer DESC limit 1)
+    db.serialize(() => {
+      if (row.current_phase == -1) { // assign group
+        let query;
+        if (row.prefers_monochromatic_methods == "yes") {
+          // select where explainer = Anchors, with the least participants
+          query = `WITH choice as (SELECT count(users.current_phase > 4) as numcompleted, count(users.detector) as count_ , groups.detector, groups.explainer FROM groups LEFT JOIN users ON groups.explainer = users.explainer AND groups.detector = users.detector   WHERE groups.explainer = "Anchor_Explainer" GROUP BY groups.explainer, groups.detector ORDER BY count_, numcompleted, groups.explainer DESC limit 1)
         UPDATE users SET detector = (SELECT detector from choice), explainer = (SELECT explainer from choice) WHERE access_token = ?`
-      } else {
-        // select the one with the least participants
-        query = `WITH choice as (SELECT count(users.current_phase > 4) as numcompleted, count(users.detector) as count_ , groups.detector, groups.explainer FROM groups LEFT JOIN users ON groups.explainer = users.explainer AND groups.detector = users.detector  GROUP BY groups.explainer, groups.detector ORDER BY count_, numcompleted, groups.explainer DESC limit 1)
+        } else {
+          // select the one with the least participants
+          query = `WITH choice as (SELECT count(users.current_phase > 4) as numcompleted, count(users.detector) as count_ , groups.detector, groups.explainer FROM groups LEFT JOIN users ON groups.explainer = users.explainer AND groups.detector = users.detector  GROUP BY groups.explainer, groups.detector ORDER BY count_, numcompleted, groups.explainer DESC limit 1)
         UPDATE users SET detector = (SELECT detector from choice), explainer = (SELECT explainer from choice) WHERE access_token = ?`
+        }
+        db.run(query, [req.access_token], (err, row) => {
+          if (err) console.log(err);
+        })
+
       }
-      db.run(query, [req.access_token], (err, row) => {
-        if (err) console.log(err);
+      db.run("UPDATE users SET current_phase =? WHERE access_token = ?", [req.body.expected, req.access_token], (err, row) => {
+        if (err) return res.sendStatus(403);
+        return res.sendStatus(200);
       })
 
-    }
-    db.run("UPDATE users SET current_phase = current_phase + 1 WHERE access_token = ?", [req.access_token], (err, row) => {
-      if (err) return res.sendStatus(403);
-      return res.sendStatus(200);
-    })
+      if (row.current_phase == 4) { // once phase 4 is completed
+        offSiteBackup(req.access_token);
+      }
 
-  })
+    })
+  });
 
 })
 
@@ -467,51 +476,88 @@ async function getDataDump(access_token) {
 }
 
 app.get("/api/dump", authMiddleware, async (req, res) => {
-
-  const filename = req.access_token + "-backup.pdf"
-  const out = path.join(__dirname, "backup", filename)
-
-  let user_data = await getDataDump(req.access_token);
-  const encoded = JSON.stringify(user_data);
-  const chunks = encoded.match(/.{1,1000}/g);
-  const doc = new pdfkit({ size: 'A5' });
-  const writeStream = fs.createWriteStream(out);
-  doc.pipe(writeStream);
-
-  doc.text("This is a backup of your responses.")
-  doc.fontSize(10);
-  doc.text("All data was successfully submitted, no further action is required on your part.")
-  doc.fontSize(9);
-  doc.text("Please hold on to this file just in case.")
-  doc.text(" ")
-  doc.fontSize(5);
-  doc.text(" ")
-  doc.text(JSON.stringify(user_data))
-  for (let i = 0; i < chunks.length; i++) {
-    await new Promise((resolve, reject) => {
-      bwipjs.toBuffer({
-        bcid: 'pdf417',       // Barcode type
-        text: chunks[i],    // Text to encode
-        rotate: "L",
-        padding: 10,
-      },
-        (err, png) => {
-          if (err) {
-            reject()
-          } else {
-            doc.addPage()
-            doc.image(png, 10, 10, { height: 500 })
-            doc.text(i + "/" + chunks.length + " " + req.access_token, 1, 1)
-            resolve()
-          }
-        });
-    })
-  }
-  doc.end();
-  writeStream.on('finish', function () {
-    res.sendFile(out)
-  });
-
-
-
+  res.sendFile(await createPDF(req.access_token))
 });
+
+async function createPDF(access_token){
+  return await new Promise(async (resolve, reject) =>{
+    const filename = access_token + "-backup.pdf"
+    const out = path.join(__dirname, "backup", filename)
+  
+    let user_data = await getDataDump(access_token);
+    const encoded = JSON.stringify(user_data);
+    const chunks = encoded.match(/.{1,1000}/g);
+    const doc = new pdfkit({ size: 'A5' });
+    const writeStream = fs.createWriteStream(out);
+    doc.pipe(writeStream);
+  
+    doc.text("This is a backup of your responses.")
+    doc.fontSize(10);
+    doc.text("All data was successfully submitted, no further action is required on your part.")
+    doc.fontSize(9);
+    doc.text("Please hold on to this file just in case.")
+    doc.text(" ")
+    doc.fontSize(5);
+    doc.text(" ")
+    doc.text(JSON.stringify(user_data))
+    for (let i = 0; i < chunks.length; i++) {
+      await new Promise((resolve, reject) => {
+        bwipjs.toBuffer({
+          bcid: 'pdf417',       
+          text: chunks[i], 
+          rotate: "L",
+          padding: 10,
+          height: 74
+        },
+          (err, png) => {
+            if (err) {
+              reject()
+            } else {
+              if(i%2 == 0){doc.addPage()}
+              doc.image(png, (209*(i%2)), 10, { width: 209 })
+              doc.text(i+1 + "/" + chunks.length + " " + access_token, (209*(i%2))+10, 1)
+              resolve()
+            }
+          });
+      })
+    }
+    doc.end();
+    writeStream.on('finish', function () {
+      resolve(out)
+    });
+  })
+  
+
+}
+
+
+
+async function offSiteBackup(access_token=null){
+  if(process.env.BACKUP_HOST){
+    try {
+      const client = await Client({
+        host: process.env.BACKUP_HOST,
+        port: process.env.BACKUP_PORT,
+        username: process.env.BACKUP_USERNAME,
+        privateKey: fs.readFileSync(path.join(process.env.BACKUP_PRIVATE_KEY), "utf8"),
+    
+      })
+      if(process.env.BACKUP_DESTINATION_DIR_PDF && access_token){
+        const filename = access_token + "-backup.pdf"
+        const filepath = path.join(__dirname, "backup", filename)
+        await createPDF(access_token);
+        console.log(filepath)
+        await client.uploadFile(filepath, process.env.BACKUP_DESTINATION_DIR_PDF + filename,)
+      }
+      if(process.env.BACKUP_DESTINATION_DIR_DB){
+        await client.uploadFile(db_path, process.env.BACKUP_DESTINATION_DIR_DB + Math.floor(Date.now() /1000) + "-db.db" )
+      }
+
+      client.close()
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+}
+offSiteBackup("AAAAAA").then(exit)

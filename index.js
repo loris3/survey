@@ -31,7 +31,6 @@ import {
     setInnerHTML, 
     checkMinViewportWidhtAndDisplayWarning,
     toggleFullscreen,
-    downloadBackup,
 } from './js/client/util.js';
 
 

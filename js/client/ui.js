@@ -1,40 +1,48 @@
-import { getState, clearCookie, updateState } from "./api";
+import { getState, clearCookie, updateState, hasToken } from "./api";
 
 import { loadParticipantInfoForm } from './phases/phase-1.js';
-import { loadPhase0 ,showPhase0Instructions} from './phases/phase0.js';
+import { loadPhase0, showPhase0Instructions } from './phases/phase0.js';
 import { loadPhase1 } from './phases/phase1.js';
 import { loadPhase4 } from './phases/phase4.js';
 import { loadPhase5 } from './phases/phase5.js';
 import { loadAuthCard } from './auth.js';
-import { clearCardContainerAndDisplayLoadingAnimation, showLoadingError } from "./util.js";
+import { clearCardContainerAndDisplayLoadingAnimation, showGenericError, showLoadingError } from "./util.js";
 import { updateProgressBar } from "./util.js";
 import { loadPhase2 } from "./phases/phase2.js";
 import { loadPhase3 } from "./phases/phase3.js";
 
 let loading = false;
-export async function loadPhase() {
-    if(loading){
+export async function loadPhase(firstLoad = false) {
+    if (loading) {
         return;
     }
     loading = true;
     clearCardContainerAndDisplayLoadingAnimation();
+
+    let state;
     // check if authenticated
-    try {
-        await updateState();
-        state = await getState();
-        console.log("state", state)
-        if(!state){
-            showLoadingError();
+    if (hasToken()) {
+        try {
+            await updateState();
+            state = await getState();
+            if (!state) {
+                showLoadingError();
+                loading = false;
+                return;
+            }
+        } catch (error) {
+            loadAuthCard(loadPhase);
+            updateProgressBar();
             loading = false;
             return;
+
         }
-    } catch (error) {
-        console.log(error)
+    }else{
         loadAuthCard(loadPhase);
         updateProgressBar();
         loading = false;
         return;
-        
+
     }
 
 
@@ -42,30 +50,35 @@ export async function loadPhase() {
         document.querySelector("#open-instructions").style.display = "initial";
         document.querySelector("#open-instructions").addEventListener("click", showPhase0Instructions);
     }
+    let f;
     switch (state.current_phase) {
         case -1:
-            await loadParticipantInfoForm(loadPhase);
+            f = loadParticipantInfoForm;
             break;
         case 0:
-            await loadPhase0(loadPhase);
+            f = loadPhase0;
             break;
         case 1:
-            await loadPhase1(loadPhase);
+            f = loadPhase1;
             break;
         case 2:
-            await loadPhase2(loadPhase);
+            f = loadPhase2;
             break;
         case 3:
-            await loadPhase3(loadPhase);
+            f = loadPhase3;
             break;
         case 4:
-            await loadPhase4(loadPhase);
+            f = loadPhase4;
             break;
         case 5:
-            await loadPhase5(loadPhase);
+            f = (loadPhase) =>{loadPhase5(loadPhase, download = firstLoad)};
             break;
     }
-
+    try {
+        f(loadPhase);
+    } catch (error) {
+        showGenericError(error)
+    }
     updateProgressBar();
     loading = false;
 

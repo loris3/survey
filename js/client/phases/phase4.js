@@ -1,4 +1,4 @@
-import { getHeaders } from "../api";
+import { getHeaders, getState } from "../api";
 import { showLoadingError } from "../util";
 import { restorePhase, showConfirmDialog, submitResponse_ } from "./util";
 
@@ -14,7 +14,7 @@ export async function loadPhase4(loadPhase) { // identical to phase 2 save for t
         showLoadingError()
         return
     }
-
+    const state = await getState();
     for (let i = 0; i < state.document_order_b.length; i++) { // sync to retain order
         const documentNr = state.document_order_b[i];
         let response = null;
@@ -34,12 +34,8 @@ export async function loadPhase4(loadPhase) { // identical to phase 2 save for t
             document.querySelector("#card-container").appendChild(card);
 
         } else if (response.status == 403) {
-            //throw new Error("Wrong phase")
-            // db didn't update yet
-            setTimeout(() => {
-                loadPhase();
-            }, 1000);
-            return
+            throw new Error("Wrong phase")
+
         } else {
             throw new Error("Error fetching document in phase 4")
         }
@@ -53,8 +49,8 @@ export async function loadPhase4(loadPhase) { // identical to phase 2 save for t
         let all_valid = Array.from(document.querySelectorAll("form")).reduce((acc, elem) => {
             return elem.reportValidity() && acc;
         }, true)
-        if (all_valid) {
-            showConfirmDialog(5, loadPhase)
+        if (true || all_valid) {
+            showConfirmDialog(5, () =>{loadPhase(firstLoad=true)})
         }
 
 
