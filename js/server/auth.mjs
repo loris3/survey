@@ -28,7 +28,7 @@ export function authMiddlewarePhase(req, res, next, phase) { // https://www.digi
         if (sqliteExists(row)) {// TODO this can't be the only way of doing this
           next()
         } else {
-          logger.log("info", `User ${token} not in correct phase or does not exist @ ${getIP(req)}`)
+          logger.log("info", `User ${req.access_token} not in correct phase or does not exist @ ${getIP(req)}`)
           return res.sendStatus(403);
         }
       })
@@ -58,7 +58,7 @@ export function authMiddlewarePhase(req, res, next, phase) { // https://www.digi
         if (sqliteExists(row)) {
           next()
         } else {
-          logger.log("info", `User ${token} does not exist @ ${getIP(req)}`)
+          logger.log("info", `User ${req.access_token} does not exist @ ${getIP(req)}`)
           return res.sendStatus(403);
         }
       })

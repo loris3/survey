@@ -132,7 +132,7 @@ const n_tokens = 27;
   }
     
 
-db.run(`INSERT INTO users (access_token, document_order_a, document_order_b, explainer, detector) VALUES (?,?,?, 'LIME_Explainer', 'DetectorGuo')`,["DDEBUG",JSON.stringify(Array.from(Array(n_documents_in_each_phase).keys())),JSON.stringify(Array.from(Array(n_documents_in_each_phase).keys()))]);
+// db.run(`INSERT INTO users (access_token, document_order_a, document_order_b, explainer, detector) VALUES (?,?,?, 'LIME_Explainer', 'DetectorGuo')`,["DDEBUG",JSON.stringify(Array.from(Array(n_documents_in_each_phase).keys())),JSON.stringify(Array.from(Array(n_documents_in_each_phase).keys()))]);
 
 db.exec(`
 DROP TABLE IF EXISTS groups;
