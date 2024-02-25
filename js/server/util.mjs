@@ -25,7 +25,7 @@ export function getState(req, res) {
 
     if (row == undefined) {
       res.sendStatus(404);
-      logger.log("warning", `${req.access_token} not in users`)
+      logger.log("info", `${req.access_token} not in users`)
       return
     }
     res.json({
@@ -54,7 +54,7 @@ export async function completeCurrentPhase(req, res) {
 
     if(! await userMayAdvancePhase(row.current_phase, req.access_token)){
       res.sendStatus(405);
-      logger.log("warning", `${req.access_token} attempted to complete phase${row.current_phase} but not all responses where stored in the database`)
+      logger.log("info", `${req.access_token} attempted to complete phase${row.current_phase} but not all responses where stored in the database`)
       return;
     }
     db.serialize(() => {
