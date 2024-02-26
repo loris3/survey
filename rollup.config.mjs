@@ -26,12 +26,11 @@ export default {
     copy({
       patterns: [
         'fonts/**',
-        '*.svg',
-        '*.jpeg',
-        '*.jpg',
         '*.html',
-        'lime_bundle.js',
-        'anchor_bundle.js'
+        'anchor_bundle.js.map',
+        'anchor_bundle.js',
+        'manifest.json',
+        'img/**'
       ],
     }),
     summary(),
@@ -39,7 +38,7 @@ export default {
   ],
   output: {
     dir: 'build',
-		sourcemap: !production 
+		sourcemap: true//!production 
   },
   preserveEntrySignatures: 'strict',
 };

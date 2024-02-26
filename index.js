@@ -129,5 +129,5 @@ async function showAllPrompts(){
 }
 
 
-// document.addEventListener("DOMContentLoaded", init);
-document.fonts.ready.then(init);
+document.addEventListener("DOMContentLoaded", init);
+//document.fonts.ready.then(init);

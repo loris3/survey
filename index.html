@@ -1,18 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
-
+<title>User Study</title>
 <head>
-  <link rel="icon" type="image/x-icon" href="list-box-outline.svg">
+  <link rel="icon" type="image/x-icon" href="./img/icon.svg">
+  <link rel="manifest" href="manifest.json">
   <link rel="preload" href="fonts/Roboto/Roboto-Regular.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="preload" href="fonts/Redacted_Script/RedactedScript-Regular.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="preload" href="fonts/materialsymbolsoutlined.woff2" as="font" type="font/woff2" crossorigin>
-  <script src="anchor_bundle.js"></script>
   <script src="index.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#18110f"/>
 </head>
 
 <body>
-  <md-linear-progress class="form-progress" max=100 value=0 buffer="max" id="progress-bar"
+  <md-linear-progress class="form-progress" max=100 value=0 buffer="max" id="progress-bar" aria-label="Combined survey progress- and loading bar"
     indeterminate></md-linear-progress>
 
   <md-fab size="small" id="enter-fullscreen" touch-target="none" aria-label="Edit">
@@ -43,6 +44,7 @@
   <div id="card-container">
     <!--everything in here will be cleared when switching to the next phase-->
   </div>
+  <script src="anchor_bundle.js"></script>
 
 </body>
 <template id="template-connection-issues-warning">
@@ -367,7 +369,7 @@
     <div class="images-side-by-side">
       <div class="images-side-by-side-col">
         <figure>
-          <img src="./machine-woven.jpeg">
+          <img src="./img/machine-woven.jpeg">
           <figcaption>Machine-woven</figcaption>
           <a href="https://commons.wikimedia.org/wiki/File:52_105_Ottoman_(149030139).jpeg">Matthew Bellemare</a>, <a
             href="https://creativecommons.org/licenses/by-sa/3.0">CC BY-SA 3.0</a>
@@ -375,7 +377,7 @@
       </div>
       <div class="images-side-by-side-col">
         <figure>
-          <img src="./hand-knitted.jpg">
+          <img src="./img/hand-knitted.jpg">
           <figcaption>Hand-knitted</figcaption>
           <a href="https://commons.wikimedia.org/wiki/File:Patentstickning.jpg">Hobbsansak</a>, <a
             href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>

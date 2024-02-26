@@ -1,0 +1,38 @@
+{
+    "name": "User Study",
+    "icons": [
+      {
+        "src": "./img/icon.svg",
+        "type": "image/svg+xml",
+        "sizes":"any",
+        "purpose": "any"
+      },
+      {
+        "src": "./img/maskable_icon.png",
+        "type": "image/png",
+        "sizes":"any",
+        "purpose": "maskable"
+      },
+      {
+        "src": "./img/maskable_icon_x192.png",
+        "type": "image/png",
+        "sizes":"192x192",
+        "purpose": "maskable"
+      },
+      {
+        "src": "./img/maskable_icon_x512.png",
+        "type": "image/png",
+        "sizes":"512x512",
+        "purpose": "maskable"
+      }
+
+    ],
+    "id": "/?source=pwa",
+    "start_url": "/",
+    "background_color": "#18110f",
+    "display": "minimal-ui",
+    "scope": "/",
+    "theme_color": "#18110f",
+
+    "description": "User study on explanation methods."
+  }
