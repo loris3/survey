@@ -5,12 +5,12 @@ import path, { resolve } from 'path';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv'
 import seedrandom from 'seedrandom';
-
+import crypto from 'crypto'
 const db_path = "./db.db"
 const n_tokens = 27;
 
 if (!fs.existsSync('.env')) {
-  fs.writeFileSync('.env', `TOKEN_SECRET=${require('crypto').randomBytes(64).toString('hex')}`);
+  fs.writeFileSync('.env', `TOKEN_SECRET=${crypto.randomBytes(64).toString('hex')}`);
   if (fs.existsSync('.config')) {
     fs.appendFileSync('.env', "\n")
     fs.appendFileSync('.env', fs.readFileSync(".config"))
