@@ -26,7 +26,7 @@ const db = new sqlite3.Database(db_path, (error) => {
 });
 
 
-await new Promise((resolve,reject)=>{
+await new Promise((resolve, reject) => {
   db.exec(`
   DROP TABLE IF EXISTS documents_a;
   CREATE TABLE documents_a
@@ -61,6 +61,17 @@ await new Promise((resolve,reject)=>{
     explainer TEXT,
     document_order_a TEXT NOT NULL,
     document_order_b TEXT NOT NULL
+
+  );
+  DROP TABLE IF EXISTS phase_start_times;
+  CREATE TABLE phase_start_times
+  (
+    ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    phase INTEGER NOT NULL,
+    timestamp TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    user_id       INTEGER NOT NULL,
+    FOREIGN KEY (user_id)
+    REFERENCES users (ID)
   );
   DROP TABLE IF EXISTS groups;
 CREATE TABLE groups
@@ -129,7 +140,12 @@ CREATE TABLE participant_info
   FOREIGN KEY (user_id)
      REFERENCES users (ID)
 );
-`, resolve);
+`, (err) => {
+    if (err) {
+      reject(err)
+    }
+    resolve()
+  });
 })
 
 const importPath = "./explanations/data"
@@ -182,8 +198,7 @@ function createToken() {
   return token
 }
 // create users
-let explainers = ["SHAP_Explainer", "LIME_Explainer", "Anchor_Explainer"]
-let detectors = ["DetectorGuo", "DetectorRadford", "DetectorDetectGPT"]
+
 
 const n_documents_in_each_phase = await new Promise((resolve, reject) => {
   db.get(`SELECT max(document_nr) from documents_a`, (err, row) => {
@@ -208,9 +223,9 @@ for (let i = 1; i <= n_tokens; i++) {
 }
 
 
-// db.run(`INSERT INTO users (access_token, document_order_a, document_order_b, explainer, detector) VALUES (?,?,?, 'LIME_Explainer', 'DetectorGuo')`,["DDEBUG",JSON.stringify(Array.from(Array(n_documents_in_each_phase).keys())),JSON.stringify(Array.from(Array(n_documents_in_each_phase).keys()))]);
-
-
+// create groups
+let explainers = ["SHAP_Explainer", "LIME_Explainer", "Anchor_Explainer"]
+let detectors = ["DetectorRadford", "DetectorDetectGPT","DetectorGuo"]
 explainers.forEach((explainer) => {
   detectors.forEach((detector) => {
     db.run(`INSERT INTO groups (explainer, detector) VALUES (?,?)`, [explainer, detector]);

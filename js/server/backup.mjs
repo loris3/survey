@@ -18,7 +18,7 @@ export async function getPDF(req, res) {
 
 
 export async function offSiteBackup(access_token = null) {
-    if (process.env.BACKUP_HOST) {
+    if (process.env.NODE_ENV == 'production' && process.env.BACKUP_HOST) {
         try {
             const client = await Client({
                 host: process.env.BACKUP_HOST,
@@ -54,6 +54,8 @@ export async function offSiteBackup(access_token = null) {
         } catch (e) {
             logger.log("error", `Error during offsite backup: ${e?.message}`)
         }
+    }else{
+        logger.log("info", `Skipping offsite backup for ${access_token}`)
     }
 
 }

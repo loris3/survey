@@ -83,6 +83,12 @@ export async function completeCurrentPhase(req, res) {
         }
         return res.sendStatus(200);
       })
+      db.run("INSERT INTO phase_start_times (phase, user_id) VALUES (?, (SELECT ID FROM users WHERE access_token=?))", [req.body.expected, req.access_token], (err, row) => {
+        if (err) {
+          logger.log("error", `Could track start time of phase${req.body.expected} for ${req.access_token} ${err}`)
+          
+        }
+      })
 
       if (row.current_phase == 4) { // once phase 4 is completed
         offSiteBackup(req.access_token);
