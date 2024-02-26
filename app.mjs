@@ -1,4 +1,5 @@
 import express from 'express';
+import {rateLimit} from 'express-rate-limit'
 import logger from './js/server/logger.mjs'
 
 import { sendParticipantInfo, submitParticipantInfo } from './js/server/phases/phase-1.mjs';
@@ -16,6 +17,13 @@ const port = 3002
 const app = express()
 app.use(express.static('./build'));
 app.use(express.json());
+
+const limiter = rateLimit({
+	windowMs: 60 * 60 * 1000,
+	limit: 10,
+	standardHeaders: 'draft-7',
+	legacyHeaders: false
+})
 
 // participant info ("phase -1")
 app.post("/api/submitParticipantInfo", (req, res, next) => { authMiddlewarePhase(req, res, next, -1) }, submitParticipantInfo)
@@ -42,7 +50,7 @@ app.get("/api/getPhase4", (req, res, next) => { authMiddlewarePhase(req, res, ne
 
 // other endpoints
 app.get("/api/state", authMiddleware, getState)
-app.get("/auth/:access_token", authenticate)
+app.get("/auth/:access_token", limiter, authenticate)
 app.post("/api/completeCurrentPhase", authMiddleware, completeCurrentPhase)
 app.get("/api/dump", authMiddleware, getPDF);
 app.get("/:access_token", serveIndexHTML)

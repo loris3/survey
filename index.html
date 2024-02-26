@@ -623,7 +623,8 @@
     <div slot="headline">Invalid Token</div>
     <form id="alert-token-invalid-form" slot="content" method="dialog">
       <b>Please check your input and retry</b><br /> If your token is not accepted and you haven't completed the
-      experiment yet, please request a new token.
+      experiment yet, please request a new token.<br />
+      <b>Requests are denied for one hour after 10 unsuccessful attempts.</b>
     </form>
     <div slot="actions">
       <md-text-button form="alert-token-invalid-form" id="alert-token-invalid-ok">OK</md-text-button>
