@@ -38,11 +38,21 @@ import { clearCardContainerAndDisplayLoadingAnimation } from './js/client/util.j
 
 import { checkMinViewportWidhtAndDisplayWarning, loadPhase, updateProgressBar } from './js/client/ui.js';
 import { getHeaders, hasToken } from './js/client/api.js';
+import { loadParticipantInfoForm } from './js/client/phases/phase-1.js';
+import { loadPhase2 } from './js/client/phases/phase2.js';
+import { loadPhase0 } from './js/client/phases/phase0.js';
+import { loadPhase1 } from './js/client/phases/phase1.js';
+import { loadPhase3 } from './js/client/phases/phase3.js';
+import { loadPhase4 } from './js/client/phases/phase4.js';
+import { loadPhase5 } from './js/client/phases/phase5.js';
 
 
 async function init() {
+    if((window.location.href + "").split("/").at(-1) == "DEBUG"){
+        showAllPrompts();
+        return
+    }
     loadPhase();
-
     document.getElementById("enter-fullscreen").addEventListener("click", toggleFullscreen);
     document.getElementById("exit-fullscreen").addEventListener("click", toggleFullscreen);
     
@@ -65,7 +75,58 @@ async function init() {
 
 
 
-
+async function showAllPrompts(){
+    try {
+        await loadParticipantInfoForm();
+    } catch (error) {
+        
+    }
+    try {
+        await loadPhase0();
+    } catch (error) {
+        
+    }
+    try {
+        await loadPhase1();
+    } catch (error) {
+        
+    }
+    try {
+        await loadPhase2();
+    } catch (error) {
+        
+    }
+    try {
+        await loadPhase3(null, null,state={explainer: "SHAP_Explainer"});
+    } catch (error) {
+        
+    }
+    try {
+        await loadPhase3(null, null,state={explainer: "Anchor_Explainer"});
+    } catch (error) {
+        
+    }
+    try {
+        await loadPhase3(null, null,state={explainer: "LIME_Explainer"});
+    } catch (error) {
+        
+    }
+    try {
+        await loadPhase4();
+    } catch (error) {
+        
+    }
+    try {
+        await loadPhase5();
+    } catch (error) {
+        
+    }
+    document.querySelectorAll("#loading-issues-warning").forEach(elem =>{
+        elem.removeAttribute("open")
+    })
+    document.querySelector("#progress-bar").removeAttribute("indeterminate")
+    document.querySelector("#progress-bar").setAttribute("value", 0)
+}
 
 
 // document.addEventListener("DOMContentLoaded", init);

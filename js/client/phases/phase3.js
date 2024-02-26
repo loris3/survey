@@ -7,13 +7,15 @@ import { getHeaders, getState, submitLickert } from "../api";
 import { showConfirmDialog } from "./util";
 
 // just like loadPhase1 but now with explanations
-export async function loadPhase3(loadPhase, updateProgressBar) {
+export async function loadPhase3(loadPhase, updateProgressBar, state=null) {
     
     const template_instructions = document.querySelector("#template-phase3-instructions-card");
     const node_instructions = template_instructions.content.cloneNode(true);
     document.querySelector("#card-container").appendChild(node_instructions);
-
-    const state = await getState();
+    if(state == null){
+        state = await getState();
+    }
+    
     // load explanation method specific prompt
     let template_instructions_explanation_method = null;
     if (state.explainer == "SHAP_Explainer") {
@@ -26,7 +28,7 @@ export async function loadPhase3(loadPhase, updateProgressBar) {
 
 
     const node_instructions_explanation_method = template_instructions_explanation_method.content.cloneNode(true);
-    document.querySelector("#phase3-instructions-card > #explanation-method-specific-instructions-container").appendChild(node_instructions_explanation_method);
+    document.querySelector("#phase3-instructions-card:last-of-type > #explanation-method-specific-instructions-container").appendChild(node_instructions_explanation_method);
     if (state.explainer == "Anchor_Explainer") {
         loadAnchorsExample1();
         loadAnchorsExample2();
