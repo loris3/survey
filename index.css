@@ -140,7 +140,15 @@ body {
     font-family: 'Roboto';
     background-color: var(--md-sys-color-surface-dim);
 }
-
+#phases-ol{ /*https://stackoverflow.com/questions/5568229/how-can-i-prefix-ordered-list-item-numbers-with-a-static-string-using-css*/
+  counter-reset: item;
+  list-style-type: none;
+}
+#phases-ol li:before {
+  content: 'Phase ' counter(item, decimal) ': ';
+  counter-increment: item;
+  font-weight: bold;
+}
 #card-container {
     
     margin: auto;
