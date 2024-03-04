@@ -7,6 +7,11 @@ export async function loadPhase1(loadPhase, updateProgressBar) {
     const node_instructions = template_instructions.content.cloneNode(true);
     document.querySelector("#card-container").appendChild(node_instructions);
 
+    const template_groups = document.querySelector("#template-groups-document-only-cards");
+    const node_groups = template_groups.content.cloneNode(true);
+    document.querySelector("#card-container").appendChild(node_groups);
+
+
     const state = await getState();
     for (let i = 0; i < state.document_order_a.length; i++) { // sync to retain order
         const documentNr = state.document_order_a[i];
@@ -21,13 +26,31 @@ export async function loadPhase1(loadPhase, updateProgressBar) {
         if (response.status == 200) {
             const doc = await response.json();
             const template = document.querySelector("#template-document-only-card");
-            const node = template.content.cloneNode(true);
+            let node = template.content.cloneNode(true);
 
-            node.querySelectorAll(".ground_truth").forEach((element) => {
-                element.innerHTML = doc.ground_truth == 1 ? "human written" : "machine generated";
-            });
+            // HOTFIX: create sections "Prediction Human" and "Prediction Machine"
+            if(doc.detector_p_machine <= doc.detector_p_human){
+                
+                document.querySelector("#card-container .group-human").appendChild(node);
+                node = document.querySelector("#card-container > .group-human").lastElementChild;
+                node.classList.add("human")
+
+            }else{
+                
+                document.querySelector("#card-container .group-machine").appendChild(node);
+                node = document.querySelector("#card-container > .group-machine").lastElementChild;
+                node.classList.add("machine")
+            }
+            
+
+
+            // node.querySelectorAll(".ground_truth").forEach((element) => {
+            //     element.innerHTML = doc.ground_truth == 1 ? "human written" : "machine generated";
+            // });
+            
             node.querySelectorAll(".prediction").forEach((element) => {
                 element.innerHTML = (doc.detector_p_machine <= doc.detector_p_human) ? "human written" : "machine generated";
+                element.setAttribute((doc.detector_p_machine <= doc.detector_p_human) ? "human" : "machine", "")
             });
             const detectorWasRight = doc.ground_truth == (doc.detector_p_machine <= doc.detector_p_human);
             node.querySelector(".wrongly-correctly").innerHTML = detectorWasRight ? "correctly" : "wrongly";
@@ -37,7 +60,10 @@ export async function loadPhase1(loadPhase, updateProgressBar) {
             node.querySelector(".detector-p-machine-val").innerHTML = parseFloat(doc.detector_p_machine * 100).toFixed(2).padStart(12).replaceAll(" ", "&nbsp; ");
             node.querySelector(".detector-p-human-val").innerHTML = parseFloat(doc.detector_p_human * 100).toFixed(2).padStart(12).replaceAll(" ", "&nbsp; ");
 
-            document.querySelector("#card-container").appendChild(node);
+
+            node.querySelector("md-fab").addEventListener("click", (elem)=>{
+                elem.target.parentElement.parentElement.removeAttribute("blurred")
+            })
         } else if (response.status == 403) {
             throw new Error("Wrong phase")
 

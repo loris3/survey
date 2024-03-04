@@ -62,9 +62,9 @@ export async function loadPhase3(loadPhase, updateProgressBar, state=null) {
             card.innerHTML = template_html.replaceAll("nr", doc.document_nr)
 
 
-            card.querySelectorAll(".ground_truth").forEach((element) => {
-                element.innerHTML = doc.ground_truth == 1 ? "human written" : "machine generated";
-            });
+            // card.querySelectorAll(".ground_truth").forEach((element) => {
+            //     element.innerHTML = doc.ground_truth == 1 ? "human written" : "machine generated";
+            // });
             card.querySelectorAll(".prediction").forEach((element) => {
                 element.innerHTML = (doc.detector_p_machine <= doc.detector_p_human) ? "human written" : "machine generated";
             });

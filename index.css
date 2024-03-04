@@ -149,15 +149,20 @@ body {
   counter-increment: item;
   font-weight: bold;
 }
-#card-container {
+#card-container, 
+#card-container > .group-machine,
+#card-container > .group-human {
     
     margin: auto;
-    padding: 1em;
+    
     padding-top: 2em;
     display: grid;
     width: min-content;
     gap: 0.5rem;
     max-width: 1200px;
+  }
+  #card-container{
+    padding: 1em;
   }
   .shap-force-plot-legend-container{
     display: flex;
@@ -334,11 +339,16 @@ body {
 .wrongly-correctly{
   font-weight: bold;
 }
-.wrongly-correctly[correctly]{
+/* .prediction[human]{
   color: var(--md-sys-color-tertiary);
 }
+.prediction[machine]{
+  color: var(--md-sys-color-secondary);
+} */
+
 .wrongly-correctly[wrongly]{
   color: var(--md-sys-color-error);
+  text-decoration: underline;
 }
 .detector-p-container{
   width: fit-content;
@@ -653,4 +663,35 @@ svg  text,
 }
 .images-side-by-side-col a{
   font-size: smaller;
+}
+
+.reveal-box{
+  padding-top: 1em;
+  position:relative;
+}
+.reveal-box md-fab{
+  left:50%;
+  top:50%;
+  transform: translate(-50%, -50%);
+  position:absolute;
+  z-index: 3;
+}
+.reveal-box:not([blurred]) md-fab{
+  display: none;
+
+}
+.reveal-box[blurred] .blur{
+  filter: blur(5px) grayscale(100%);
+
+}
+.group-human > h1, .group-machine > h1{
+  color: var(--md-sys-color-on-background);
+}
+
+/* .card.document-only-card.machine{
+  background-color: var(--md-sys-color-surface-variant);
+} */
+.card.document-only-card.human{
+  color: var(--md-sys-color-inverse-on-surface);
+  background-color: var(--md-sys-color-inverse-surface);
 }
