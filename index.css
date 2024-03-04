@@ -686,6 +686,7 @@ svg  text,
 }
 .group-human > h1, .group-machine > h1{
   color: var(--md-sys-color-on-background);
+  display: none;
 }
 
 /* .card.document-only-card.machine{
@@ -695,3 +696,16 @@ svg  text,
   color: var(--md-sys-color-inverse-on-surface);
   background-color: var(--md-sys-color-inverse-surface);
 }
+
+/* .user-label-explanation-form.loading{
+  display: none;
+}
+.explanation-circular-progress{
+  padding-top: 1em;
+  display: flex;
+  width: 100%;
+}
+.explanation-circular-progress md-circular-progress{
+  
+  margin: auto;
+} */

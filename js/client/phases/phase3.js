@@ -74,8 +74,8 @@ export async function loadPhase3(loadPhase, updateProgressBar, state=null) {
             card.querySelector(".wrongly-correctly").setAttribute(detectorWasRight ? "correctly" : "wrongly", "")
 
 
-            card.querySelector(".detector-p-machine-val").innerHTML = parseFloat(doc.detector_p_machine * 100).toFixed(2).padStart(12).replaceAll(" ", "&nbsp; ");
-            card.querySelector(".detector-p-human-val").innerHTML = parseFloat(doc.detector_p_human * 100).toFixed(2).padStart(12).replaceAll(" ", "&nbsp; ");
+            card.querySelector(".detector-p-machine-val").innerHTML = parseFloat(doc.detector_p_machine * 100).toFixed(0).padStart(12).replaceAll(" ", "&nbsp; ");
+            card.querySelector(".detector-p-human-val").innerHTML = parseFloat(doc.detector_p_human * 100).toFixed(0).padStart(12).replaceAll(" ", "&nbsp; ");
             
             card.querySelector("form").addEventListener("change", submitResponseLickert_(doc.document_nr, updateProgressBar))
             // fetch explanation
@@ -126,12 +126,17 @@ export async function loadPhase3(loadPhase, updateProgressBar, state=null) {
             } else {
                 throw Error("Error fetching explanation")
             }
+            restorePhase3(documentNr);
+            // card.querySelector(".user-label-explanation-form").classList.remove("loading")
+    
+            // card.querySelector(".explanation-circular-progress md-circular-progress").remove();
         } else if (response.status == 403) {
             throw new Error("Wrong phase")
         } else {
             throw new Error("Error fetching document in phase 3")
         }
 
+        
     }
     const template = document.querySelector("#template-phase3-complete");
     const node = template.content.cloneNode(true);
@@ -150,7 +155,7 @@ export async function loadPhase3(loadPhase, updateProgressBar, state=null) {
     });
     document.querySelector("#card-container").appendChild(node);
 
-    restorePhase3();
+
 }
 
 export function submitResponseLickert_(documentNr, updateProgressBar) {
@@ -178,23 +183,34 @@ export function submitResponseLickert_(documentNr, updateProgressBar) {
 
     }
 }
-export async function restorePhase3() {
-    let response = null;
-    try {
-        response = await fetch("./api/getPhase3", { method: 'GET', headers: getHeaders() });
-    } catch (error) {
-        showLoadingError()
+let oldState;
+export async function restorePhase3(documentNr) {
+    if(oldState == null){
+        let response = null;
+        try {
+            response = await fetch("./api/getPhase3", { method: 'GET', headers: getHeaders() });
+        } catch (error) {
+            showLoadingError()
+        }
+        if (response.status != 200) {
+            showLoadingError()
+            return
+        }
+
+        oldState = await response.json()
     }
-    if (response.status != 200) {
-        showLoadingError()
-        return
-    }
-
-    const oldState = await response.json()
-    oldState.forEach((row) => {
-        document.querySelector(`md-radio[name='lickert-q${row.question_nr}-${row.document_nr}'][value='${row.label}']`).checked = true;
+    oldState.filter(elem=>elem.document_nr == documentNr).forEach((row) => {
+            try { // should only fail if loading results from pretest
+                document.querySelector(`md-radio[name='lickert-q${row.question_nr}-${row.document_nr}'][value='${row.label}']`).checked = true;
+            } catch (error) {
+                console.log(error)
+            }
 
 
-    })
+        })
+
+
+    
+
 
 }

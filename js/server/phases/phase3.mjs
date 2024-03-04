@@ -104,7 +104,7 @@ export async function sendResponsesPhase3(req, res){
               reject(error);
             }
             const n_documents = row['COUNT(ID)'];
-            resolve(n_documents == (data.length/3))
+            resolve(n_documents <= (data.length/3)) // TODO check equality, this is for loading results form the pretest
           })
         })
     } catch (error) {

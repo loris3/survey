@@ -57,8 +57,8 @@ export async function loadPhase1(loadPhase, updateProgressBar) {
             node.querySelector(".wrongly-correctly").setAttribute(detectorWasRight ? "correctly" : "wrongly", "")
 
             node.querySelector(".document-only-card-document").innerHTML = doc.document
-            node.querySelector(".detector-p-machine-val").innerHTML = parseFloat(doc.detector_p_machine * 100).toFixed(2).padStart(12).replaceAll(" ", "&nbsp; ");
-            node.querySelector(".detector-p-human-val").innerHTML = parseFloat(doc.detector_p_human * 100).toFixed(2).padStart(12).replaceAll(" ", "&nbsp; ");
+            node.querySelector(".detector-p-machine-val").innerHTML = parseFloat(doc.detector_p_machine * 100).toFixed(0).padStart(12).replaceAll(" ", "&nbsp; ");
+            node.querySelector(".detector-p-human-val").innerHTML = parseFloat(doc.detector_p_human * 100).toFixed(0).padStart(12).replaceAll(" ", "&nbsp; ");
 
 
             node.querySelector("md-fab").addEventListener("click", (elem)=>{
@@ -72,6 +72,8 @@ export async function loadPhase1(loadPhase, updateProgressBar) {
         }
 
     }
+    document.querySelector(".group-human > h1").style.display = "initial"
+    document.querySelector(".group-machine > h1").style.display = "initial"
     const template = document.querySelector("#template-phase1-complete");
     const node = template.content.cloneNode(true);
     node.querySelector("#btn-continue-to-phase2").addEventListener("click", (event) => {
