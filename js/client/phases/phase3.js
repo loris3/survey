@@ -7,15 +7,15 @@ import { getHeaders, getState, submitLickert } from "../api";
 import { showConfirmDialog } from "./util";
 
 // just like loadPhase1 but now with explanations
-export async function loadPhase3(loadPhase, updateProgressBar, state=null) {
-    
+export async function loadPhase3(loadPhase, updateProgressBar, state = null) {
+
     const template_instructions = document.querySelector("#template-phase3-instructions-card");
     const node_instructions = template_instructions.content.cloneNode(true);
     document.querySelector("#card-container").appendChild(node_instructions);
-    if(state == null){
+    if (state == null) {
         state = await getState();
     }
-    
+
     // load explanation method specific prompt
     let template_instructions_explanation_method = null;
     if (state.explainer == "SHAP_Explainer") {
@@ -37,6 +37,12 @@ export async function loadPhase3(loadPhase, updateProgressBar, state=null) {
     } else if (state.explainer == "SHAP_Explainer") {
         loadShapExample1();
     }
+
+    const template_groups = document.querySelector("#template-groups-document-only-cards");
+    const node_groups = template_groups.content.cloneNode(true);
+    document.querySelector("#card-container").appendChild(node_groups);
+
+
     let template_html = null;
     try {
         template_html = await (await fetch("./template-explanation-card.html")).text()
@@ -58,13 +64,13 @@ export async function loadPhase3(loadPhase, updateProgressBar, state=null) {
             const doc = await response.json();
             const card = document.createElement("div")
             card.setAttribute("class", "card explanation-card")
-            
+
             card.innerHTML = template_html.replaceAll("nr", doc.document_nr)
 
 
-            // card.querySelectorAll(".ground_truth").forEach((element) => {
-            //     element.innerHTML = doc.ground_truth == 1 ? "human written" : "machine generated";
-            // });
+            card.querySelectorAll(".ground_truth").forEach((element) => {
+                element.innerHTML = doc.ground_truth == 1 ? "human written" : "machine generated";
+            });
             card.querySelectorAll(".prediction").forEach((element) => {
                 element.innerHTML = (doc.detector_p_machine <= doc.detector_p_human) ? "human written" : "machine generated";
             });
@@ -76,7 +82,7 @@ export async function loadPhase3(loadPhase, updateProgressBar, state=null) {
 
             card.querySelector(".detector-p-machine-val").innerHTML = parseFloat(doc.detector_p_machine * 100).toFixed(0).padStart(12).replaceAll(" ", "&nbsp; ");
             card.querySelector(".detector-p-human-val").innerHTML = parseFloat(doc.detector_p_human * 100).toFixed(0).padStart(12).replaceAll(" ", "&nbsp; ");
-            
+
             card.querySelector("form").addEventListener("change", submitResponseLickert_(doc.document_nr, updateProgressBar))
             // fetch explanation
             let response_explanation = null;
@@ -89,17 +95,32 @@ export async function loadPhase3(loadPhase, updateProgressBar, state=null) {
 
             if (response_explanation.status == 200) {
                 const explanation_html = await response_explanation.text();
-                document.querySelector("#card-container").appendChild(card); // need to add this to document first as LIME has a loop to determine barchart width!!
-                setInnerHTML(document.querySelector("#card-container .card:last-child .explanation-html"), explanation_html);
+                // need to add this to document first as LIME has a loop to determine barchart width!!
+                // HOTFIX: create sections "Prediction Human" and "Prediction Machine"
+                if (doc.detector_p_machine <= doc.detector_p_human) {
+
+                    document.querySelector("#card-container .group-human").appendChild(card);
+                    card.classList.add("human")
+
+                } else {
+
+                    document.querySelector("#card-container .group-machine").appendChild(card);
+                    card.classList.add("machine")
+                }
+                document.querySelector(".group-human > h1").style.display = "initial"
+                document.querySelector(".group-machine > h1").style.display = "initial"
+
+
+                setInnerHTML(card.querySelector(".explanation-html"), explanation_html);
 
                 if (state.explainer == "SHAP_Explainer") {
                     // fix some minor display bugs
-                    document.querySelectorAll("#card-container .card:last-child .explanation-html > svg > text:nth-child(15)").forEach((element) => { element.remove() })
-                    document.querySelectorAll("#card-container .card:last-child .explanation-html > svg > text:nth-child(14)").forEach((element) => { element.remove() })
+                    card.querySelectorAll(".explanation-html > svg > text:nth-child(15)").forEach((element) => { element.remove() })
+                    card.querySelectorAll(".explanation-html > svg > text:nth-child(14)").forEach((element) => { element.remove() })
 
                     // SHAP adds event listeners to nonexistent elements in the forceplot
                     // clone and re-add to get rid of them
-                    document.querySelectorAll(".explanation-container > div > div[align='center'] > div > div").forEach((element) => {
+                    card.querySelectorAll(".explanation-container > div > div[align='center'] > div > div").forEach((element) => {
                         // the issue are the elements with no arrow in the forceplot, i.e. those with zero fi, i.e. the unshaded ones
 
                         try {
@@ -128,7 +149,7 @@ export async function loadPhase3(loadPhase, updateProgressBar, state=null) {
             }
             restorePhase3(documentNr);
             // card.querySelector(".user-label-explanation-form").classList.remove("loading")
-    
+
             // card.querySelector(".explanation-circular-progress md-circular-progress").remove();
         } else if (response.status == 403) {
             throw new Error("Wrong phase")
@@ -136,22 +157,23 @@ export async function loadPhase3(loadPhase, updateProgressBar, state=null) {
             throw new Error("Error fetching document in phase 3")
         }
 
-        
+
     }
+
     const template = document.querySelector("#template-phase3-complete");
     const node = template.content.cloneNode(true);
     node.querySelector("#btn-continue-to-phase4").addEventListener("click", (event) => {
         let all_valid = Array.from(document.querySelectorAll("form")).reduce((acc, elem) => {
-            if(acc){ // only trigger invalid once
+            if (acc) { // only trigger invalid once
                 return elem.reportValidity() && acc;
-            }else{
+            } else {
                 return acc;
             }
         }, true)
         if (all_valid) {
             showConfirmDialog(4, loadPhase)
         }
-        
+
     });
     document.querySelector("#card-container").appendChild(node);
 
@@ -160,8 +182,8 @@ export async function loadPhase3(loadPhase, updateProgressBar, state=null) {
 
 export function submitResponseLickert_(documentNr, updateProgressBar) {
     return async () => {
-        const form = document.querySelector("#user-label-explanation-form-"+documentNr);
-        if(!await submitLickert(form, documentNr)){
+        const form = document.querySelector("#user-label-explanation-form-" + documentNr);
+        if (!await submitLickert(form, documentNr)) {
             showCommunicationError();
             const timeout = 5000;
             const updateDialog = (remaining) => {
@@ -173,19 +195,19 @@ export function submitResponseLickert_(documentNr, updateProgressBar) {
             }
             updateDialog(timeout)
             setTimeout(submitResponseLickert_(documentNr, updateProgressBar), timeout + 100)
-        }else{
+        } else {
             if (document.querySelector("#connection-issues-warning")) {
                 document.querySelector("#connection-issues-warning").removeAttribute('open')
                 updateProgressBar();
             }
-            
+
         }
 
     }
 }
 let oldState;
 export async function restorePhase3(documentNr) {
-    if(oldState == null){
+    if (oldState == null) {
         let response = null;
         try {
             response = await fetch("./api/getPhase3", { method: 'GET', headers: getHeaders() });
@@ -199,18 +221,18 @@ export async function restorePhase3(documentNr) {
 
         oldState = await response.json()
     }
-    oldState.filter(elem=>elem.document_nr == documentNr).forEach((row) => {
-            try { // should only fail if loading results from pretest
-                document.querySelector(`md-radio[name='lickert-q${row.question_nr}-${row.document_nr}'][value='${row.label}']`).checked = true;
-            } catch (error) {
-                console.log(error)
-            }
+    oldState.filter(elem => elem.document_nr == documentNr).forEach((row) => {
+        try { // should only fail if loading results from pretest
+            document.querySelector(`md-radio[name='lickert-q${row.question_nr}-${row.document_nr}'][value='${row.label}']`).checked = true;
+        } catch (error) {
+            console.log(error)
+        }
 
 
-        })
+    })
 
 
-    
+
 
 
 }

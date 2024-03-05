@@ -138,7 +138,7 @@
 body {
     margin: 0;
     font-family: 'Roboto';
-    background-color: var(--md-sys-color-surface-dim);
+    background-color: var(--md-sys-color-background);
 }
 #phases-ol{ /*https://stackoverflow.com/questions/5568229/how-can-i-prefix-ordered-list-item-numbers-with-a-static-string-using-css*/
   counter-reset: item;
@@ -163,6 +163,7 @@ body {
   }
   #card-container{
     padding: 1em;
+    padding-top: 2em;
   }
   .shap-force-plot-legend-container{
     display: flex;
@@ -692,9 +693,10 @@ svg  text,
 /* .card.document-only-card.machine{
   background-color: var(--md-sys-color-surface-variant);
 } */
-.card.document-only-card.human{
-  color: var(--md-sys-color-inverse-on-surface);
-  background-color: var(--md-sys-color-inverse-surface);
+.card.document-only-card.human,
+.card.explanation-card.human{
+  color: var(--md-sys-color-on-surface);
+  background-color: var(--md-sys-color-surface-container);
 }
 
 /* .user-label-explanation-form.loading{
