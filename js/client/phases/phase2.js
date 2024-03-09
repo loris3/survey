@@ -1,5 +1,5 @@
 import { getHeaders, getState } from "../api";
-import { showLoadingError } from "../util";
+import { showIncompleteFormError, showLoadingError } from "../util";
 import { restorePhase, showConfirmDialog, submitResponse_ } from "./util";
 
 export async function loadPhase2(loadPhase, updateProgressBar) {
@@ -54,6 +54,8 @@ export async function loadPhase2(loadPhase, updateProgressBar) {
         }, true)
         if ( all_valid) {
             showConfirmDialog(3, loadPhase)
+        }else{
+            showIncompleteFormError();
         }
 
 

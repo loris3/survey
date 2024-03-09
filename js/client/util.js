@@ -97,6 +97,23 @@ export function showIncompleteInputError() {
 
 
 }
+export function showIncompleteFormError() {
+
+    if (document.querySelector("#incomplete-form-error") == null) {
+        const template = document.querySelector("#template-incomplete-form-error");
+        const node = template.content.cloneNode(true);
+        document.querySelector("body").appendChild(node);
+
+    }
+
+    document.querySelector("#incomplete-form-error").setAttribute('open', '')
+    document.querySelector("#close-incomplete-form-error").addEventListener("click", ()=>{
+        document.querySelector("#incomplete-form-error").removeAttribute('open')
+    })
+
+
+
+}
 export function showGenericError(err) {
     document.querySelector("#progress-bar").setAttribute("indeterminate", "")
     console.error("Generic error", err)

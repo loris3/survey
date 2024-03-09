@@ -139,7 +139,7 @@
   </ol>
   <h2>About this Form</h2>
   <ol>
-    <li>This experiment takes about 25-35 minutes to complete, depending on the method you were assigned and your
+    <li>This experiment takes about 35-60 minutes to complete, depending on the method you were assigned and your
       reading speed. As there is a memory component to this task, please complete
       the experiment in one sitting.</li>
     <li>Once you complete a phase, you can't return.</li>
@@ -334,6 +334,19 @@
 
   </md-dialog>
 </template>
+<template id="template-incomplete-form-error">
+  <md-dialog id="incomplete-form-error" open>
+  <div slot="headline">
+    Missing Items
+  </div>
+  <form slot="content" id="form-id" method="dialog">
+    Please fill out all questions
+  </form>
+  <div slot="actions">
+    <md-text-button form="form-id" id="close-incomplete-form-error">OK</md-text-button>
+  </div>
+</md-dialog>
+</template>
 <template id="template-cvd-dialog">
   <md-dialog id="cvd-dialog">
     <span slot="headline">
@@ -434,17 +447,36 @@
     <div id="explanation-method-specific-instructions-container"></div>
     <md-divider></md-divider>
     <div>
-      <h2>Instructions</h2>
-      <p>Proceed in the same way as you did before:</p>
-      <p>For each of these examples, ask yourself the question, <i>"Why did the detector decide this way?"</i>.</p>
-      <p> Try to identify at least one property for each document you can point to when asked this question by someone
-        else.</p>
-
-      <p>In the next phase, you will revisit the documents you labeled in Phase 2. Base your
-        decisions on the behavior you see here.</p>
       <h2>On Rating</h2>
-      <p>The detector and explanation method you see here is only one of several. No novel detector nor explanation
-        method is evaluated in this experiment. TODO I know there are standard </p>
+      <p>For each document, please also rate to what extent you agree with these statements:</p>
+      <span class="on-rating-question"><b>Q1:</b> From the explanation, I <b>understand why</b> the detector decided the way it did for this document.</span>
+      <div class="on-rating-coding-instructions">
+        <p>Select <i>agree</i> or <i>strongly agree</i> if you think the visualization presents sufficent evidence for why the detector decided the way it did in this specific case.</p>
+        <p>Select <i>disagree</i> or <i>strongly disagree</i> if you can't figure out why the detector decided the way it did.</p>
+    
+      </div>
+      <span class="on-rating-question"><b>Q2:</b> From the explanation, I now better <b>understand how</b> the detector works.</span>
+      <div class="on-rating-coding-instructions">
+        <p>Select <i>agree</i> or <i>strongly agree</i> if you think this explanation increased your understanding of how the detector reasons.</p>
+        <p>Select <i>disagree</i> or <i>strongly disagree</i> if you don't.</p>
+      </div>
+      <span class="on-rating-question"><b>Q3:</b> The information from this explanation <b>will help me</b> predict the detector's behaviour.</span>
+      <div class="on-rating-coding-instructions">
+        <p>Select <i>agree</i> or <i>strongly agree</i> if you think you could apply this information to the documents you labeled in the previous phase. You will do so in the next phase.</p>
+        <p>Select <i>disagree</i> or <i>strongly disagree</i> if you don't.</p>
+      </div>
+      <p>The detector and explanation method you see here are only one combination of several. No novel detector nor explanation
+        method is evaluated in this experiment.</p>
+    
+           
+        <h2>Instructions</h2>
+        <p>Proceed in the same way as you did before:</p>
+        <p>For each of these examples, ask yourself the question, <i>"Why did the detector decide this way?"</i>.</p>
+        <p> Try to identify at least one property for each document you can point to when asked this question by someone
+          else.</p>
+  
+        <p>In the next phase, you will revisit the documents you labeled in Phase 2. Base your
+          decisions on the behavior you see here.</p>
       <p class="go-fullscreen-hint"><b>Info:</b> Your screen is small. Consider enabeling fullscreen mode with the
         button on the upper right.</p>
 
@@ -544,10 +576,10 @@
     <p>The word <span class="term">This</span> appears to be more important for the detector's decision than the word
       <span class="term">example</span> is.
     </p>
-    <p>The word <span class="term">This</span> increases the detector's confidence. All other words decrease it.</p>
+    <p>The word <span class="term">an</span> decreases the detector's confidence. All other words increase it.</p>
   </figure>
-  <p>The upper part of the plot provides the same information: the words in blue lower the confidence that this is an
-    <i>example</i>, the word in pink increases it.
+  <p>The upper part of the plot provides the same information: the word in blue lowers the confidence that this is an
+    <i>example</i>, the words in pink increase it.
   </p>
 </template>
 <template id="template-phase3-instructions-anchors">

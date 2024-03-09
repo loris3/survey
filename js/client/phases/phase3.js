@@ -1,7 +1,7 @@
 import { loadAnchorsExample1, loadAnchorsExample2 } from "../../../anchors-example";
 import { loadShapExample1 } from "../../../shap_example";
 import { loadLIMEExample1 } from "../../../lime-example";
-import { setInnerHTML, showCommunicationError, showLoadingError } from "../util";
+import { setInnerHTML, showCommunicationError, showIncompleteFormError, showLoadingError } from "../util";
 import { getHeaders, getState, submitLickert } from "../api";
 
 import { showConfirmDialog } from "./util";
@@ -159,6 +159,8 @@ export async function loadPhase3(loadPhase, updateProgressBar, state = null) {
         }, true)
         if (all_valid) {
             showConfirmDialog(4, loadPhase)
+        }else{
+            showIncompleteFormError();
         }
 
     });
