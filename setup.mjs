@@ -7,7 +7,7 @@ import dotenv from 'dotenv'
 import seedrandom from 'seedrandom';
 import crypto from 'crypto'
 const db_path = "./db.db"
-const n_tokens = 27;
+const n_tokens = 90;
 
 if (!fs.existsSync('.env')) {
   fs.writeFileSync('.env', `TOKEN_SECRET=${crypto.randomBytes(64).toString('hex')}`);
@@ -224,7 +224,7 @@ for (let i = 1; i <= n_tokens; i++) {
 
 
 // create groups
-let explainers = ["SHAP_Explainer", "LIME_Explainer", "Anchor_Explainer"]
+let explainers = [ "Anchor_Explainer", "SHAP_Explainer", "LIME_Explainer"]
 let detectors = ["DetectorRadford", "DetectorDetectGPT","DetectorGuo"]
 explainers.forEach((explainer) => {
   detectors.forEach((detector) => {

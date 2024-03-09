@@ -7,10 +7,6 @@ export async function loadPhase1(loadPhase, updateProgressBar) {
     const node_instructions = template_instructions.content.cloneNode(true);
     document.querySelector("#card-container").appendChild(node_instructions);
 
-    const template_groups = document.querySelector("#template-groups-document-only-cards");
-    const node_groups = template_groups.content.cloneNode(true);
-    document.querySelector("#card-container").appendChild(node_groups);
-
 
     const state = await getState();
     for (let i = 0; i < state.document_order_a.length; i++) { // sync to retain order
@@ -28,21 +24,9 @@ export async function loadPhase1(loadPhase, updateProgressBar) {
             const template = document.querySelector("#template-document-only-card");
             let node = template.content.cloneNode(true);
 
-            // HOTFIX: create sections "Prediction Human" and "Prediction Machine"
-            if(doc.detector_p_machine <= doc.detector_p_human){
-                
-                document.querySelector("#card-container .group-human").appendChild(node);
-                node = document.querySelector("#card-container > .group-human").lastElementChild;
-                node.classList.add("human")
-
-            }else{
-                
-                document.querySelector("#card-container .group-machine").appendChild(node);
-                node = document.querySelector("#card-container > .group-machine").lastElementChild;
-                node.classList.add("machine")
-            }
-            
-
+            document.querySelector("#card-container").appendChild(node);
+            node = document.querySelector("#card-container").lastElementChild;
+      
 
             // node.querySelectorAll(".ground_truth").forEach((element) => {
             //     element.innerHTML = doc.ground_truth == 1 ? "human written" : "machine generated";
@@ -70,10 +54,8 @@ export async function loadPhase1(loadPhase, updateProgressBar) {
         } else {
             throw new Error("Error fetching document in phase 1")
         }
-
     }
-    document.querySelector(".group-human > h1").style.display = "initial"
-    document.querySelector(".group-machine > h1").style.display = "initial"
+
     const template = document.querySelector("#template-phase1-complete");
     const node = template.content.cloneNode(true);
     node.querySelector("#btn-continue-to-phase2").addEventListener("click", (event) => {

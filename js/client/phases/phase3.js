@@ -38,10 +38,6 @@ export async function loadPhase3(loadPhase, updateProgressBar, state = null) {
         loadShapExample1();
     }
 
-    const template_groups = document.querySelector("#template-groups-document-only-cards");
-    const node_groups = template_groups.content.cloneNode(true);
-    document.querySelector("#card-container").appendChild(node_groups);
-
 
     let template_html = null;
     try {
@@ -96,20 +92,11 @@ export async function loadPhase3(loadPhase, updateProgressBar, state = null) {
             if (response_explanation.status == 200) {
                 const explanation_html = await response_explanation.text();
                 // need to add this to document first as LIME has a loop to determine barchart width!!
-                // HOTFIX: create sections "Prediction Human" and "Prediction Machine"
-                if (doc.detector_p_machine <= doc.detector_p_human) {
+             
+                document.querySelector("#card-container").appendChild(card);
+                    
 
-                    document.querySelector("#card-container .group-human").appendChild(card);
-                    card.classList.add("human")
-
-                } else {
-
-                    document.querySelector("#card-container .group-machine").appendChild(card);
-                    card.classList.add("machine")
-                }
-                document.querySelector(".group-human > h1").style.display = "initial"
-                document.querySelector(".group-machine > h1").style.display = "initial"
-
+            
 
                 setInnerHTML(card.querySelector(".explanation-html"), explanation_html);
 

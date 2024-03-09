@@ -61,12 +61,18 @@ export async function completeCurrentPhase(req, res) {
       if (row.current_phase == -1) { // assign group
         let query;
         if (row.prefers_monochromatic_methods == "yes") {
-          // select where explainer = Anchors, with the least participants
-          query = `WITH choice as (SELECT count(users.current_phase > 4) as numcompleted, count(users.detector) as count_ , groups.detector, groups.explainer FROM groups LEFT JOIN users ON groups.explainer = users.explainer AND groups.detector = users.detector   WHERE groups.explainer = "Anchor_Explainer" GROUP BY groups.explainer, groups.detector ORDER BY count_, numcompleted, groups.explainer DESC limit 1)
+          // select where explainer = Anchors, with the least participants assigned/completed
+          // explainer = anchors, detectors order by num_assigned, num_completed
+          query = `WITH choice as (WITH completed as (SELECT count(users.detector) as num_completed , groups.detector, groups.explainer FROM groups LEFT JOIN users ON groups.explainer = users.explainer AND groups.detector = users.detector  WHERE users.current_phase = 5 AND groups.explainer = "Anchor_Explainer" GROUP BY groups.explainer, groups.detector),
+          assigned as (SELECT count(users.detector) as num_assigned , groups.detector, groups.explainer FROM groups LEFT JOIN users ON groups.explainer = users.explainer AND groups.detector = users.detector  WHERE groups.explainer = "Anchor_Explainer" GROUP BY groups.explainer, groups.detector)
+          SELECT * from assigned LEFT JOIN completed ON completed.detector = assigned.detector AND completed.explainer = assigned.explainer ORDER BY num_assigned ASC, num_completed ASC,  explainer DESC, RANDOM() ASC)
           UPDATE users SET detector = (SELECT detector from choice), explainer = (SELECT explainer from choice) WHERE access_token = ?`
         } else {
-          // select the one with the least participants
-          query = `WITH choice as (SELECT count(users.current_phase > 4) as numcompleted, count(users.detector) as count_ , groups.detector, groups.explainer FROM groups LEFT JOIN users ON groups.explainer = users.explainer AND groups.detector = users.detector  GROUP BY groups.explainer, groups.detector ORDER BY count_, numcompleted, groups.explainer DESC limit 1)
+          // select the one with the least participants assigned/completed
+          // order by num_assigned, num_completed, (lime, shap, anchors), random detector
+          query = `WITH choice as (WITH completed as (SELECT count(users.detector) as num_completed , groups.detector, groups.explainer FROM groups LEFT JOIN users ON groups.explainer = users.explainer AND groups.detector = users.detector  WHERE users.current_phase = 5 GROUP BY groups.explainer, groups.detector),
+          assigned as (SELECT count(users.detector) as num_assigned , groups.detector, groups.explainer FROM groups LEFT JOIN users ON groups.explainer = users.explainer AND groups.detector = users.detector  GROUP BY groups.explainer, groups.detector)
+          SELECT * from assigned LEFT JOIN completed ON completed.detector = assigned.detector AND completed.explainer = assigned.explainer ORDER BY num_assigned ASC, num_completed ASC,  explainer DESC, RANDOM() ASC)
           UPDATE users SET detector = (SELECT detector from choice), explainer = (SELECT explainer from choice) WHERE access_token = ?`
         }
         db.run(query, [req.access_token], (err, row) => {

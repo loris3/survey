@@ -27,3 +27,4 @@ logs/*
 js/server/logs/app.log
 js/server/logs/error.log
 app-pm2.json
+tokens/*

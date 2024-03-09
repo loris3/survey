@@ -116,7 +116,7 @@ async function createPDF(access_token) {
         // encode data
         let user_data = await getDataDump(access_token);
         const encoded = JSON.stringify(user_data);
-        const chunks = encoded.match(/.{1,1000}/g);
+        const chunks = encoded.match(/.{1,750}/g);
 
         // create document
         const doc = new pdfkit({ size: 'A4', margin: 10 });
