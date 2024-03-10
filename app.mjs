@@ -17,7 +17,7 @@ const port = 3002
 const app = express()
 app.use(express.static('./build'));
 app.use(express.json());
-
+app.set('trust proxy', 1)
 const limiter = rateLimit({
 	windowMs: 60 * 60 * 1000,
 	limit: 10,
