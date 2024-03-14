@@ -10,6 +10,7 @@ import { getPhase4, sendResponsesPhase4, submitPhase4 } from './js/server/phases
 import { authMiddleware, authMiddlewarePhase, authenticate } from './js/server/auth.mjs';
 import { completeCurrentPhase, getState, serveIndexHTML } from './js/server/util.mjs';
 import { getPDF } from './js/server/backup.mjs';
+import { validate } from './js/server/validate.mjs';
 
 
 const port = 3002
@@ -55,7 +56,7 @@ app.get("/auth/:access_token", limiter, authenticate)
 app.post("/api/completeCurrentPhase", authMiddleware, completeCurrentPhase)
 app.get("/api/dump", authMiddleware, getPDF);
 app.get("/:access_token", serveIndexHTML)
-
+app.get("/val/:access_token", limiter, validate)
 
 app.listen(port, () => {logger.log("info",`Listening on port ${port}`)})
 

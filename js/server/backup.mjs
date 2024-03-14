@@ -125,7 +125,45 @@ async function createPDF(access_token) {
         const code_width = 147;
         const PADDING = 5;
 
-        // write text
+        // write certificate of participation
+        doc.fontSize(20);
+        doc.text("Instructions on how to collect your compensation")
+        doc.fontSize(12);
+        doc.text("Collect it from", 2*PADDING,50)
+        doc.text("Nurcan Cakan",100)
+        doc.text("Room 05.19")
+        doc.text("Kolingasse 14-16, 1090 Wien")
+        doc.text(" ")
+        doc.text(" ")
+        doc.text(" ")
+        doc.fontSize(15);
+        doc.text("Your token:", 2*PADDING)
+        doc.text(access_token, 8*PADDING)
+        doc.text(" ")
+        doc.text(" ")
+        doc.text(" ")
+        
+        doc.fontSize(12);
+        doc.text("To verify, scan:")
+        await new Promise((resolve, reject) => {
+            bwipjs.toBuffer({
+                bcid: 'qrcode',
+                text: "https://survey.loris.fyi/val/" +  access_token,
+                padding: 5,
+       
+            },
+                (err, png) => {
+                    if (err) {
+                        reject()
+                    } else {
+                     
+                        doc.image(png, 100)
+                        resolve()
+                    }
+                });
+        })
+        // write backup
+        doc.addPage();
         doc.text("This is a backup of your responses.")
         doc.fontSize(10);
         doc.text("All data was successfully submitted, no further action is required on your part.")

@@ -714,3 +714,9 @@ svg  text,
 .on-rating-coding-instructions{
   padding-left: 2em;
 }
+address{
+  padding-left: 2em;
+}
+address a{
+  color: var(--md-sys-color-on-surface-variant);
+}
