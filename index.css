@@ -717,6 +717,6 @@ svg  text,
 address{
   padding-left: 2em;
 }
-address a{
+#phase5-card a{
   color: var(--md-sys-color-on-surface-variant);
 }
