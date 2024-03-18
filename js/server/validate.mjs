@@ -23,8 +23,6 @@ export function validate(req, res){
       
     } else{
       logger.log("info", `Val: not elegible: ${req.params.access_token} @ ${getIP(req)}`)
-      res.status(403)
-      
       res.send(`<p style=" font-family: sans-serif; font-size: 4em; color: red">NOT ELIGIBLE</p>`)
       
       
@@ -49,9 +47,7 @@ export function validateJSON(req, res){
       
       
     } else{
-      logger.log("info", `Val: not elegible: ${req.params.access_token} @ ${getIP(req)}`)
-      res.status(403)
-      
+      logger.log("info", `Val: not elegible: ${req.params.access_token} @ ${getIP(req)}`)      
        res.send({"access_token" : req.params.access_token, "result": "not elegible"})
      
       
