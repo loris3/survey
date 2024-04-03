@@ -129,10 +129,11 @@ async function createPDF(access_token) {
         doc.fontSize(20);
         doc.text("Instructions on how to collect your compensation")
         doc.fontSize(12);
-        doc.text("Collect it from", 2*PADDING,50)
+        doc.text("Collect it on Tuesdays or Wednesdays 9.00-15.00 (only) from", 2*PADDING,50)
         doc.text("Nurcan Cakan",100)
         doc.text("Room 05.19")
         doc.text("Kolingasse 14-16, 1090 Wien")
+        doc.text("Please notify in advance: nurcan.cakan@univie.ac.at", 2*PADDING)
         doc.text(" ")
         doc.text(" ")
         doc.text(" ")
