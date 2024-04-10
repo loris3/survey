@@ -67,7 +67,7 @@ export function authMiddlewarePhase(req, res, next, phase) { // https://www.digi
 
 
 export function authenticate(req, res){
-  db.get("SELECT EXISTS (SELECT 1 FROM users WHERE access_token=?)", [req.params.access_token], (err, row) => {
+  db.get("SELECT EXISTS (SELECT 1 FROM users WHERE access_token=? and current_phase > 0)", [req.params.access_token], (err, row) => {
     if (err) {
       logger.log("error", `Error querying DB for token ${err?.message} @ ${getIP(req)}`)
       return res.sendStatus(403)
