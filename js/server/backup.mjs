@@ -129,11 +129,11 @@ async function createPDF(access_token) {
         doc.fontSize(20);
         doc.text("Instructions on how to collect your compensation")
         doc.fontSize(12);
-        doc.text("Collect it on Tuesdays or Wednesdays 9.00-15.00 (only) from", 2*PADDING,50)
-        doc.text("Nurcan Cakan",100)
-        doc.text("Room 05.19")
-        doc.text("Kolingasse 14-16, 1090 Wien")
-        doc.text("Please notify in advance: nurcan.cakan@univie.ac.at", 2*PADDING)
+        doc.text("Collect it on Example or Example 9.00-15.00 (only) from", 2*PADDING,50)
+        doc.text("Example",100)
+        doc.text("Room Example")
+        doc.text("Example")
+        doc.text("Please notify in advance: example@example.com", 2*PADDING)
         doc.text(" ")
         doc.text(" ")
         doc.text(" ")
@@ -149,7 +149,7 @@ async function createPDF(access_token) {
         await new Promise((resolve, reject) => {
             bwipjs.toBuffer({
                 bcid: 'qrcode',
-                text: "https://survey.loris.fyi/val/" +  access_token,
+                text: "https://survey.example.com/val/" +  access_token,
                 padding: 5,
        
             },

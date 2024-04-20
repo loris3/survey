@@ -12,7 +12,7 @@ async function writeQr(x,y,access_token, doc){
     return new Promise((resolve, reject) => {
         bwipjs.toBuffer({
             bcid: 'qrcode',
-            text: "https://survey.loris.fyi/"+access_token,
+            text: "https://survey.example.com/"+access_token,
             padding: 8,
    
         },
@@ -51,7 +51,7 @@ async function createPDF(rows) {
             doc.font("./fonts/Roboto/Roboto-Regular.ttf")
             doc.fontSize(12);
             doc.rect(x, y, cell_width, cell_height).stroke();
-            doc.fillColor('lightgray').text("https://", x+5 , y+5,{continued: true}).fillColor('black').text("survey.loris.fyi")
+            doc.fillColor('lightgray').text("https://", x+5 , y+5,{continued: true}).fillColor('black').text("survey.example.com")
 
             doc.fontSize(20);
             
